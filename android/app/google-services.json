@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "557404905023",
+    "firebase_url": "https://casinokenan-6e1a7.firebaseio.com",
+    "project_id": "casinokenan-6e1a7",
+    "storage_bucket": "casinokenan-6e1a7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:557404905023:android:66e4163c78ed4e4ca2e28a",
+        "android_client_info": {
+          "package_name": "com.casinokenan.casinokenan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "557404905023-brre469g5nkt5eqg9vs96hefcqr04s53.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAahwh0H0A1QRN00pbxfH8QrMuOAAG-cQ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "557404905023-brre469g5nkt5eqg9vs96hefcqr04s53.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
