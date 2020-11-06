@@ -3,6 +3,7 @@ import 'package:casinokenan/pages/contentPage.dart';
 import 'package:casinokenan/pages/mainPage.dart';
 import 'package:casinokenan/pages/tacticsPage.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
@@ -62,12 +63,30 @@ class _HomePageState extends State<HomePage> {
                 index: 0,
                 height: 50.0,
                 items: <Widget>[
-                  Icon(LineAwesomeIcons.home,
-                      color: Theme.of(context).primaryColor, size: 30),
-                  Icon(LineAwesomeIcons.code,
-                      color: Theme.of(context).primaryColor, size: 30),
-                  Icon(LineAwesomeIcons.user,
-                      color: Theme.of(context).primaryColor, size: 30),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(LineAwesomeIcons.home,
+                          color: Theme.of(context).primaryColor, size: 30),
+                      Text("İletişim",style: TextStyle(color: Colors.purpleAccent,fontSize: 12),)
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(LineAwesomeIcons.code,
+                          color: Theme.of(context).primaryColor, size: 30),
+                      Text("Taktikler",style: TextStyle(color: Colors.purpleAccent,fontSize: 12),)
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(LineAwesomeIcons.user,
+                          color: Theme.of(context).primaryColor, size: 30),
+                      Text("İçerikler",style: TextStyle(color: Colors.purpleAccent,fontSize: 12),)
+                    ],
+                  ),
                 ],
                 buttonBackgroundColor: Theme.of(context).accentColor,
                 color: Theme.of(context).accentColor,

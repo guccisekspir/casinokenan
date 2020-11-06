@@ -11,6 +11,19 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(color: Colors.tealAccent,);
+    return Scaffold(
+      body: Container(
+        color: Colors.black,
+        child: Column(
+          children: [
+            Row(
+              children: [
+
+              ],
+            )
+          ],
+        )
+      ),
+    );
   }
 }

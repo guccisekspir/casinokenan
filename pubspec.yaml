@@ -35,6 +35,7 @@ dependencies:
   flutter_bloc: ^6.0.6
   curved_navigation_bar: ^0.3.4
   line_awesome_flutter: ^1.0.1
+  flutter_glow: ^0.1.2
 
 dev_dependencies:
   flutter_test:
