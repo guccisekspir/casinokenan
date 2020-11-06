@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
 
             case NavBarItem.SHOP:
             case NavBarItem.TROPHY:
-            case NavBarItem.TICK:
+
           }
         },
       ),
