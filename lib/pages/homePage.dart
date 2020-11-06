@@ -13,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   BottomNavBarBloc _bottomNavBarBloc;
 
   @override
@@ -22,12 +21,14 @@ class _HomePageState extends State<HomePage> {
     _bottomNavBarBloc = BottomNavBarBloc();
     super.initState();
   }
+
   @override
   void dispose() {
     // TODO: implement dispose
     _bottomNavBarBloc.close();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     GlobalKey _curvedKey = GlobalKey();
@@ -38,7 +39,7 @@ class _HomePageState extends State<HomePage> {
         stream: _bottomNavBarBloc.itemStream,
         initialData: _bottomNavBarBloc.defaultItem,
         builder:
-        // ignore: missing_return
+            // ignore: missing_return
             (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
           switch (snapshot.data) {
             case NavBarItem.MAIN:
@@ -47,14 +48,13 @@ class _HomePageState extends State<HomePage> {
               return TacticsPage();
             case NavBarItem.CONTENT:
               return ContentPage();
-
           }
         },
       ),
       bottomNavigationBar: SafeArea(
         //BottomNavBar'ı telefon ui'ı engellememesi için
         child: StreamBuilder(
-          //blocdaki streami dinlemek
+            //blocdaki streami dinlemek
             stream: _bottomNavBarBloc.itemStream,
             initialData: _bottomNavBarBloc.defaultItem,
             builder: (context, snapshot) {
@@ -68,7 +68,11 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Icon(LineAwesomeIcons.home,
                           color: Theme.of(context).primaryColor, size: 30),
-                      Text("İletişim",style: TextStyle(color: Colors.purpleAccent,fontSize: 12),)
+                      Text(
+                        "İletişim",
+                        style:
+                            TextStyle(color: Colors.purpleAccent, fontSize: 12),
+                      )
                     ],
                   ),
                   Column(
@@ -76,7 +80,11 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Icon(LineAwesomeIcons.code,
                           color: Theme.of(context).primaryColor, size: 30),
-                      Text("Taktikler",style: TextStyle(color: Colors.purpleAccent,fontSize: 12),)
+                      Text(
+                        "Taktikler",
+                        style:
+                            TextStyle(color: Colors.purpleAccent, fontSize: 12),
+                      )
                     ],
                   ),
                   Column(
@@ -84,7 +92,11 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Icon(LineAwesomeIcons.user,
                           color: Theme.of(context).primaryColor, size: 30),
-                      Text("İçerikler",style: TextStyle(color: Colors.purpleAccent,fontSize: 12),)
+                      Text(
+                        "İçerikler",
+                        style:
+                            TextStyle(color: Colors.purpleAccent, fontSize: 12),
+                      )
                     ],
                   ),
                 ],

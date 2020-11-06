@@ -1,10 +1,10 @@
 import 'dart:async';
 
-enum NavBarItem { MAIN, TACTICS, CONTENT}
+enum NavBarItem { MAIN, TACTICS, CONTENT }
 
 class BottomNavBarBloc {
   final StreamController<NavBarItem> _navBarController =
-  StreamController<NavBarItem>.broadcast();
+      StreamController<NavBarItem>.broadcast();
 
   NavBarItem defaultItem = NavBarItem.MAIN;
 
