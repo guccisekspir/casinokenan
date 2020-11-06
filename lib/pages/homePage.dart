@@ -1,4 +1,7 @@
 import 'package:casinokenan/blocs/navBarBloc.dart';
+import 'package:casinokenan/pages/contentPage.dart';
+import 'package:casinokenan/pages/mainPage.dart';
+import 'package:casinokenan/pages/tacticsPage.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -37,10 +40,12 @@ class _HomePageState extends State<HomePage> {
         // ignore: missing_return
             (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
           switch (snapshot.data) {
-            case NavBarItem.PROFILE:
-
-            case NavBarItem.SHOP:
-            case NavBarItem.TROPHY:
+            case NavBarItem.MAIN:
+              return MainPage();
+            case NavBarItem.TACTICS:
+              return TacticsPage();
+            case NavBarItem.CONTENT:
+              return ContentPage();
 
           }
         },
@@ -60,8 +65,6 @@ class _HomePageState extends State<HomePage> {
                   Icon(LineAwesomeIcons.home,
                       color: Theme.of(context).primaryColor, size: 30),
                   Icon(LineAwesomeIcons.code,
-                      color: Theme.of(context).primaryColor, size: 30),
-                  Icon(LineAwesomeIcons.user,
                       color: Theme.of(context).primaryColor, size: 30),
                   Icon(LineAwesomeIcons.user,
                       color: Theme.of(context).primaryColor, size: 30),
