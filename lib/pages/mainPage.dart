@@ -28,7 +28,12 @@ class _MainPageState extends State<MainPage> {
               Padding(
                 padding: const EdgeInsets.all(30.0),
                 child:ClickyButton(
-                  child: Text("Twitch"),
+                  child: Row(
+                    children: [
+                      Image.asset("assets/twitch.png"),
+                      Text("Twitch"),
+                    ],
+                  ),
                   onPressed: (){
 
                   },
@@ -39,7 +44,12 @@ class _MainPageState extends State<MainPage> {
               Padding(
                 padding: const EdgeInsets.all(30.0),
                 child:ClickyButton(
-                  child: Text("Youtube"),
+                  child: Row(
+                    children: [
+                      Image.asset("assets/youtube.png"),
+                      Text("Youtube"),
+                    ],
+                  ),
                   onPressed: (){
 
                   },
@@ -50,7 +60,12 @@ class _MainPageState extends State<MainPage> {
               Padding(
                 padding: const EdgeInsets.all(30.0),
                 child:ClickyButton(
-                  child: Text("Discord"),
+                  child: Row(
+                    children: [
+                      Image.asset("assets/discord.png"),
+                      Text("Discord"),
+                    ],
+                  ),
                   onPressed: (){
 
                   },
@@ -61,7 +76,12 @@ class _MainPageState extends State<MainPage> {
               Padding(
                 padding: const EdgeInsets.all(30.0),
                 child:ClickyButton(
-                  child: Text("Twitter"),
+                  child: Row(
+                    children: [
+                      Image.asset("assets/twitter.png"),
+                      Text("Twitter"),
+                    ],
+                  ),
                   onPressed: (){
 
                   },
