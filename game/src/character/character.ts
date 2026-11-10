@@ -317,6 +317,13 @@ export class Character {
     const hp = hb.getWorldPosition(new THREE.Vector3());
     const center = new THREE.Vector3(hp.x, height - 0.85 * H, hp.z + 0.13 * H);
     const radii = new THREE.Vector3(0.67 * H, 1.1 * H, 0.67 * H);
+    const vol = this.def.model?.head;
+    if (vol && !this.usingPlaceholder) {
+      const u = height / 2.25;
+      center.set(hp.x + vol.center[0] * u, hp.y + vol.center[1] * u, hp.z + vol.center[2] * u);
+      radii.set(vol.radii[0] * u, vol.radii[1] * u, vol.radii[2] * u);
+    }
+    const masked = !!this.def.model?.mask && !this.usingPlaceholder;
 
     let layout: FaceLayout;
     const custom = this.def.model?.face;
@@ -346,6 +353,7 @@ export class Character {
         .multiply(mesh.skeleton.boneInverses[headIndex])
         .multiply(mesh.bindMatrix);
       this.face = new FaceRig(layout, faceMat, headIndex);
+      if (masked) continue; // maske esnemez: yüz yalnızca konuşma vurgusu (kafa hareketi) için var
       for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) installFace(m, this.face.uniforms);
       mesh.customDepthMaterial = faceDepthMaterial(this.face.uniforms);
     }

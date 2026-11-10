@@ -1,0 +1,145 @@
+{
+  "intro": [
+    "Asansöre hoş geldin. İlk kat ikramım: iki x. Aşağısı daha sıcak.",
+    "Kapılar kapanıyor. Bu katta sana düşen: iki x.",
+    "Yine mi sen? Bin bakalım. Giriş katı, iki x.",
+    "Hııh. Yeni yolcu. Al iki x, bahşiş niyetine."
+  ],
+  "idle_1": [
+    "Kaçıncı kat? Fark etmez, hepsi eksi.",
+    "Bu asansör yalnızca aşağı iner. Bakiyen gibi.",
+    "Bonus katına az kaldı. Hep az kalır.",
+    "Düğmeye bas, bekle. Basıyorsun, bekliyorsun. Güzel iş.",
+    "Dün biri en alt kata indi, on beş bin x aldı. Sen değildin.",
+    "Maskem neden var? Kaybedenlerin kokusundan.",
+    "Halat sağlam. Şansın değil."
+  ],
+  "idle_2": [
+    "Asansörde kavga yasak! Tabelayı okumadın mı?",
+    "Ben yalnızca düğmeye basarım! Katları ben yazmadım!",
+    "Vurarak yukarı çıkılmaz!",
+    "Seni kat görevlisine şikâyet edeceğim.",
+    "Sakin ol, yoksa iki kat arasında bırakırım.",
+    "Önlüğüm zaten kirliydi, daha da kirlettin!"
+  ],
+  "idle_3": [
+    "Dur! En alt kata iniyoruz, söz!",
+    "Ben de mahkûmum burada... yalnızca kapıyı açıyorum.",
+    "Yukarı çıkmak isterdim. Bir kere olsun.",
+    "Patron duyarsa beni kazana atar.",
+    "Tamam, tamam! Hangi katı istersen!",
+    "Boynuzlarım kiralık, vurma, depozitosu yanar."
+  ],
+  "hit_head": [
+    "Maskem! Filtresi pahalı!",
+    "Boynuzuma değil!",
+    "Hııh! Camım çatladı!",
+    "Kafama vurma, kat numaraları orada!"
+  ],
+  "hit_body": [
+    "Önlük kalın. Daha sert vur.",
+    "Gıdıkladın.",
+    "Kazan dairesinde daha sertini yedim.",
+    "O yumrukla asansör kapısı bile açılmaz."
+  ],
+  "hit_arm": [
+    "O kol düğmeye basıyor!",
+    "Bilekliğim! Çivileri tek tek çaktım!",
+    "Kolumu bırak, halatı o çekiyor!",
+    "Yavaş! Vardiyam bitmedi."
+  ],
+  "hit_leg": [
+    "Botlarım çelik burunlu. Senin elin değil.",
+    "Dizim! Bütün gün ayaktayım zaten!",
+    "Bacağıma vurma, asansör sallanır!",
+    "Topallarsam kim kat arası koşacak?"
+  ],
+  "miss": [
+    "Iskaladın. Boş kat.",
+    "Kapı kapandı, sen dışarıda kaldın.",
+    "Havaya vurdun. Hava ödemez.",
+    "Yaklaştın. Bonus da hep yaklaşır."
+  ],
+  "weapon_knuckles": [
+    "Muşta mı? Bende bilekliğin âlâsı var.",
+    "Demir taktın diye kat atlamazsın.",
+    "Onu hangi kattan aldın?"
+  ],
+  "weapon_katana": [
+    "O kılıçla halatı kesme! İkimiz de düşeriz!",
+    "Kasap benim, bıçak sende. Ters bir iş var.",
+    "Bırak onu. Önlüğüm yeterince lekeli."
+  ],
+  "weapon_gun": [
+    "Asansörde ateş edilmez! Seker!",
+    "İndir onu! Ölü asansörcü düğmeye basamaz!",
+    "Tabanca mı? Burası cehennem, kovboy filmi değil."
+  ],
+  "weapon_saber": [
+    "O ışık ne? Burada tek ışık kazanın ateşi!",
+    "Onu söndür, patron görürse el koyar.",
+    "Tamam, sakin. O şey önlüğü de keser mi?"
+  ],
+  "sever_arm": [
+    "Kolum! Düğmeye neyle basacağım?",
+    "O kol demirbaştı! Zimmetliydi!",
+    "Tek kolla da halat çekilir... sanırım.",
+    "Bunu iş kazası diye yazacağım!"
+  ],
+  "sever_leg": [
+    "Bacağım! Botu yeniydi!",
+    "Asansörcü ayakta durur! Durur muydu...",
+    "Bu kat planında yoktu!",
+    "Topal şeytan mı olacağım şimdi?"
+  ],
+  "offer_small": [
+    "Bir kat indik. Al biraz x, sus.",
+    "Bak yükseldi. Asansör iniyor, çarpan çıkıyor.",
+    "Bu kadarı sana çok bile.",
+    "Çarpan arttı. Kapıya yaslanma."
+  ],
+  "offer_mid": [
+    "Tamam, birkaç kat daha. Ama bu son.",
+    "Bu katı kimseye açmadım. Sana açıyorum.",
+    "Kazan dairesini mi soyacaksın?",
+    "Güzel para bu. Al, in."
+  ],
+  "offer_big": [
+    "Al! Bütün katlar senin! Yeter ki dur!",
+    "Bu kadar derine ben bile inmedim!",
+    "Patron beni kazana atacak...",
+    "Daha ne istiyorsun? En alt kat mı? Sorma dedim!"
+  ],
+  "recover": [
+    "Durdun. Asansör yukarı çıkıyor, çarpan düşüyor.",
+    "Bıraktın ya, katlar geri gidiyor.",
+    "Geçti bile. Burada herkes çabuk iyileşir, maalesef.",
+    "Durursan çıkar. Asansör böyle çalışır."
+  ],
+  "near_death": [
+    "Dur! Ölürsem kapı açılmaz!",
+    "Ölü asansörcü kat seçemez!",
+    "Yavaş! Anahtar bende, ölürsem kilitli kalırsın!",
+    "Bir vuruş daha ve ikimiz de arada kalırız."
+  ],
+  "aloof_hit": [
+    "Arkamdan mı? Asansörde arkaya dönülmez!",
+    "Seni görmezden geliyordum. Artık gelmiyorum.",
+    "Hop! Kat göstergesine bakıyordum!"
+  ],
+  "cashout": [
+    "İndin mi? Korkak. En alt kat bir düğme ötendeydi.",
+    "Akıllısın. Yine de asansör benim.",
+    "Güle güle. Yarın yine bineceksin."
+  ],
+  "maxwin": [
+    "Tamam! En alt kat! Al sana max win!",
+    "Pes! Bütün bina senin!",
+    "Al, in, bir daha binme!"
+  ],
+  "death": [
+    "Asansör... hep... iner...",
+    "Ölü... asansörcü... ödemez...",
+    "Kapılar... kapanıyor..."
+  ]
+}

@@ -37,13 +37,15 @@ Her maskot için geçici (kodla üretilen) bir karakter var. Gerçek modeli ekle
 1. Tripo'da karakteri üret, **rigle** (iskeletli olmalı) ve **GLB** olarak indir.
    Varsa bir "idle" animasyonu ile dışa aktar; yoksa oyun kendi nefes alma hareketini kullanır.
 2. Dosyayı `public/models/<karakter-id>.glb` olarak koy
-   (`simsek-dede.glb`, `seker-prenses.glb`, `firavun-bey.glb`). Başka bir şey gerekmez;
+   (ör. `simsek-dede.glb`, `asansorcu.glb`). Başka bir şey gerekmez;
    dosya varsa otomatik yüklenir, üst bardaki "geçici model" yazısı kaybolur.
 3. Gerekirse `src/characters.ts` içindeki `model` alanıyla ayarla:
    - `height`, `rotationY`: boy ve yön (yön verilmezse iskeletten otomatik bulunur)
    - `idleClip` / `useClips: false`: hangi animasyon
    - `face`: yüz ölçüleri (göz, kaş, ağız konumu). Verilmezse tahmin edilir; ifade yanlış yere
      oturuyorsa buradan ayarlanır
+   - `mask`: yüz maske / kask ise mimik uygulanmaz; `head`: boynuz, şapka gibi çıkıntıları da
+     kapsayan katı kafa hacmi
    - `boneMap`: otomatik kemik eşleme tutmazsa parça → kemik adı. Tutmayan parçalar ve
      modeldeki tüm kemik adları tarayıcı konsoluna yazılır.
 

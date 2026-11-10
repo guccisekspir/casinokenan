@@ -1,6 +1,6 @@
 # Ses dosyaları
 
-Toplam **243** replik, kaydı olan: **0**.
+Toplam **190** replik, kaydı olan: **0**.
 
 Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değiştirmek için
 `src/lines/<karakter>.json` dosyalarını düzenleyip komutu yeniden çalıştırın.
@@ -10,9 +10,9 @@ Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değ
 - Dosyası olmayan replik oyunda tarayıcının sesli okumasıyla söylenir; yani kayıtlar parça parça eklenebilir.
 - Her olayın alternatifleri vardır; oyun hepsini söylemeden hiçbirini tekrar etmez.
 
-## Firavun Bey — 74 replik
+## Asansörcü — 95 replik
 
-Klasör: `public/audio/firavun-bey/`
+Klasör: `public/audio/asansorcu/`
 
 ### intro
 
@@ -20,9 +20,10 @@ Sahne açılışı. Övünür ve ilk çarpanı (2x) gösterir.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `intro_1.mp3` | Mezarıma hoş geldin fani. Kitap açıldı ve sana iki x yazdı. | — |
-| `intro_2.mp3` | Üç bin yıl bekledim, sana vereceğim şey belli: iki x. | — |
-| `intro_3.mp3` | Yine mi sen? Kader değişmez. İki x. | — |
+| `intro_1.mp3` | Asansöre hoş geldin. İlk kat ikramım: iki x. Aşağısı daha sıcak. | — |
+| `intro_2.mp3` | Kapılar kapanıyor. Bu katta sana düşen: iki x. | — |
+| `intro_3.mp3` | Yine mi sen? Bin bakalım. Giriş katı, iki x. | — |
+| `intro_4.mp3` | Hııh. Yeni yolcu. Al iki x, bahşiş niyetine. | — |
 
 ### idle_1
 
@@ -30,12 +31,13 @@ I. perde (Kibir): oyuncu beklerken kışkırtma.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `idle_1_1.mp3` | Kitap açıldı... en düşük sembol seçildi. Kader. | — |
-| `idle_1_2.mp3` | Üç bin yıldır bekliyorum. Sen de bir bonus bekle. | — |
-| `idle_1_3.mp3` | Risk al, ikiye katla! Ya da hepsini bana bırak. | — |
-| `idle_1_4.mp3` | Bu mezara giren bakiyesiz çıkar. | — |
-| `idle_1_5.mp3` | İki kitap geldi. Üçüncüsü piramitte kaldı. | — |
-| `idle_1_6.mp3` | Lanetli değilim. Yalnızca RTP düşük. | — |
+| `idle_1_1.mp3` | Kaçıncı kat? Fark etmez, hepsi eksi. | — |
+| `idle_1_2.mp3` | Bu asansör yalnızca aşağı iner. Bakiyen gibi. | — |
+| `idle_1_3.mp3` | Bonus katına az kaldı. Hep az kalır. | — |
+| `idle_1_4.mp3` | Düğmeye bas, bekle. Basıyorsun, bekliyorsun. Güzel iş. | — |
+| `idle_1_5.mp3` | Dün biri en alt kata indi, on beş bin x aldı. Sen değildin. | — |
+| `idle_1_6.mp3` | Maskem neden var? Kaybedenlerin kokusundan. | — |
+| `idle_1_7.mp3` | Halat sağlam. Şansın değil. | — |
 
 ### idle_2
 
@@ -43,11 +45,12 @@ II. perde (Öfke): azar, inkâr.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `idle_2_1.mp3` | Mezar soyguncuları bile daha kibardı. | — |
-| `idle_2_2.mp3` | Bin yıllık lanet isteyen böyle davranır. | — |
-| `idle_2_3.mp3` | Kitapta böyle bir özellik yok! | — |
-| `idle_2_4.mp3` | Kayıp senin kaderindi. Ben yalnızca yazdım. | — |
-| `idle_2_5.mp3` | Bana vurma, sağlayıcıya vur! | — |
+| `idle_2_1.mp3` | Asansörde kavga yasak! Tabelayı okumadın mı? | — |
+| `idle_2_2.mp3` | Ben yalnızca düğmeye basarım! Katları ben yazmadım! | — |
+| `idle_2_3.mp3` | Vurarak yukarı çıkılmaz! | — |
+| `idle_2_4.mp3` | Seni kat görevlisine şikâyet edeceğim. | — |
+| `idle_2_5.mp3` | Sakin ol, yoksa iki kat arasında bırakırım. | — |
+| `idle_2_6.mp3` | Önlüğüm zaten kirliydi, daha da kirlettin! | — |
 
 ### idle_3
 
@@ -55,11 +58,12 @@ III. perde (Yakarış): yalvarma, pazarlık.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `idle_3_1.mp3` | Dur! Genişleyen sembol veriyorum! | — |
-| `idle_3_2.mp3` | Üç bin yıl bekledim... bunun için mi? | — |
-| `idle_3_3.mp3` | Kum saati benim için de akıyormuş. | — |
-| `idle_3_4.mp3` | Hazinenin yerini söylerim, yeter ki vurma! | — |
-| `idle_3_5.mp3` | Firavunlar yalvarmaz... ama rica ediyorum. | — |
+| `idle_3_1.mp3` | Dur! En alt kata iniyoruz, söz! | — |
+| `idle_3_2.mp3` | Ben de mahkûmum burada... yalnızca kapıyı açıyorum. | — |
+| `idle_3_3.mp3` | Yukarı çıkmak isterdim. Bir kere olsun. | — |
+| `idle_3_4.mp3` | Patron duyarsa beni kazana atar. | — |
+| `idle_3_5.mp3` | Tamam, tamam! Hangi katı istersen! | — |
+| `idle_3_6.mp3` | Boynuzlarım kiralık, vurma, depozitosu yanar. | — |
 
 ### hit_head
 
@@ -67,9 +71,10 @@ Kafasına vuruldu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `hit_head_1.mp3` | Başlığım! Altın o! | — |
-| `hit_head_2.mp3` | Mumyaya el kalkmaz! | — |
-| `hit_head_3.mp3` | Sakalım takmaydı, düşürme! | — |
+| `hit_head_1.mp3` | Maskem! Filtresi pahalı! | — |
+| `hit_head_2.mp3` | Boynuzuma değil! | — |
+| `hit_head_3.mp3` | Hııh! Camım çatladı! | — |
+| `hit_head_4.mp3` | Kafama vurma, kat numaraları orada! | — |
 
 ### hit_body
 
@@ -77,9 +82,10 @@ Gövdesine vuruldu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `hit_body_1.mp3` | Sargılarım çözülüyor! | — |
-| `hit_body_2.mp3` | Uf! Üç bin yıllık belim! | — |
-| `hit_body_3.mp3` | Vurdukça kum çıkar, x çıkmaz. | — |
+| `hit_body_1.mp3` | Önlük kalın. Daha sert vur. | — |
+| `hit_body_2.mp3` | Gıdıkladın. | — |
+| `hit_body_3.mp3` | Kazan dairesinde daha sertini yedim. | — |
+| `hit_body_4.mp3` | O yumrukla asansör kapısı bile açılmaz. | — |
 
 ### hit_arm
 
@@ -87,9 +93,10 @@ Koluna / eline vuruldu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `hit_arm_1.mp3` | O kol müzelik! | — |
-| `hit_arm_2.mp3` | Bileğimdeki sargı bin yıllık, çözme! | — |
-| `hit_arm_3.mp3` | Elimdeki mühür düşecek! | — |
+| `hit_arm_1.mp3` | O kol düğmeye basıyor! | — |
+| `hit_arm_2.mp3` | Bilekliğim! Çivileri tek tek çaktım! | — |
+| `hit_arm_3.mp3` | Kolumu bırak, halatı o çekiyor! | — |
+| `hit_arm_4.mp3` | Yavaş! Vardiyam bitmedi. | — |
 
 ### hit_leg
 
@@ -97,9 +104,10 @@ Bacağına / ayağına vuruldu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `hit_leg_1.mp3` | Dizim zaten tozdu! | — |
-| `hit_leg_2.mp3` | Yavaş, kırılırım, antikayım! | — |
-| `hit_leg_3.mp3` | O bacak piramit merdiveni çıktı, saygı göster! | — |
+| `hit_leg_1.mp3` | Botlarım çelik burunlu. Senin elin değil. | — |
+| `hit_leg_2.mp3` | Dizim! Bütün gün ayaktayım zaten! | — |
+| `hit_leg_3.mp3` | Bacağıma vurma, asansör sallanır! | — |
+| `hit_leg_4.mp3` | Topallarsam kim kat arası koşacak? | — |
 
 ### miss
 
@@ -107,9 +115,10 @@ Oyuncu ıskaladı.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `miss_1.mp3` | Iskaladın. Kader böyle yazmış. | — |
-| `miss_2.mp3` | Kitap yine kapandı. | — |
-| `miss_3.mp3` | Boşa salladın fani. | — |
+| `miss_1.mp3` | Iskaladın. Boş kat. | — |
+| `miss_2.mp3` | Kapı kapandı, sen dışarıda kaldın. | — |
+| `miss_3.mp3` | Havaya vurdun. Hava ödemez. | — |
+| `miss_4.mp3` | Yaklaştın. Bonus da hep yaklaşır. | — |
 
 ### weapon_knuckles
 
@@ -117,8 +126,9 @@ Oyuncu muştayı eline aldı.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `weapon_knuckles_1.mp3` | Demir mi? Biz tunç çağını bile gördük. | — |
-| `weapon_knuckles_2.mp3` | Muştayla lanet kırılmaz. | — |
+| `weapon_knuckles_1.mp3` | Muşta mı? Bende bilekliğin âlâsı var. | — |
+| `weapon_knuckles_2.mp3` | Demir taktın diye kat atlamazsın. | — |
+| `weapon_knuckles_3.mp3` | Onu hangi kattan aldın? | — |
 
 ### weapon_katana
 
@@ -126,8 +136,9 @@ Oyuncu katanayı eline aldı.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `weapon_katana_1.mp3` | O kılıç bu toprakların değil. Uzak dur. | — |
-| `weapon_katana_2.mp3` | Kes, ama sargıdan kes, etten değil! | — |
+| `weapon_katana_1.mp3` | O kılıçla halatı kesme! İkimiz de düşeriz! | — |
+| `weapon_katana_2.mp3` | Kasap benim, bıçak sende. Ters bir iş var. | — |
+| `weapon_katana_3.mp3` | Bırak onu. Önlüğüm yeterince lekeli. | — |
 
 ### weapon_gun
 
@@ -135,8 +146,9 @@ Oyuncu tabancayı eline aldı.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `weapon_gun_1.mp3` | O ateş püsküren şey ne? Büyü mü? | — |
-| `weapon_gun_2.mp3` | İndir onu! Ölü firavun... neyse, yine de indir. | — |
+| `weapon_gun_1.mp3` | Asansörde ateş edilmez! Seker! | — |
+| `weapon_gun_2.mp3` | İndir onu! Ölü asansörcü düğmeye basamaz! | — |
+| `weapon_gun_3.mp3` | Tabanca mı? Burası cehennem, kovboy filmi değil. | — |
 
 ### weapon_saber
 
@@ -144,8 +156,9 @@ Oyuncu ışın kılıcını eline aldı.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `weapon_saber_1.mp3` | Ra'nın ışığı mı bu? Olamaz! | — |
-| `weapon_saber_2.mp3` | Güneşi kılıç yapmışsın. Saygısız! | — |
+| `weapon_saber_1.mp3` | O ışık ne? Burada tek ışık kazanın ateşi! | — |
+| `weapon_saber_2.mp3` | Onu söndür, patron görürse el koyar. | — |
+| `weapon_saber_3.mp3` | Tamam, sakin. O şey önlüğü de keser mi? | — |
 
 ### sever_arm
 
@@ -153,9 +166,10 @@ Kolu / ön kolu koptu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `sever_arm_1.mp3` | O parça müzelikti! | — |
-| `sever_arm_2.mp3` | Onu üç bin yıldır taşıyordum! | — |
-| `sever_arm_3.mp3` | Kumum dökülüyor! | — |
+| `sever_arm_1.mp3` | Kolum! Düğmeye neyle basacağım? | — |
+| `sever_arm_2.mp3` | O kol demirbaştı! Zimmetliydi! | — |
+| `sever_arm_3.mp3` | Tek kolla da halat çekilir... sanırım. | — |
+| `sever_arm_4.mp3` | Bunu iş kazası diye yazacağım! | — |
 
 ### sever_leg
 
@@ -163,9 +177,10 @@ Bacağı / baldırı koptu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `sever_leg_1.mp3` | Bacağım! Öbür dünyaya nasıl yürüyeceğim? | — |
-| `sever_leg_2.mp3` | O bacak mühürlüydü! | — |
-| `sever_leg_3.mp3` | Lanet olsun... gerçekten, lanet! | — |
+| `sever_leg_1.mp3` | Bacağım! Botu yeniydi! | — |
+| `sever_leg_2.mp3` | Asansörcü ayakta durur! Durur muydu... | — |
+| `sever_leg_3.mp3` | Bu kat planında yoktu! | — |
+| `sever_leg_4.mp3` | Topal şeytan mı olacağım şimdi? | — |
 
 ### offer_small
 
@@ -173,9 +188,10 @@ Bacağı / baldırı koptu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `offer_small_1.mp3` | Al, biraz x. Tanrılar cömert. | — |
-| `offer_small_2.mp3` | Arttı. Kader bugün sana gülümsüyor, az. | — |
-| `offer_small_3.mp3` | Bu kadarı faniye yeter. | — |
+| `offer_small_1.mp3` | Bir kat indik. Al biraz x, sus. | — |
+| `offer_small_2.mp3` | Bak yükseldi. Asansör iniyor, çarpan çıkıyor. | — |
+| `offer_small_3.mp3` | Bu kadarı sana çok bile. | — |
+| `offer_small_4.mp3` | Çarpan arttı. Kapıya yaslanma. | — |
 
 ### offer_mid
 
@@ -183,9 +199,10 @@ Bacağı / baldırı koptu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `offer_mid_1.mp3` | Peki, biraz daha. Ama mezarı rahat bırak. | — |
-| `offer_mid_2.mp3` | Bu ciddi altın. Al, git. | — |
-| `offer_mid_3.mp3` | Hazineyi mi boşaltacaksın? | — |
+| `offer_mid_1.mp3` | Tamam, birkaç kat daha. Ama bu son. | — |
+| `offer_mid_2.mp3` | Bu katı kimseye açmadım. Sana açıyorum. | — |
+| `offer_mid_3.mp3` | Kazan dairesini mi soyacaksın? | — |
+| `offer_mid_4.mp3` | Güzel para bu. Al, in. | — |
 
 ### offer_big
 
@@ -193,9 +210,10 @@ Bacağı / baldırı koptu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `offer_big_1.mp3` | Al! Piramit de senin olsun! | — |
-| `offer_big_2.mp3` | Bu kadar altını ben bile gömmedim! | — |
-| `offer_big_3.mp3` | Rahipler beni mumyalayacak. Yine. | — |
+| `offer_big_1.mp3` | Al! Bütün katlar senin! Yeter ki dur! | — |
+| `offer_big_2.mp3` | Bu kadar derine ben bile inmedim! | — |
+| `offer_big_3.mp3` | Patron beni kazana atacak... | — |
+| `offer_big_4.mp3` | Daha ne istiyorsun? En alt kat mı? Sorma dedim! | — |
 
 ### recover
 
@@ -203,9 +221,10 @@ Oyuncu durdu, çarpan geri düştü: yine kibirlenir.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `recover_1.mp3` | Durdun. Kum yine üstüme doldu. | — |
-| `recover_2.mp3` | Çarpan da gömülüyor bak. | — |
-| `recover_3.mp3` | Geçti. Ben zaten ölüyüm, alışığım. | — |
+| `recover_1.mp3` | Durdun. Asansör yukarı çıkıyor, çarpan düşüyor. | — |
+| `recover_2.mp3` | Bıraktın ya, katlar geri gidiyor. | — |
+| `recover_3.mp3` | Geçti bile. Burada herkes çabuk iyileşir, maalesef. | — |
+| `recover_4.mp3` | Durursan çıkar. Asansör böyle çalışır. | — |
 
 ### near_death
 
@@ -213,9 +232,10 @@ Canı çok azaldı: "ölürsem ödeme yok" uyarısı.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `near_death_1.mp3` | Dur! İkinci kez ölürsem ödeme yok! | — |
-| `near_death_2.mp3` | Mühür kırılırsa hazine de gider! | — |
-| `near_death_3.mp3` | Yavaş fani, altının anahtarı bende! | — |
+| `near_death_1.mp3` | Dur! Ölürsem kapı açılmaz! | — |
+| `near_death_2.mp3` | Ölü asansörcü kat seçemez! | — |
+| `near_death_3.mp3` | Yavaş! Anahtar bende, ölürsem kilitli kalırsın! | — |
+| `near_death_4.mp3` | Bir vuruş daha ve ikimiz de arada kalırız. | — |
 
 ### aloof_hit
 
@@ -223,8 +243,9 @@ Oyuncuyu umursamazken (sırtı dönük, volta) vuruldu.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `aloof_hit_1.mp3` | Arkamdan mı? Soyguncu işi bu! | — |
-| `aloof_hit_2.mp3` | Kitabımı okuyordum, saygısız! | — |
+| `aloof_hit_1.mp3` | Arkamdan mı? Asansörde arkaya dönülmez! | — |
+| `aloof_hit_2.mp3` | Seni görmezden geliyordum. Artık gelmiyorum. | — |
+| `aloof_hit_3.mp3` | Hop! Kat göstergesine bakıyordum! | — |
 
 ### cashout
 
@@ -232,9 +253,9 @@ Oyuncu teklifi alıp çıktı: alay eder.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `cashout_1.mp3` | Aldın, kaçtın. Hazine yine bende kaldı. | — |
-| `cashout_2.mp3` | Akıllı fani. Ama kader beni seçti. | — |
-| `cashout_3.mp3` | Git. Mezar seni yine çağıracak. | — |
+| `cashout_1.mp3` | İndin mi? Korkak. En alt kat bir düğme ötendeydi. | — |
+| `cashout_2.mp3` | Akıllısın. Yine de asansör benim. | — |
+| `cashout_3.mp3` | Güle güle. Yarın yine bineceksin. | — |
 
 ### maxwin
 
@@ -242,9 +263,9 @@ Pes etti, max win veriyor.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `maxwin_1.mp3` | Yeter! Hazine senin... max win! | — |
-| `maxwin_2.mp3` | Pes! Kitabın bütün sayfaları senin! | — |
-| `maxwin_3.mp3` | Al, git, lanetimi de götür! | — |
+| `maxwin_1.mp3` | Tamam! En alt kat! Al sana max win! | — |
+| `maxwin_2.mp3` | Pes! Bütün bina senin! | — |
+| `maxwin_3.mp3` | Al, in, bir daha binme! | — |
 
 ### death
 
@@ -252,255 +273,9 @@ Pes etti, max win veriyor.
 
 | Dosya | Replik | Kayıt |
 | --- | --- | --- |
-| `death_1.mp3` | Kasa... ebedîdir... | — |
-| `death_2.mp3` | Yine... toz... oldum... | — |
-| `death_3.mp3` | Ölü firavun... ödemez... | — |
-
-## Şeker Prenses — 74 replik
-
-Klasör: `public/audio/seker-prenses/`
-
-### intro
-
-Sahne açılışı. Övünür ve ilk çarpanı (2x) gösterir.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `intro_1.mp3` | Hoş geldin tatlım! Bak sana ne verdim: iki x! Çok tatlıyım değil mi? | — |
-| `intro_2.mp3` | Ay yine mi sen? Neyse, al iki x, ağlama. | — |
-| `intro_3.mp3` | Şeker Diyarı'na hoş geldin! Hediyen hazır: koca bir iki x. | — |
-
-### idle_1
-
-I. perde (Kibir): oyuncu beklerken kışkırtma.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `idle_1_1.mp3` | Aaa, yine tumble olmadı! Çok üzüldüm. Hiç üzülmedim. | — |
-| `idle_1_2.mp3` | Bomba geldi ama kazanç yoktu. Ne tatlı değil mi? | — |
-| `idle_1_3.mp3` | Canım, kasa hep kazanır. Kasa benim. | — |
-| `idle_1_4.mp3` | Yükleme bonusu ister misin? Çevrim şartı sadece kırk kat! | — |
-| `idle_1_5.mp3` | Üç scatter geldi. Dördüncüyü ben yedim. | — |
-| `idle_1_6.mp3` | Bugün şanslı günün! Şaka şaka. | — |
-
-### idle_2
-
-II. perde (Öfke): azar, inkâr.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `idle_2_1.mp3` | Ay sen ciddi misin şu an? | — |
-| `idle_2_2.mp3` | Bana bak, destek hattını ararım! | — |
-| `idle_2_3.mp3` | Kaybeden hep böyle huysuz olur zaten. | — |
-| `idle_2_4.mp3` | Ben sana oyna demedim ki, kendin geldin! | — |
-| `idle_2_5.mp3` | Elbisem leke oldu! Bunu bakiyenden keserim. | — |
-
-### idle_3
-
-III. perde (Yakarış): yalvarma, pazarlık.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `idle_3_1.mp3` | Tamam canım, sakin ol, free spin vereyim! | — |
-| `idle_3_2.mp3` | Şekerim eriyor... beni kim hatırlayacak? | — |
-| `idle_3_3.mp3` | Ben de kazanmak isterdim. Bir kere olsun. | — |
-| `idle_3_4.mp3` | Dur! Çarpan bombası atacağım, söz! | — |
-| `idle_3_5.mp3` | Prensese böyle davranılmaz... | — |
-
-### hit_head
-
-Kafasına vuruldu.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `hit_head_1.mp3` | Ay! Saçım! | — |
-| `hit_head_2.mp3` | Tacıma dokunma! | — |
-| `hit_head_3.mp3` | Makyajım aktı, kaba şey! | — |
-
-### hit_body
-
-Gövdesine vuruldu.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `hit_body_1.mp3` | Bu da ödemez tatlım. | — |
-| `hit_body_2.mp3` | Iyy! Elin yapış yapış oldu! | — |
-| `hit_body_3.mp3` | Elbiseme dikkat et, kiralık! | — |
-
-### hit_arm
-
-Koluna / eline vuruldu.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `hit_arm_1.mp3` | Kolum! Yeni manikür yaptırmıştım! | — |
-| `hit_arm_2.mp3` | Ay, morarır şimdi orası! | — |
-| `hit_arm_3.mp3` | Bileziğim düştü, kaba şey! | — |
-
-### hit_leg
-
-Bacağına / ayağına vuruldu.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `hit_leg_1.mp3` | Topuklu ayakkabım kırıldı! | — |
-| `hit_leg_2.mp3` | Çorabım kaçtı! | — |
-| `hit_leg_3.mp3` | Bacağıma vurma, dans edeceğim daha! | — |
-
-### miss
-
-Oyuncu ıskaladı.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `miss_1.mp3` | Iskaladın tatlım. Tumble gibi. | — |
-| `miss_2.mp3` | Az kalsın! Hep az kalsın. | — |
-| `miss_3.mp3` | Havayı dövüyorsun, çok şirin. | — |
-
-### weapon_knuckles
-
-Oyuncu muştayı eline aldı.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `weapon_knuckles_1.mp3` | O ne öyle, yüzük mü? Çok zevksiz. | — |
-| `weapon_knuckles_2.mp3` | Muşta mı? Ne kadar kabasın! | — |
-
-### weapon_katana
-
-Oyuncu katanayı eline aldı.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `weapon_katana_1.mp3` | O bıçak pasta kesmek için mi? Lütfen öyle olsun. | — |
-| `weapon_katana_2.mp3` | Ay o çok sivri! Uzak tut! | — |
-
-### weapon_gun
-
-Oyuncu tabancayı eline aldı.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `weapon_gun_1.mp3` | Tabanca mı? Burası şeker dükkânı! | — |
-| `weapon_gun_2.mp3` | İndir onu, şeker patlar! | — |
-
-### weapon_saber
-
-Oyuncu ışın kılıcını eline aldı.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `weapon_saber_1.mp3` | O parlayan şey ne? Lolipop mu? | — |
-| `weapon_saber_2.mp3` | Tamam tamam, ışığını söndür, konuşalım. | — |
-
-### sever_arm
-
-Kolu / ön kolu koptu.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `sever_arm_1.mp3` | Kolum! Onunla el sallıyordum! | — |
-| `sever_arm_2.mp3` | Şurubum akıyor! | — |
-| `sever_arm_3.mp3` | O benim en tatlı tarafımdı! | — |
-
-### sever_leg
-
-Bacağı / baldırı koptu.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `sever_leg_1.mp3` | Bacağım! Nasıl dans edeceğim? | — |
-| `sever_leg_2.mp3` | O ayakkabının teki pahalıydı! | — |
-| `sever_leg_3.mp3` | Prensesler topallamaz! | — |
-
-### offer_small
-
-Çarpan yükseldi (5x – 25x): hâlâ alaycı.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `offer_small_1.mp3` | Al biraz x, sus artık. | — |
-| `offer_small_2.mp3` | Bak arttı. Ne kadar cömertim! | — |
-| `offer_small_3.mp3` | Bu kadarı sana fazla bile tatlım. | — |
-
-### offer_mid
-
-Çarpan yükseldi (50x – 250x): gönülsüz.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `offer_mid_1.mp3` | Tamam tamam, biraz daha. Ama kimseye söyleme. | — |
-| `offer_mid_2.mp3` | Bu güzel bir çarpan. Al ve git. | — |
-| `offer_mid_3.mp3` | Dükkânı mı boşaltacaksın? | — |
-
-### offer_big
-
-Çarpan yükseldi (500x ve üstü): çaresiz.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `offer_big_1.mp3` | Al hepsini! Yeter ki dokunma! | — |
-| `offer_big_2.mp3` | Bu kadar şeker dişini çürütür! | — |
-| `offer_big_3.mp3` | Kraliçe beni öldürecek... | — |
-
-### recover
-
-Oyuncu durdu, çarpan geri düştü: yine kibirlenir.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `recover_1.mp3` | Durdun mu? Çarpan da eridi bak. | — |
-| `recover_2.mp3` | Bıraktın, x'ler geri gidiyor tatlım. | — |
-| `recover_3.mp3` | Geçti bile. Ben şekerim, yapışır iyileşirim. | — |
-
-### near_death
-
-Canı çok azaldı: "ölürsem ödeme yok" uyarısı.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `near_death_1.mp3` | Dur! Ölürsem ödeme yok! | — |
-| `near_death_2.mp3` | Bir vuruş daha ve şeker de biter, para da! | — |
-| `near_death_3.mp3` | Yavaş! Kasanın anahtarı bende! | — |
-
-### aloof_hit
-
-Oyuncuyu umursamazken (sırtı dönük, volta) vuruldu.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `aloof_hit_1.mp3` | Arkamdan mı vuruyorsun? Çok ayıp! | — |
-| `aloof_hit_2.mp3` | Seni görmezden geliyordum, bozma! | — |
-
-### cashout
-
-Oyuncu teklifi alıp çıktı: alay eder.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `cashout_1.mp3` | Aldın mı? Korkak şey. Max win çok yakındı. | — |
-| `cashout_2.mp3` | Akıllıca. Ama asıl şeker bende kaldı. | — |
-| `cashout_3.mp3` | Güle güle tatlım. Yine gelirsin. | — |
-
-### maxwin
-
-Pes etti, max win veriyor.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `maxwin_1.mp3` | Peki peki! Al max win senin olsun, kaba şey! | — |
-| `maxwin_2.mp3` | Pes! Bütün şekerler senin! | — |
-| `maxwin_3.mp3` | Al, git, tacımı da bırak! | — |
-
-### death
-
-Öldü (oyuncu kaybetti): son sözleri.
-
-| Dosya | Replik | Kayıt |
-| --- | --- | --- |
-| `death_1.mp3` | Şeker... bitti... | — |
-| `death_2.mp3` | Kasa... hep... tatlıdır... | — |
-| `death_3.mp3` | Ölü prenses... ödemez... | — |
+| `death_1.mp3` | Asansör... hep... iner... | — |
+| `death_2.mp3` | Ölü... asansörcü... ödemez... | — |
+| `death_3.mp3` | Kapılar... kapanıyor... | — |
 
 ## Şimşek Dede — 95 replik
 

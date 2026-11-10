@@ -2,8 +2,7 @@ import type { FaceLayout } from './character/face';
 import type { PlaceholderLook } from './character/placeholder';
 import type { PartId } from './character/rig';
 import type { Lines } from './dialogue';
-import firavun from './lines/firavun-bey.json';
-import prenses from './lines/seker-prenses.json';
+import asansorcu from './lines/asansorcu.json';
 import dede from './lines/simsek-dede.json';
 
 export interface CharacterDef {
@@ -39,6 +38,13 @@ export interface CharacterDef {
      * Verilmezse kafa boyundan tahmin edilir; ifade yanlış yere oturuyorsa buradan ayarlanır.
      */
     face?: FaceLayout;
+    /** Yüz maske / kask gibi katı bir şeyse: çene, göz, kaş hareketi uygulanmaz. */
+    mask?: boolean;
+    /**
+     * Katı dönecek kafa hacmi (elipsoit; metre, 2.25 birim boya göre, kafa kemiğinden).
+     * Boynuz, şapka gibi çıkıntıları olan modellerde otomatik tahminin yerine verilir.
+     */
+    head?: { center: [number, number, number]; radii: [number, number, number] };
     /** Otomatik kemik eşleme tutmazsa: parça -> kemik adı. */
     boneMap?: Partial<Record<PartId, string>>;
   };
@@ -67,31 +73,19 @@ export const CHARACTERS: CharacterDef[] = [
     lines: dede,
   },
   {
-    id: 'seker-prenses',
-    name: 'Şeker Prenses',
-    slotName: 'Şeker Diyarı',
-    emoji: '🍭',
-    maxWin: 21000,
-    hp: 260,
-    voice: { pitch: 1.8, rate: 1.2 },
-    bloodColor: 0xff5fb0,
-    look: { skin: 0xffd9c4, top: 0xff7ac8, bottom: 0xb04ad8, hair: 0xffe066, crown: 0xffd23f, skirt: true },
-    symbols: ['🍭', '🍬', '🍇', '🍉', '🍌', '💖', '⭐', '🍎'],
-    theme: { bg: '#5e1a55', accent: '#ff8ad8' },
-    lines: prenses,
-  },
-  {
-    id: 'firavun-bey',
-    name: 'Firavun Bey',
-    slotName: 'Kayıp Mezarın Kitabı',
-    emoji: '🏺',
-    maxWin: 10000,
-    hp: 300,
-    voice: { pitch: 0.8, rate: 0.95 },
-    bloodColor: 0xd9a441,
-    look: { skin: 0xb9824f, top: 0x1f6fb5, bottom: 0xf4f1e6, hair: 0x1a1a1a, headdress: 0xe8b923, beard: 0x1a1a1a },
-    symbols: ['📕', '🏺', '🐍', '👁️', '🦅', 'A', 'K', 'Q'],
-    theme: { bg: '#4a3210', accent: '#e8b923' },
-    lines: firavun,
+    id: 'asansorcu',
+    name: 'Asansörcü',
+    slotName: 'Cehennem Katı',
+    emoji: '🛗',
+    maxWin: 15000,
+    hp: 240,
+    voice: { pitch: 0.7, rate: 1.0 },
+    bloodColor: 0xc8102e,
+    // Yüzü gaz maskesi: mimik uygulanmaz. Kafa hacmi boynuzları da kapsar (boynuzlar kafayla döner).
+    model: { mask: true, head: { center: [0, 0.1, 0.03], radii: [0.3, 0.3, 0.26] } },
+    look: { skin: 0xc96a5a, top: 0x7a1020, bottom: 0x1a1a1a, hair: 0x1a1a1a },
+    symbols: ['🔥', '💀', '🛗', '⛓️', '🕯️', '🔔', 'A', 'K'],
+    theme: { bg: '#3a0d0d', accent: '#ff5a2a' },
+    lines: asansorcu,
   },
 ];
