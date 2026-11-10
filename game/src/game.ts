@@ -313,7 +313,7 @@ export class Game {
     this.setNdc(x, y);
     this.raycaster.setFromCamera(this.ndc, this.camera);
     const ray = this.raycaster.ray;
-    const hit = this.raycaster.intersectObjects(ch.meshes, false)[0];
+    const hit = ch.raycast(ray);
 
     if (!drag) {
       this.strikeT = 0;
@@ -327,7 +327,7 @@ export class Game {
       return;
     }
 
-    const part = ch.partFromHit(hit);
+    const part = hit.part;
     if (w.kind === 'slash') {
       const key = part ?? 'torso';
       if (this.stroke.has(key)) return;

@@ -74,12 +74,12 @@ export class Director {
         break;
       case 'low':
         pos.set(b.x + s * (1.7 - 0.07 * t), 0.22, b.z + 3.3 * tall);
-        look.copy(h).y -= 0.35;
+        look.copy(h).y -= 0.55;
         fov = 44;
         break;
       case 'close':
-        pos.set(h.x + s * 0.6, h.y + 0.3, h.z + (2.7 - 0.03 * t) * tall);
-        look.copy(h).y += 0.26;
+        pos.set(h.x + s * 0.6, h.y + 0.05, h.z + (2.7 - 0.03 * t) * tall);
+        look.copy(h);
         fov = 30;
         shake = 0.03;
         break;

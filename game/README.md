@@ -30,7 +30,7 @@ Her maskot için geçici (kodla üretilen) bir karakter var. Gerçek modeli ekle
    (`simsek-dede.glb`, `seker-prenses.glb`, `firavun-bey.glb`). Başka bir şey gerekmez;
    dosya varsa otomatik yüklenir, üst bardaki "geçici model" yazısı kaybolur.
 3. Gerekirse `src/characters.ts` içindeki `model` alanıyla ayarla:
-   - `height`, `rotationY`: boy ve yön
+   - `height`, `rotationY`: boy ve yön (yön verilmezse iskeletten otomatik bulunur)
    - `idleClip` / `useClips: false`: hangi animasyon
    - `boneMap`: otomatik kemik eşleme tutmazsa parça → kemik adı. Tutmayan parçalar ve
      modeldeki tüm kemik adları tarayıcı konsoluna yazılır.
