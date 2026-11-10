@@ -152,6 +152,8 @@ export class ViewModel {
   private target = new THREE.Vector3();
   private pov = 0;
   private time = 0;
+  private aimX = 0;
+  private aimY = 0;
 
   constructor(private camera: THREE.PerspectiveCamera) {
     camera.add(this.root);
@@ -231,8 +233,13 @@ export class ViewModel {
     const swayY = Math.sin(t * 1.9) * 0.006 + s.bob * 0.7;
     const swayX = Math.sin(t * 1.1) * 0.005;
     const aim = cam.worldToLocal(s.ray.at(3.2, _a)); // nişan, kamera uzayında
-    const lagX = THREE.MathUtils.clamp(aim.x * 0.022, -0.05, 0.05);
-    const lagY = THREE.MathUtils.clamp(aim.y * 0.022, -0.04, 0.04);
+    // Eller ve silah imleci izler: nereye nişan alırsan oraya kalkar, iner, yana kayar.
+    const follow = 1 - Math.exp(-14 * dt);
+    this.aimX += (THREE.MathUtils.clamp(aim.x * 0.085, -0.2, 0.2) * narrow - this.aimX) * follow;
+    this.aimY += (THREE.MathUtils.clamp(aim.y * 0.11, -0.1, 0.2) - this.aimY) * follow;
+    const lagX = this.aimX, lagY = this.aimY;
+    // Yumrukların baktığı nokta da imlece döner.
+    const guard = (sgn: number) => _a.set(sgn * 0.04 + aim.x * 0.45, 0.3 + aim.y * 0.55, -1.4);
     const toWorld = (v: THREE.Vector3) => cam.localToWorld(v);
 
     if (def.kind === 'blunt') {
@@ -245,14 +252,14 @@ export class ViewModel {
         if (mine) {
           // Vuran el hedefe uzanır, bilek içe döner.
           g.position.copy(rest).lerp(_a.copy(tgt).multiplyScalar(0.84), k);
-          g.lookAt(toWorld(_a.set(sgn * 0.04, 0.3, -1.4).lerp(tgt, Math.min(1, k * 1.6))));
+          g.lookAt(toWorld(guard(sgn).lerp(tgt, Math.min(1, k * 1.6))));
           g.rotateZ(-sgn * (0.55 - 0.9 * k));
         } else {
           // Öbür el gardını alır.
           rest.z += 0.05 * k;
           rest.y += 0.03 * k;
           g.position.copy(rest);
-          g.lookAt(toWorld(_a.set(sgn * 0.04, 0.3, -1.4)));
+          g.lookAt(toWorld(guard(sgn)));
           g.rotateZ(-sgn * 0.55);
         }
       }
@@ -261,7 +268,7 @@ export class ViewModel {
 
     const g = this.tool!;
     if (def.kind === 'shot') {
-      g.position.set(0.11 * narrow + lagX * 1.5 + swayX, -0.15 + hide * 0.7 + lagY * 1.5 + swayY - 0.25 * (1 - this.pov) * (1 - Math.min(1, k * 3)), -0.58 + 0.09 * k);
+      g.position.set(0.11 * narrow + lagX * 1.15 + swayX, -0.15 + hide * 0.7 + lagY * 1.15 + swayY - 0.25 * (1 - this.pov) * (1 - Math.min(1, k * 3)), -0.58 + 0.09 * k);
       g.lookAt(s.ray.at(8, _a));
       g.rotateX(-0.38 * k); // geri tepme
       if (this.flash) this.flash.visible = this.strikeT < 0.3;
