@@ -91,6 +91,16 @@
     "Kapat şunu, körüğümün sesini bastırıyor!",
     "O dişleri ben bilerdim, daha iyi olurdu."
   ],
+  "weapon_slap": [
+    "O el çekiç gibi. Hoşuma gitmedi.",
+    "Tokat mı? Örse vurur gibi vurma!",
+    "Avucun nasırlı. Usta işi."
+  ],
+  "buried": [
+    "Çivi gibi çaktın beni!",
+    "Örsün altına girdim! Çıkar!",
+    "Boyum zaten kısaydı, şimdi hiç yok!"
+  ],
   "sever_arm": [
     "Kolum! Çekici kim tutacak?",
     "Tek kolla kilit takılır mı? Deneyeceğim.",

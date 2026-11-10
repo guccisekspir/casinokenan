@@ -120,6 +120,69 @@ export class Impacts {
   }
 }
 
+/** Yerdeki çatlak: tokadın çaktığı yerde kalan krater ve ışınsal çatlaklar. */
+export class Crater {
+  private mesh: THREE.Mesh;
+  private t = 99;
+  constructor(scene: THREE.Scene) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 512;
+    const g = c.getContext('2d')!;
+    const grad = g.createRadialGradient(256, 256, 20, 256, 256, 250);
+    grad.addColorStop(0, 'rgba(0,0,0,0.95)');
+    grad.addColorStop(0.3, 'rgba(0,0,0,0.75)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 512, 512);
+    g.strokeStyle = 'rgba(0,0,0,0.95)';
+    g.lineCap = 'round';
+    for (let i = 0; i < 18; i++) {
+      // Kırık kırık ilerleyen, uca doğru incelen çatlaklar.
+      let a = (i / 18) * Math.PI * 2 + Math.random() * 0.25, r = 34, x = 256 + Math.cos(a) * r, y = 256 + Math.sin(a) * r;
+      const len = 120 + Math.random() * 120;
+      while (r < len) {
+        const step = 14 + Math.random() * 22;
+        a += (Math.random() - 0.5) * 0.7;
+        r += step;
+        g.lineWidth = Math.max(1, 7 * (1 - r / len));
+        g.beginPath();
+        g.moveTo(x, y);
+        x += Math.cos(a) * step;
+        y += Math.sin(a) * step;
+        g.lineTo(x, y);
+        g.stroke();
+      }
+    }
+    this.mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, opacity: 0 }),
+    );
+    this.mesh.visible = false;
+    this.mesh.renderOrder = 1;
+    scene.add(this.mesh);
+  }
+
+  spawn(x: number, z: number, size: number) {
+    this.t = 0;
+    this.mesh.position.set(x, 0.012, z);
+    this.mesh.rotation.y = Math.random() * 6.28;
+    this.mesh.scale.setScalar(size);
+    this.mesh.visible = true;
+  }
+
+  update(dt: number) {
+    if (!this.mesh.visible) return;
+    this.t += dt;
+    const o = this.t < 9 ? 1 : Math.max(0, 1 - (this.t - 9) / 3); // bir süre kalır, sonra silinir
+    (this.mesh.material as THREE.MeshBasicMaterial).opacity = o;
+    if (o <= 0) this.mesh.visible = false;
+  }
+
+  clear() {
+    this.mesh.visible = false;
+  }
+}
+
 interface Gib {
   obj: THREE.Object3D;
   ragdoll: Ragdoll;

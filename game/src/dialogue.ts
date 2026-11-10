@@ -16,7 +16,7 @@ export type DialogueEvent =
   | 'intro'
   | 'idle_1' | 'idle_2' | 'idle_3'
   | 'hit_head' | 'hit_body' | 'hit_arm' | 'hit_leg' | 'miss'
-  | 'weapon_knuckles' | 'weapon_katana' | 'weapon_gun' | 'weapon_saber' | 'weapon_saw'
+  | 'weapon_knuckles' | 'weapon_katana' | 'weapon_gun' | 'weapon_saber' | 'weapon_saw' | 'weapon_slap' | 'buried'
   | 'sever_arm' | 'sever_leg'
   | 'offer_small' | 'offer_mid' | 'offer_big'
   | 'recover' | 'near_death' | 'aloof_hit' | 'block' | 'stall'
@@ -47,6 +47,8 @@ export const EVENT_INFO: Record<DialogueEvent, Rule & { when: string }> = {
   weapon_gun: { pri: 6, cooldown: 20, when: 'Oyuncu tabancayı eline aldı.' },
   weapon_saber: { pri: 6, cooldown: 20, when: 'Oyuncu ışın kılıcını eline aldı.' },
   weapon_saw: { pri: 6, cooldown: 20, when: 'Oyuncu testereyi çalıştırdı.' },
+  weapon_slap: { pri: 6, cooldown: 20, when: 'Oyuncu Osmanlı tokadını seçti (elini açtı).' },
+  buried: { pri: 8, when: 'Osmanlı tokadını yedi, göğsüne kadar yere gömüldü.' },
   sever_arm: { pri: 8, when: 'Kolu / ön kolu koptu.' },
   sever_leg: { pri: 8, when: 'Bacağı / baldırı koptu.' },
   offer_small: { pri: 7, when: 'Çarpan yükseldi (5x – 25x): hâlâ alaycı.' },

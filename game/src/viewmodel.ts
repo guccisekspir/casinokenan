@@ -107,6 +107,27 @@ function arm(side: number, pitch = 0.3, yaw = 0.2): THREE.Group {
   return g;
 }
 
+/** Açık el (tokat): parmaklar bitişik ve düz, başparmak yana açık. `arm` ile aynı eksenler. */
+function openHand(side: number): THREE.Group {
+  const g = arm(side);
+  // Yumruğun kıvrık parmaklarını çıkar, yerine düz parmaklar koy. (İlk üç çocuk avuç parçaları,
+  // son iki çocuk ön kol ve sargı.)
+  for (const c of g.children.slice(3, -2)) g.remove(c);
+  const lens = [0.085, 0.096, 0.09, 0.074], rad = [0.0125, 0.013, 0.0125, 0.0112];
+  for (let i = 0; i < 4; i++) {
+    const f = finger(lens[i], rad[i], [0.06, 0.08, 0.06]);
+    f.position.set((-0.035 + i * 0.0235) * side, 0.016, 0.044);
+    f.rotation.y = (i - 1.5) * -0.07 * side;
+    g.add(f);
+  }
+  const thumb = finger(0.078, 0.0142, [0.05, 0.2, 0.2]);
+  thumb.position.set(-0.05 * side, 0.004, 0.0);
+  thumb.rotation.set(0.1, -1.0 * side, 0);
+  g.add(thumb);
+  g.scale.setScalar(1.25); // Osmanlı tokadı: el de iri
+  return g;
+}
+
 function knuckleDuster(side: number): THREE.Group {
   const g = new THREE.Group();
   for (let i = 0; i < 4; i++) {
@@ -198,7 +219,7 @@ function sword(def: WeaponDef): THREE.Group {
   return g;
 }
 
-export type PunchStyle = 'jab' | 'hook' | 'upper';
+export type PunchStyle = 'jab' | 'hook' | 'upper' | 'slap';
 
 export interface ViewState {
   /** Oyuncu kendi gözünden mi oynuyor. */
@@ -246,8 +267,8 @@ export class ViewModel {
 
     if (def.kind === 'blunt') {
       this.left = arm(-1);
-      this.right = arm(1);
-      if (def.id !== 'fist') {
+      this.right = def.slam ? openHand(1) : arm(1);
+      if (def.id !== 'fist' && !def.slam) {
         this.left.add(knuckleDuster(-1));
         this.right.add(knuckleDuster(1));
       }
@@ -300,7 +321,7 @@ export class ViewModel {
     this.strikeT = 0;
     this.target.copy(target);
     this.style = style;
-    this.hand = this.hand === 'L' ? 'R' : 'L';
+    this.hand = style === 'slap' ? 'R' : this.hand === 'L' ? 'R' : 'L'; // tokat hep sağ elle
   }
 
   update(dt: number, s: ViewState) {
@@ -309,7 +330,7 @@ export class ViewModel {
     const cam = this.camera;
     this.time += dt;
     this.pov += ((s.pov ? 1 : 0) - this.pov) * Math.min(1, dt * 7);
-    const dur = def.kind === 'blunt' ? (this.style === 'jab' ? 0.26 : 0.4) : def.kind === 'shot' ? 0.2 : 0.3;
+    const dur = def.kind === 'blunt' ? (this.style === 'jab' ? 0.26 : this.style === 'slap' ? 0.62 : 0.4) : def.kind === 'shot' ? 0.2 : 0.3;
     this.strikeT = Math.min(1, this.strikeT + dt / dur);
     const striking = this.strikeT < 1;
     const k = striking ? Math.sin(Math.PI * Math.pow(this.strikeT, 0.55)) : 0;
@@ -349,7 +370,9 @@ export class ViewModel {
         const rest = _c.set(sgn * 0.2 * narrow + lagX + swayX, -0.145 + hide + lagY + swayY * (sgn === 1 ? 1 : 0.8), -0.52 - lead);
         if (mine) {
           // Kurulma: direkt geri çekilir, kroşe yana açılır, aparkat aşağı iner.
-          const back = this.style === 'hook' ? _a.set(sgn * 0.3, 0.02, 0.2) : this.style === 'upper' ? _a.set(sgn * 0.05, -0.2, 0.16) : _a.set(0, -0.01, 0.1);
+          // Tokat: el omuzun arkasına, yukarı kalkar.
+          const back = this.style === 'slap' ? _a.set(sgn * 0.34, 0.4, 0.28)
+            : this.style === 'hook' ? _a.set(sgn * 0.3, 0.02, 0.2) : this.style === 'upper' ? _a.set(sgn * 0.05, -0.2, 0.16) : _a.set(0, -0.01, 0.1);
           rest.addScaledVector(back, wind);
           // Kendi gözünden oynarken kol boyu sınırlıdır; sinema planında yumruk kadraj dışından gelir.
           const hitAt = _a.copy(tgt).multiplyScalar(0.86);
@@ -359,11 +382,19 @@ export class ViewModel {
           const arc = Math.sin(ext * Math.PI) * (1 - ext * 0.3);
           if (this.style === 'hook') g.position.x += sgn * 0.26 * arc;
           if (this.style === 'upper') g.position.y -= 0.24 * arc;
+          if (this.style === 'slap') {
+            g.position.x += sgn * 0.3 * arc; // dışarıdan içeri, yukarıdan aşağı savrulur
+            g.position.y += 0.22 * arc;
+          }
           g.lookAt(toWorld(guard(sgn).lerp(tgt, Math.min(1, ext * 1.4 + wind * 0.3))));
           // Bilek: direkt içe döner; kroşede yumruk yatay, aparkatta avuç yukarı bakar.
           g.rotateZ(-sgn * (0.55 - (this.style === 'hook' ? 2.0 : 0.95) * ext));
           if (this.style === 'upper') g.rotateX(-0.9 * ext);
           if (this.style === 'hook') g.rotateY(-sgn * 0.7 * ext);
+          if (this.style === 'slap') {
+            g.rotateX(-1.35 + 0.5 * ext); // parmaklar yukarı, avuç ileri bakar
+            g.rotateZ(sgn * (1.5 * wind - 1.3 * ext)); // avuç hedefe doğru döner
+          }
         } else {
           // Öbür el çeneyi korur: vuruş anında yukarı ve içe toplanır.
           rest.z += 0.06 * ext;

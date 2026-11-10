@@ -85,6 +85,16 @@
     "Kapat şunu, atlar ürküyor!",
     "Onunla tabut yaparlar. Bana mı ölçü alıyorsun?"
   ],
+  "weapon_slap": [
+    "O el ne? Düelloda tokat olmaz!",
+    "Tokat mı? Şapkam uçar!",
+    "Avucunu aç bakalım... kapat, kapat."
+  ],
+  "buried": [
+    "Mezarımı sen mi kazdın?",
+    "Kasabanın altına indim! Çıkarın!",
+    "Çizmelerim nerede? Aşağıda kaldı!"
+  ],
   "sever_arm": [
     "Kolum! Tabancayı neyle çekeceğim?",
     "O kolun başına ödül vardı!",

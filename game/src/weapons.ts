@@ -14,6 +14,8 @@ export interface WeaponDef {
   sever: number;
   /** Işın kılıcı gibi: kan yok, kesik yeri dağlanır. */
   cauterize?: boolean;
+  /** Osmanlı tokadı: tek ve çok ağır bir vuruş; karakteri yere gömer. */
+  slam?: boolean;
   /** Vuruş başına karakteri ne kadar sıkıştırdığı (çarpanı ne kadar yükselttiği). */
   fear: number;
   /** Art arda vuruşlar arası bekleme (sn). */
@@ -33,4 +35,5 @@ export const WEAPONS: WeaponDef[] = [
   { id: 'gun', name: 'Tabanca', icon: '🔫', price: 1500, kind: 'shot', damage: 10, force: 10, sever: 11, fear: 5, cooldown: 0.18 },
   { id: 'saber', name: 'Işın Kılıcı', icon: '⚡', price: 3000, kind: 'slash', damage: 20, force: 6, sever: 40, fear: 7, cauterize: true, cooldown: 0.1, color: 0x35e0ff },
   { id: 'saw', name: 'Testere', icon: '🪚', price: 2200, kind: 'saw', damage: 1, force: 2.5, sever: 5, fear: 1, cooldown: 0.08 },
+  { id: 'slap', name: 'Osmanlı Tokadı', icon: '🖐️', price: 4000, kind: 'blunt', damage: 9, force: 26, sever: 0, fear: 14, cooldown: 2.2, slam: true },
 ];

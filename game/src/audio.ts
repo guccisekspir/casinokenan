@@ -231,6 +231,15 @@ export class Audio {
     if (level === 3 && Math.random() < 0.35) this.noise(0.07, 'bandpass', 2600, 900, 0.16); // dişlerin hırıltısı
   }
 
+  /** Osmanlı tokadı: kırbaç gibi şaklama, ardından yerin çökmesi. */
+  slam() {
+    this.noise(0.05, 'highpass', 1800, 6000, 0.9);
+    this.noise(0.5, 'lowpass', 2400, 90, 0.9, 0.02);
+    this.tone('sine', 110, 26, 0.9, 1, 0.02);
+    this.tone('sine', 55, 22, 1.3, 0.8, 0.06);
+    for (let i = 0; i < 5; i++) this.noise(0.12, 'bandpass', 500 + Math.random() * 900, 200, 0.22, 0.18 + i * 0.09); // dökülen moloz
+  }
+
   /** Demir parmaklığın inmesi. */
   clang() {
     for (const f of [311, 466, 740, 1175]) this.tone('triangle', f, f * 0.99, 1.1, 0.14);

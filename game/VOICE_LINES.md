@@ -1,6 +1,6 @@
 # Ses dosyaları
 
-Toplam **498** replik, kaydı olan: **0**.
+Toplam **528** replik, kaydı olan: **0**.
 
 Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değiştirmek için
 `src/lines/<karakter>.json` dosyalarını düzenleyip komutu yeniden çalıştırın.
@@ -10,7 +10,7 @@ Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değ
 - Dosyası olmayan replik oyunda tarayıcının sesli okumasıyla söylenir; yani kayıtlar parça parça eklenebilir.
 - Her olayın alternatifleri vardır; oyun hepsini söylemeden hiçbirini tekrar etmez.
 
-## Asansörcü — 98 replik
+## Asansörcü — 104 replik
 
 Klasör: `public/audio/asansorcu/`
 
@@ -170,6 +170,26 @@ Oyuncu testereyi çalıştırdı.
 | `weapon_saw_2.mp3` | Kapat şunu, asansör boşluğunda yankı yapıyor! | — |
 | `weapon_saw_3.mp3` | Hııh. Kasaba testereyle gelinmez. | — |
 
+### weapon_slap
+
+Oyuncu Osmanlı tokadını seçti (elini açtı).
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_slap_1.mp3` | O el ne öyle? Asansör kapısı gibi. | — |
+| `weapon_slap_2.mp3` | Tokat mı? Maskem yerinden oynar! | — |
+| `weapon_slap_3.mp3` | Avucunu indir, kat düğmesi değil o. | — |
+
+### buried
+
+Osmanlı tokadını yedi, göğsüne kadar yere gömüldü.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `buried_1.mp3` | Bir kat aşağı indim! Asansörsüz! | — |
+| `buried_2.mp3` | Hııh... zemin kat burasıymış. | — |
+| `buried_3.mp3` | Beni kazan dairesine mi yolladın? | — |
+
 ### sever_arm
 
 Kolu / ön kolu koptu.
@@ -287,7 +307,7 @@ Pes etti, max win veriyor.
 | `death_2.mp3` | Ölü... asansörcü... ödemez... | — |
 | `death_3.mp3` | Kapılar... kapanıyor... | — |
 
-## Balıkçı Dede — 102 replik
+## Balıkçı Dede — 108 replik
 
 Klasör: `public/audio/balikci/`
 
@@ -447,6 +467,26 @@ Oyuncu testereyi çalıştırdı.
 | `weapon_saw_2.mp3` | Kapat şunu, balıklar kaçıyor! | — |
 | `weapon_saw_3.mp3` | Onunla tekne yaparlar. Ya da tabut. | — |
 
+### weapon_slap
+
+Oyuncu Osmanlı tokadını seçti (elini açtı).
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_slap_1.mp3` | O el kürek gibi. Uzak tut. | — |
+| `weapon_slap_2.mp3` | Tokat mı? Balık gibi çırpınırım! | — |
+| `weapon_slap_3.mp3` | Avucunla su mu dövüyorsun evlat? | — |
+
+### buried
+
+Osmanlı tokadını yedi, göğsüne kadar yere gömüldü.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `buried_1.mp3` | Dibe vurdum! Gölün dibine! | — |
+| `buried_2.mp3` | Solucan gibi toprağa girdim! | — |
+| `buried_3.mp3` | Çizmeme çamur doldu, çek beni! | — |
+
 ### sever_arm
 
 Kolu / ön kolu koptu.
@@ -575,7 +615,7 @@ Pes etti, max win veriyor.
 | `death_2.mp3` | Ölü... balıkçı... gelmez... | — |
 | `death_3.mp3` | Az... kalmıştı... | — |
 
-## Demirci — 102 replik
+## Demirci — 108 replik
 
 Klasör: `public/audio/demirci/`
 
@@ -735,6 +775,26 @@ Oyuncu testereyi çalıştırdı.
 | `weapon_saw_2.mp3` | Kapat şunu, körüğümün sesini bastırıyor! | — |
 | `weapon_saw_3.mp3` | O dişleri ben bilerdim, daha iyi olurdu. | — |
 
+### weapon_slap
+
+Oyuncu Osmanlı tokadını seçti (elini açtı).
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_slap_1.mp3` | O el çekiç gibi. Hoşuma gitmedi. | — |
+| `weapon_slap_2.mp3` | Tokat mı? Örse vurur gibi vurma! | — |
+| `weapon_slap_3.mp3` | Avucun nasırlı. Usta işi. | — |
+
+### buried
+
+Osmanlı tokadını yedi, göğsüne kadar yere gömüldü.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `buried_1.mp3` | Çivi gibi çaktın beni! | — |
+| `buried_2.mp3` | Örsün altına girdim! Çıkar! | — |
+| `buried_3.mp3` | Boyum zaten kısaydı, şimdi hiç yok! | — |
+
 ### sever_arm
 
 Kolu / ön kolu koptu.
@@ -863,7 +923,7 @@ Pes etti, max win veriyor.
 | `death_2.mp3` | Ölü... demirci... açamaz... | — |
 | `death_3.mp3` | Kilit... sağlamdı... | — |
 
-## Haydut — 98 replik
+## Haydut — 104 replik
 
 Klasör: `public/audio/haydut/`
 
@@ -1023,6 +1083,26 @@ Oyuncu testereyi çalıştırdı.
 | `weapon_saw_2.mp3` | Kapat şunu, atlar ürküyor! | — |
 | `weapon_saw_3.mp3` | Onunla tabut yaparlar. Bana mı ölçü alıyorsun? | — |
 
+### weapon_slap
+
+Oyuncu Osmanlı tokadını seçti (elini açtı).
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_slap_1.mp3` | O el ne? Düelloda tokat olmaz! | — |
+| `weapon_slap_2.mp3` | Tokat mı? Şapkam uçar! | — |
+| `weapon_slap_3.mp3` | Avucunu aç bakalım... kapat, kapat. | — |
+
+### buried
+
+Osmanlı tokadını yedi, göğsüne kadar yere gömüldü.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `buried_1.mp3` | Mezarımı sen mi kazdın? | — |
+| `buried_2.mp3` | Kasabanın altına indim! Çıkarın! | — |
+| `buried_3.mp3` | Çizmelerim nerede? Aşağıda kaldı! | — |
+
 ### sever_arm
 
 Kolu / ön kolu koptu.
@@ -1140,7 +1220,7 @@ Pes etti, max win veriyor.
 | `death_2.mp3` | Ölü... haydut... ödemez... | — |
 | `death_3.mp3` | Hat... tutmadı... | — |
 
-## Şimşek Dede — 98 replik
+## Şimşek Dede — 104 replik
 
 Klasör: `public/audio/simsek-dede/`
 
@@ -1299,6 +1379,26 @@ Oyuncu testereyi çalıştırdı.
 | `weapon_saw_1.mp3` | O gürültü ne? Gök gürültüsü benim işim! | — |
 | `weapon_saw_2.mp3` | Testere mi? Evlat, ben odun değilim! | — |
 | `weapon_saw_3.mp3` | Kapat şunu, sakalıma talaş kaçacak! | — |
+
+### weapon_slap
+
+Oyuncu Osmanlı tokadını seçti (elini açtı).
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_slap_1.mp3` | O el niye açıldı evlat? Kapat onu. | — |
+| `weapon_slap_2.mp3` | Tokat mı? Tanrıya tokat atılmaz! | — |
+| `weapon_slap_3.mp3` | O avuç ayası bana fazla büyük geldi. | — |
+
+### buried
+
+Osmanlı tokadını yedi, göğsüne kadar yere gömüldü.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `buried_1.mp3` | Bulutlardan indim... yerin dibine girdim! | — |
+| `buried_2.mp3` | Çıkar beni buradan! Sakalım toprak oldu! | — |
+| `buried_3.mp3` | Yeraltı tanrısı ben değildim! | — |
 
 ### sever_arm
 

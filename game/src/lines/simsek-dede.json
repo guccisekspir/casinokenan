@@ -85,6 +85,16 @@
     "Testere mi? Evlat, ben odun değilim!",
     "Kapat şunu, sakalıma talaş kaçacak!"
   ],
+  "weapon_slap": [
+    "O el niye açıldı evlat? Kapat onu.",
+    "Tokat mı? Tanrıya tokat atılmaz!",
+    "O avuç ayası bana fazla büyük geldi."
+  ],
+  "buried": [
+    "Bulutlardan indim... yerin dibine girdim!",
+    "Çıkar beni buradan! Sakalım toprak oldu!",
+    "Yeraltı tanrısı ben değildim!"
+  ],
   "sever_arm": [
     "Kolum! Onunla çarpan atıyordum!",
     "O uzuv bonus dışıydı!",

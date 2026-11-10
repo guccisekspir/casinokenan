@@ -6,7 +6,7 @@ import type { CharacterDef } from './characters';
 import { Dialogue, type DialogueEvent } from './dialogue';
 import { Director, type Shot } from './director';
 import { Film } from './film';
-import { Gibs, Impacts, Particles, Reels } from './fx';
+import { Crater, Gibs, Impacts, Particles, Reels } from './fx';
 import { boss, t, type Key } from './i18n';
 import type { UI } from './ui';
 import { ViewModel } from './viewmodel';
@@ -133,6 +133,7 @@ export class Game {
   private severs = 0;
   private farHintAt = 0;
   private impacts: Impacts;
+  private crater: Crater;
   private pendingPunch: { x: number; y: number; at: number; heavy: boolean } | null = null;
   private combo = 0;
   private comboAt = -9;
@@ -210,6 +211,7 @@ export class Game {
     this.particles = new Particles(s);
     this.gibs = new Gibs(s);
     this.impacts = new Impacts(s);
+    this.crater = new Crater(s);
     this.setWeaponModel();
 
     canvas.addEventListener('pointerdown', this.onDown);
@@ -237,6 +239,7 @@ export class Game {
     this.character = null;
     this.gibs.clear();
     this.particles.clear();
+    this.crater.clear();
     this.drips = [];
     this.state = 'idle';
 
@@ -485,16 +488,17 @@ export class Game {
       // Kombo: art arda iki hızlı direkt, üçüncüsü ağır (yukarıya kroşe, aşağıya aparkat).
       this.combo = this.now - this.comboAt < 0.9 ? this.combo + 1 : 1;
       this.comboAt = this.now;
-      const heavy = this.combo % 3 === 0;
+      const slam = !!w.slam;
+      const heavy = slam || this.combo % 3 === 0;
       this.setNdc(x, y);
       this.raycaster.setFromCamera(this.ndc, this.camera);
       const aim = ch.raycast(this.raycaster.ray);
-      this.view.strike(aim ? aim.point : this.raycaster.ray.at(3, _a), heavy ? (this.ndc.y < -0.05 ? 'upper' : 'hook') : 'jab');
+      this.view.strike(aim ? aim.point : this.raycaster.ray.at(3, _a), slam ? 'slap' : heavy ? (this.ndc.y < -0.05 ? 'upper' : 'hook') : 'jab');
       this.audio.swing(heavy);
-      this.pendingPunch = { x, y, at: this.now + (heavy ? 0.15 : 0.075), heavy };
+      this.pendingPunch = { x, y, at: this.now + (slam ? 0.27 : heavy ? 0.15 : 0.075), heavy };
       return;
     }
-    const power = punch?.heavy ? 1.7 : 1;
+    const power = w.slam ? 2.4 : punch?.heavy ? 1.7 : 1;
     if (!drag && !punch) {
       if (this.now - this.lastAttack < w.cooldown) return;
       this.lastAttack = this.now;
@@ -560,6 +564,24 @@ export class Game {
       this.freezeUntil = this.now + (heavy ? 0.13 : 0.05);
       this.kick = Math.max(this.kick, heavy ? 1 : 0.45);
       if (heavy) this.film.flash = Math.max(this.film.flash, 0.14);
+      if (w.slam && !res.killed) {
+        // Osmanlı tokadı: beden göğsüne kadar yere çakılır. Zemin çatlar, toz kalkar, ekran sarsılır.
+        ch.bury(3.6);
+        const at = ch.root.position;
+        this.crater.spawn(at.x, at.z, 3.4);
+        for (let i = 0; i < 16; i++) {
+          const a = (i / 16) * Math.PI * 2;
+          this.particles.emit(_b.set(at.x + Math.cos(a) * 0.45, 0.05, at.z + Math.sin(a) * 0.45), _c.set(Math.cos(a) * 0.9, 0.9, Math.sin(a) * 0.9), 7, 0x8d8a84, 3.6, 0.5);
+        }
+        this.impacts.spawn(_b.set(at.x, 0.4, at.z), 1.6);
+        this.audio.slam();
+        this.freezeUntil = this.now + 0.24;
+        this.slow(0.3, 0.9);
+        this.shake = 0.42;
+        this.kick = 1.6;
+        this.film.flash = 0.4;
+        this.speak('buried', true);
+      }
     } else if (w.cauterize) {
       this.particles.emit(hit.point, dir, 14, 0xffa030, 3);
     } else if (w.kind === 'slash') {
@@ -570,7 +592,7 @@ export class Game {
       this.particles.emit(hit.point, back, 12, blood, 3);
     }
 
-    this.shake = Math.min(0.16, this.shake + w.force * 0.005 * power);
+    this.shake = Math.max(this.shake, Math.min(0.16, this.shake + w.force * 0.005 * power));
     if (res.crit && w.kind !== 'saw' && w.kind !== 'blunt') this.freezeUntil = this.now + 0.07; // kafaya isabet: bir anlık donma
     this.lastHitAt = this.now;
     // Baskı: uzuvlara vurmak hem daha çok sıkıştırır hem daha az can götürür. Aynı yere üst üste
@@ -823,6 +845,7 @@ export class Game {
     this.particles.update(dt);
     this.gibs.update(dt);
     this.impacts.update(real, this.camera);
+    this.crater.update(real);
     if (this.gibs.impact > 2.2 && this.now > this.thudAt) {
       this.thudAt = this.now + 0.12;
       this.audio.thud();

@@ -85,6 +85,16 @@
     "Kapat şunu, asansör boşluğunda yankı yapıyor!",
     "Hııh. Kasaba testereyle gelinmez."
   ],
+  "weapon_slap": [
+    "O el ne öyle? Asansör kapısı gibi.",
+    "Tokat mı? Maskem yerinden oynar!",
+    "Avucunu indir, kat düğmesi değil o."
+  ],
+  "buried": [
+    "Bir kat aşağı indim! Asansörsüz!",
+    "Hııh... zemin kat burasıymış.",
+    "Beni kazan dairesine mi yolladın?"
+  ],
   "sever_arm": [
     "Kolum! Düğmeye neyle basacağım?",
     "O kol demirbaştı! Zimmetliydi!",

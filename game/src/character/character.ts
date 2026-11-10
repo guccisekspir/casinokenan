@@ -132,6 +132,8 @@ export class Character {
     R: { w: 0, want: 0, target: new THREE.Vector3() },
   };
   private breath = 0;
+  private buryUntil = -1;
+  private buryDepth = 0;
   private flinch: { t: number; power: number; zone: 'head' | 'body' | 'arm' | 'leg'; side: number; point: THREE.Vector3 } | null = null;
   private faceYaw = 0;
   private ikDirs: Record<Side, { w: number; upper: THREE.Vector3; fore: THREE.Vector3 }> = {
@@ -934,7 +936,21 @@ export class Character {
 
   /** Ayakta ve iki bacağı üstünde mi (yürüyebilir mi). */
   get canWalk(): boolean {
-    return this.posture === 'stand';
+    return this.posture === 'stand' && !this.buried;
+  }
+
+  /** Şu an yere gömülü mü. */
+  get buried(): boolean {
+    return this.time < this.buryUntil;
+  }
+
+  /**
+   * Yere göm: beden göğsüne kadar zemine çakılır, bir süre öyle kalır, sonra debelenerek çıkar.
+   * Bacağını kaybetmiş (zaten yerde olan) beden kalan boyu kadar gömülür.
+   */
+  bury(seconds: number) {
+    this.buryUntil = this.time + seconds;
+    this.thud = true;
   }
 
   /** Bedenin merkezi (kalça): kamera takibi için. Ragdoll'da kök yerinde kalır, kalça hareket eder. */
@@ -1044,7 +1060,11 @@ export class Character {
     }
     const hop = this.posture === 'hop' ? Math.abs(Math.sin(t * 7.5)) * 0.07 * this.unit : 0;
     const bob = Math.abs(Math.sin(this.walkPhase)) * (grounded ? 0.025 : 0.03) * this.walkAmp;
-    this.root.position.set(this.stand.x + this.knock.x, hop + bob - this.drop, this.stand.y + this.knock.z);
+    // Gömülme: bir karede çakılır, çıkarken ağır ağır ve sarsılarak yükselir.
+    const buryTo = this.buried ? Math.max(0.25 * this.unit, 1.38 * this.unit - this.drop) : 0;
+    this.buryDepth += (buryTo - this.buryDepth) * Math.min(1, dt * (buryTo > this.buryDepth ? 45 : 1.9));
+    const climb = !this.buried && this.buryDepth > 0.03 ? Math.sin(t * 17) * 0.012 : 0;
+    this.root.position.set(this.stand.x + this.knock.x + climb, hop + bob - this.drop - this.buryDepth, this.stand.y + this.knock.z);
     this.root.rotation.y = this.pose.yaw + this.faceYaw;
 
     this.applyPose(t, dt, lookAt);
@@ -1176,6 +1196,25 @@ export class Character {
         p.head.x = this.woundIsLeg ? 0.7 : 0.45;
         if (this.woundIsLeg) p.spine.x += 0.3;
       }
+    }
+
+    if (this.buryDepth > 0.05) {
+      // Gömülü: kollar zeminin üstünde iki yana serilir, çıkmaya çalışırken yeri iter; baş döner.
+      const k = Math.min(1, this.buryDepth / (0.6 * this.unit));
+      const push = this.buried ? Math.sin(t * 5) * 0.12 : Math.sin(t * 9) * 0.3;
+      p.armL.lerp(_v3.set(0.95, -0.12 + push, 0.3), k);
+      p.foreL.lerp(_v3.set(0.75, -0.55 - push, 0.4), k);
+      p.armR.lerp(_v3.set(-0.95, -0.12 - push, 0.3), k);
+      p.foreR.lerp(_v3.set(-0.75, -0.55 + push, 0.4), k);
+      p.spine.x += 0.12 * k;
+      p.spine.z += Math.sin(t * 2.6) * 0.1 * k;
+      p.head.z += Math.sin(t * 3.1) * 0.22 * k;
+      p.head.x += 0.15 * k;
+      p.tremble = Math.max(p.tremble, 0.6 * k);
+      p.kneel = 0;
+      p.x = this.stand.x;
+      p.z = this.stand.y;
+      this.ik.L.want = this.ik.R.want = 0;
     }
 
     if (this.posture === 'hop') {
