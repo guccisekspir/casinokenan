@@ -723,6 +723,7 @@ export class Game {
       this.shake = 0.2;
       this.slow(0.35, 3);
       window.setTimeout(() => this.audio.win(), 1500);
+      this.ui.celebrate();
       this.endAt = this.now + 4.6;
     } else if (outcome === 'cashout') {
       this.coins += this.paidReward();

@@ -5,6 +5,7 @@ import { DONATE, hidePopup, initDonate, renderBanner, roundEnded } from './donat
 import { Game } from './game';
 import { applyStatic, fmt, onLang, t, type Key } from './i18n';
 import { Landing } from './landing';
+import { recordResult } from './records';
 import { UI } from './ui';
 import { WEAPONS } from './weapons';
 
@@ -30,6 +31,7 @@ WEAPONS.forEach((w) => game.owned.add(w.id));
 
 const refresh = () => {
   ui.setCoins(game.coins);
+  el('lp-coins').textContent = game.coins > 0 ? `${fmt(game.coins)} ${t('hud.coins')}` : '';
   ui.setWeapons(WEAPONS, game.owned, game.weapon.id, game.coins);
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify({ coins: game.coins, owned: [...game.owned] }));
@@ -81,7 +83,10 @@ onLang(() => {
 });
 initDonate();
 renderBanner();
-ui.onEnd = roundEnded;
+ui.onEnd = (outcome, def, x) => {
+  if (outcome !== 'death') recordResult(def.id, x, outcome === 'maxwin');
+  roundEnded();
+};
 ui.setMuted(false);
 ui.showMenu();
 landing.enter();

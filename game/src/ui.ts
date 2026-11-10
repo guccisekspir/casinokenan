@@ -1,4 +1,5 @@
 import type { CharacterDef } from './characters';
+import { CoinRain } from './coinrain';
 import { boss, fmt, t, type Key } from './i18n';
 import type { WeaponDef } from './weapons';
 
@@ -12,7 +13,9 @@ export class UI {
   onRetry: () => void = () => {};
   onCash: () => void = () => {};
   /** Bir tur bitti ve bitiş kartı gösterildi. */
-  onEnd: () => void = () => {};
+  onEnd: (outcome: 'maxwin' | 'cashout' | 'death', def: CharacterDef, x: number) => void = () => {};
+  private rain = new CoinRain($<HTMLCanvasElement>('coinrain'));
+  private countRaf = 0;
 
   private subTimer = 0;
 
@@ -24,7 +27,13 @@ export class UI {
     $('btn-cash').onclick = () => this.onCash();
   }
 
+  /** Max win anı: paralar yağmaya başlar (bitiş kartı gelmeden önce). */
+  celebrate() {
+    this.rain.start(9);
+  }
+
   showMenu() {
+    this.rain.stop();
     $('menu').hidden = false;
     $('hud').hidden = true;
     $('win').hidden = true;
@@ -32,6 +41,7 @@ export class UI {
   }
 
   showGame() {
+    this.rain.stop();
     $('menu').hidden = true;
     $('win').hidden = true;
     $('hud').hidden = false;
@@ -142,6 +152,19 @@ export class UI {
     $('win-x').textContent = c.sub;
     $('win-bonus').textContent = `+${fmt(reward)} ${t('hud.coins')}`;
     $('win').hidden = false;
-    this.onEnd();
+    $('win').classList.toggle('jackpot', outcome === 'maxwin');
+    cancelAnimationFrame(this.countRaf);
+    if (outcome === 'maxwin') {
+      // Çarpan sıfırdan max win'e sayarak çıkar; para yağışı kart boyunca sürer.
+      this.rain.start(7);
+      const t0 = performance.now(), el = $('win-x');
+      const step = (now: number) => {
+        const k = Math.min(1, (now - t0) / 2400), e = 1 - Math.pow(1 - k, 4);
+        el.textContent = `${fmt(Math.round(def.maxWin * e))}x`;
+        if (k < 1) this.countRaf = requestAnimationFrame(step);
+      };
+      this.countRaf = requestAnimationFrame(step);
+    }
+    this.onEnd(outcome, def, outcome === 'maxwin' ? def.maxWin : outcome === 'cashout' ? x : 0);
   }
 }

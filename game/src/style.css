@@ -339,3 +339,20 @@ button:hover { opacity: 1; }
 @keyframes dn-in { from { transform: translateY(26px) scale(0.96); opacity: 0; } }
 #donate-close { display: block; margin: 18px auto 0; padding: 6px 4px; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 16px; text-transform: none; font-variant: normal; letter-spacing: 0; opacity: 0.6; border-bottom: 1px solid currentColor; }
 #donate-close:hover, #donate-close:focus-visible { opacity: 1; }
+
+/* ---------- Max win kutlaması ve en iyi sonuçlar ---------- */
+#coinrain { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 15; pointer-events: none; }
+#win.jackpot { background: radial-gradient(circle at 50% 45%, #3a2a00cc, #000000ee 70%); }
+#win.jackpot .maxwin { animation: jp-in 0.7s cubic-bezier(0.2, 1.6, 0.3, 1) both, jp-pulse 1.1s 0.7s ease-in-out infinite alternate; }
+#win.jackpot #win-x { font-size: clamp(40px, 9vw, 96px); color: var(--gold); font-variant-numeric: tabular-nums; text-shadow: 0 0 34px #e9c46a88; }
+@keyframes jp-in { from { transform: scale(3.2) rotate(-6deg); opacity: 0; } }
+@keyframes jp-pulse { to { transform: scale(1.06); text-shadow: 0 0 90px #e9c46acc; } }
+#lp-coins { color: var(--gold); letter-spacing: 0.06em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lp-card .best { position: absolute; z-index: 2; left: 14px; top: clamp(58px, 6.2vw, 96px); font-family: var(--display); font-weight: 800; font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+.lp-card .stamp {
+  position: absolute; z-index: 4; left: 50%; top: 34%; transform: translate(-50%, -50%) rotate(-12deg); white-space: nowrap;
+  padding: 6px 14px 4px; border: 3px solid var(--gold); color: var(--gold); background: #050505b0;
+  font-family: var(--display); font-weight: 900; font-size: clamp(20px, 2.1vw, 32px); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.lp-card.won { border-color: var(--gold); }
+@media (prefers-reduced-motion: reduce) { #win.jackpot .maxwin { animation: none; } }

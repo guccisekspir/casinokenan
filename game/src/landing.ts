@@ -1,5 +1,6 @@
 import type { CharacterDef } from './characters';
 import { applyStatic, boss, fmt, getLang, onLang, setLang, t, type Key, type Lang } from './i18n';
+import { getRecords } from './records';
 import type { WeaponDef } from './weapons';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -29,6 +30,7 @@ export class Landing {
   /** Sayfa her açıldığında: başlık animasyonu baştan oynar, parçacıklar çalışır. */
   enter() {
     this.menu.scrollTop = 0;
+    this.cards(); // en iyi sonuçlar güncellenmiş olabilir
     this.title();
     cancelAnimationFrame(this.raf);
     if (!reduced()) this.embers();
@@ -84,12 +86,14 @@ export class Landing {
         }, { root: this.menu, threshold: 0.15 })
       : null;
 
+    const records = getRecords();
     $('cards').replaceChildren(
       ...this.chars.map((c, i) => {
         const b = document.createElement('button');
         b.className = 'lp-card';
         b.style.setProperty('--i', String(i));
         const name = boss(c.id, 'name', c.name);
+        const rec = records[c.id];
         b.innerHTML =
           `<img src="bosses/${c.id}.jpg" alt="${name}" loading="lazy" />` +
           `<span class="no">${String(i + 1).padStart(2, '0')}</span>` +
@@ -98,7 +102,9 @@ export class Landing {
           `<span class="name">${name}</span>` +
           `<span class="trick"><span>${boss(c.id, 'trick')}</span></span>` +
           `<span class="go">${t('boss.play')}<i>→</i></span></span>` +
-          `<span class="hp"></span>`;
+          `<span class="hp"></span>` +
+          (rec?.max ? `<span class="stamp">${t('boss.won')}</span>` : rec?.best ? `<span class="best">${t('boss.best', { a: fmt(rec.best) })}</span>` : '');
+        if (rec?.max) b.classList.add('won');
         b.onclick = () => this.onPick(c);
         // İmlece göre eğilme ve paralaks.
         b.onpointermove = (e) => {

@@ -258,7 +258,8 @@ export class Audio {
   }
   win() {
     [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => this.tone('square', f, f, 0.22, 0.1, i * 0.11));
-    for (let i = 0; i < 14; i++) this.coin(0.7 + i * 0.09);
+    // Uzun bir para şakırtısı: önce sık, sonra seyrelerek.
+    for (let i = 0; i < 54; i++) this.coin(0.7 + i * 0.075 + i * i * 0.0011 + Math.random() * 0.03);
   }
 
   speak(text: string, voice: { pitch: number; rate: number }) {
