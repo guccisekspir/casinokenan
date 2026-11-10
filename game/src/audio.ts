@@ -262,14 +262,14 @@ export class Audio {
     for (let i = 0; i < 54; i++) this.coin(0.7 + i * 0.075 + i * i * 0.0011 + Math.random() * 0.03);
   }
 
-  speak(text: string, voice: { pitch: number; rate: number }) {
+  speak(text: string, voice: { pitch: number; rate: number }, lang: 'tr' | 'en' = 'tr') {
     const synth = window.speechSynthesis;
     if (this.muted || !synth) return;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'tr-TR';
-    const tr = synth.getVoices().find((v) => v.lang.toLowerCase().startsWith('tr'));
-    if (tr) u.voice = tr;
+    u.lang = lang === 'en' ? 'en-US' : 'tr-TR';
+    const match = synth.getVoices().find((v) => v.lang.toLowerCase().startsWith(lang));
+    if (match) u.voice = match;
     u.pitch = voice.pitch;
     u.rate = voice.rate;
     u.volume = 0.9;

@@ -37,7 +37,7 @@ const en = {
   'arsenal.title': 'The arsenal',
   'arsenal.sub': 'Limbs come off. Heads too, but then nobody pays you.',
   'foot.note': 'A parody. No real money, no betting. On real slots the house always wins.',
-  'foot.voice': 'The mascots speak Turkish.',
+  'foot.voice': 'Some mascots still speak Turkish.',
   // --- donations
   'dn.kicker': 'You played. You know how it feels.',
   'dn.banner': 'You can help me climb out of this hole.',

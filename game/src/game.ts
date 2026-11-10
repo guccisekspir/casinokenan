@@ -7,7 +7,7 @@ import { Dialogue, type DialogueEvent } from './dialogue';
 import { Director, type Shot } from './director';
 import { Film } from './film';
 import { Crater, Gibs, Impacts, Particles, Reels } from './fx';
-import { boss, t, type Key } from './i18n';
+import { boss, getLang, t, type Key } from './i18n';
 import type { UI } from './ui';
 import { ViewModel } from './viewmodel';
 import { WEAPONS, type WeaponDef } from './weapons';
@@ -268,7 +268,9 @@ export class Game {
     this.showOffer();
 
     this.dialogue?.stop();
-    this.dialogue = new Dialogue(def, def.lines, this.audio);
+    // Arayüz İngilizceyse ve bu maskotun İngilizce replikleri varsa onlar konuşulur.
+    const english = getLang() === 'en' && !!def.linesEn;
+    this.dialogue = new Dialogue(def, english ? def.linesEn! : def.lines, this.audio, english ? 'en' : 'tr');
     this.dialogue.onSpeak = (text, seconds) => {
       this.ui.subtitle(text, seconds);
       ch.talk(text, seconds);

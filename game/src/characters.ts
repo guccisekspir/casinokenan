@@ -6,6 +6,7 @@ import asansorcu from './lines/asansorcu.json';
 import balikci from './lines/balikci.json';
 import demirci from './lines/demirci.json';
 import haydut from './lines/haydut.json';
+import dedeEn from './lines/en/simsek-dede.json';
 import dede from './lines/simsek-dede.json';
 
 export interface CharacterDef {
@@ -80,6 +81,11 @@ export interface CharacterDef {
   theme: { bg: string; accent: string };
   /** Replikler: src/lines/<id>.json — olay -> alternatifler. */
   lines: Lines;
+  /**
+   * İngilizce replikler (src/lines/en/<id>.json). Arayüz İngilizceyken bunlar kullanılır;
+   * yoksa Türkçe repliklere düşülür.
+   */
+  linesEn?: Lines;
 }
 
 export const CHARACTERS: CharacterDef[] = [
@@ -98,6 +104,7 @@ export const CHARACTERS: CharacterDef[] = [
     symbols: ['⚡', '👑', '💍', '⏳', '🏺', '🔷', '🟣', '🟢'],
     theme: { bg: '#2a1a5e', accent: '#ffd23f' },
     lines: dede,
+    linesEn: dedeEn,
   },
   {
     id: 'asansorcu',

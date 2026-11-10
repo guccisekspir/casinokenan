@@ -79,7 +79,8 @@ export class Dialogue {
   private missing = new Set<string>();
   private now = 0;
 
-  constructor(private def: CharacterDef, private lines: Lines, private audio: Audio) {}
+  /** @param lang repliklerin dili: sesli okuma yedeği ve kayıt klasörü buna göre seçilir */
+  constructor(private def: CharacterDef, private lines: Lines, private audio: Audio, private lang: 'tr' | 'en' = 'tr') {}
 
   get speaking(): boolean {
     return this.now < this.speakingUntil;
@@ -112,7 +113,8 @@ export class Dialogue {
     this.speakingPri = rule.pri;
     this.speakingUntil = this.now + estimate;
     this.onSpeak(text, estimate);
-    this.play(`audio/${this.def.id}/${event}_${i + 1}.mp3`, text);
+    // Kayıtlar: Türkçe `audio/<id>/`, İngilizce `audio/en/<id>/`.
+    this.play(`audio/${this.lang === 'en' ? 'en/' : ''}${this.def.id}/${event}_${i + 1}.mp3`, text);
     return true;
   }
 
@@ -145,7 +147,7 @@ export class Dialogue {
     window.speechSynthesis?.cancel();
     if (this.audio.muted) return;
     if (this.missing.has(url)) {
-      this.audio.speak(text, this.def.voice);
+      this.audio.speak(text, this.def.voice, this.lang);
       return;
     }
     const el = document.createElement('audio');
@@ -162,7 +164,7 @@ export class Dialogue {
       this.missing.add(url);
       if (this.clip === el) {
         this.clip = null;
-        this.audio.speak(text, this.def.voice);
+        this.audio.speak(text, this.def.voice, this.lang);
       }
     };
     el.src = url;

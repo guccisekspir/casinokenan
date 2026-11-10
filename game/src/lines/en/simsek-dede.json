@@ -1,0 +1,160 @@
+{
+  "intro": [
+    "I throw beautiful multipliers, kid. I am a wonderful grandpa. Look: two x!",
+    "Welcome, kid! I am feeling generous today. Here, have a two x.",
+    "You again? Come, come. You already got two x out of your grandpa. Be happy.",
+    "The gates of the clouds have opened! And out came... a two x. Applause."
+  ],
+  "idle_1": [
+    "One more spin. This time it lands for sure.",
+    "Yesterday I paid someone five thousand x. It was not you.",
+    "You were one scatter away from the bonus. One!",
+    "Out of balance? Top up and come back. I will be right here.",
+    "You do not walk away before winning it back, do you, kid?",
+    "I do pay a hundred x. To other people.",
+    "Two x not enough for you? You do not know how to be grateful."
+  ],
+  "idle_2": [
+    "Who are you to raise a hand against a god?",
+    "I am fair! I have a certificate!",
+    "If you cannot stand losing, do not play!",
+    "Hitting me does not raise the RTP, kid.",
+    "I am reporting you to customer support.",
+    "I paid you! What more do you want?"
+  ],
+  "idle_3": [
+    "Wait, wait! The next spin pays, I swear!",
+    "I am only a random number generator...",
+    "When the reels stop, who am I, really?",
+    "Kid, do not do this to your grandpa.",
+    "A little more patience. I am paying, I am paying!",
+    "It is close, I said, it is close! It is always close."
+  ],
+  "hit_head": [
+    "Ow! My crown!",
+    "Not the head! That is where I keep the multipliers!",
+    "Do not touch the beard!",
+    "Oof! I saw lightning. My own lightning!"
+  ],
+  "hit_body": [
+    "Hit me all you like. The multiplier stays low.",
+    "That tickled, kid.",
+    "Your punch is as light as your balance.",
+    "You should have spent that on a spin."
+  ],
+  "hit_arm": [
+    "Ow! I throw multipliers with that arm!",
+    "Let go of my arm, it turns the reels!",
+    "That hand holds the lightning, be gentle!",
+    "My wrist! How do I press spin now?"
+  ],
+  "hit_leg": [
+    "My knee! My three thousand year old knee!",
+    "Easy! I have rheumatism.",
+    "Get off my sandal!",
+    "Not the leg, I climb cloud stairs with it!"
+  ],
+  "miss": [
+    "You missed! Just like the bonus.",
+    "Close. The scatter is always close too.",
+    "You hit the air, kid. Air does not pay.",
+    "Another dead spin."
+  ],
+  "weapon_knuckles": [
+    "Brass knuckles? On an old man? Shame.",
+    "Did you buy that with your balance? So you still have money.",
+    "Iron on your fist does not bring you luck, kid."
+  ],
+  "weapon_katana": [
+    "What is that? Wait, let us talk.",
+    "You cannot cut a multiplier with a sword! You can cut me, though!",
+    "Kid, that is sharp. Put it down."
+  ],
+  "weapon_gun": [
+    "A pistol? This is a casino, not a western!",
+    "Lower it! A dead grandpa pays nothing!",
+    "If you shoot, the multipliers die too. Just so you know."
+  ],
+  "weapon_saber": [
+    "What is that light? Lightning is my job!",
+    "Which slot did you pull that out of?",
+    "Fine, fine, calm down. Put the shiny thing away."
+  ],
+  "weapon_saw": [
+    "What is that noise? Thunder is my job!",
+    "A chainsaw? Kid, I am not firewood!",
+    "Turn it off, I will get sawdust in my beard!"
+  ],
+  "weapon_slap": [
+    "Why is that hand open, kid? Close it.",
+    "A slap? You do not slap a god!",
+    "That palm looks too big for me."
+  ],
+  "buried": [
+    "I came down from the clouds... and went straight into the ground!",
+    "Get me out of here! My beard is full of dirt!",
+    "I was never the god of the underworld!"
+  ],
+  "sever_arm": [
+    "My arm! I was throwing multipliers with that!",
+    "That limb was not part of the bonus!",
+    "You can still spin with one arm... I think.",
+    "I did not read this on the rules page!"
+  ],
+  "sever_leg": [
+    "My leg! How do I get back up to the clouds?",
+    "That leg was not insured!",
+    "Am I going to be a limping grandpa now?",
+    "This... this is not in the game rules!"
+  ],
+  "offer_small": [
+    "Here, have a little x. Go on, celebrate.",
+    "See, it went up. I told you I was generous.",
+    "Even this is too much for you.",
+    "The multiplier went up. Not bad, for you."
+  ],
+  "offer_mid": [
+    "Fine, a little more. But this is the last one.",
+    "That is good money. Take it and go.",
+    "Are you trying to rob the vault, kid?",
+    "I never gave this multiplier to anyone. I am giving it to you."
+  ],
+  "offer_big": [
+    "Take it! Take all of it! Just stop!",
+    "Even I have never seen this many x!",
+    "The boss is going to fire me...",
+    "What more do you want? Max win? I told you not to ask!"
+  ],
+  "recover": [
+    "Tired? So is the multiplier. It is dropping.",
+    "You stopped, so the x are going back.",
+    "All better. Grandpas heal fast.",
+    "If you stop, it drops. That is how a slot works, kid."
+  ],
+  "near_death": [
+    "Stop! If I die, nobody pays you!",
+    "Kid, a dead grandpa cannot throw multipliers!",
+    "Easy! I am the one who opens the vault. If I die, it stays shut!",
+    "One more hit and we both lose."
+  ],
+  "aloof_hit": [
+    "You hit me from behind? No manners!",
+    "I was not paying attention to you. Now I am.",
+    "Hey! I was watching the reels!"
+  ],
+  "cashout": [
+    "You took it? Coward. Max win was one step away.",
+    "Smart. I still won, though.",
+    "Off you go. You will be back tomorrow."
+  ],
+  "maxwin": [
+    "Fine! Fine! Here is your max win!",
+    "I give up! The vault is yours! All of it!",
+    "Take it, go, and never come back!"
+  ],
+  "death": [
+    "The house... always... wins.",
+    "A dead... grandpa... pays nothing...",
+    "I told you... kid..."
+  ]
+}
