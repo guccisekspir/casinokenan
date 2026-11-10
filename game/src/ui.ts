@@ -4,7 +4,7 @@ import type { WeaponDef } from './weapons';
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const fmt = (n: number) => n.toLocaleString('tr-TR');
 
-const GOAL = 'öldürmeden max win\'i kopar';
+const GOAL = 'öldürmeden max win\'i kopar · WASD: yürü';
 const HINT: Record<WeaponDef['kind'], string> = {
   blunt: `${GOAL} · dokun: vur`,
   slash: `${GOAL} · basılı tutup sürükle: kes`,

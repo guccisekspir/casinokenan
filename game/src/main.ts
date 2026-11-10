@@ -71,3 +71,33 @@ refresh();
 
 // Konsoldan kurcalamak için (ör. game.coins = 99999).
 (window as unknown as { game: Game }).game = game;
+
+// Dokunmatik yürüme çubuğu -> oyuncu hareketi.
+{
+  const stick = el<HTMLDivElement>('stick'), knob = el<HTMLDivElement>('stick-knob');
+  const set = (e: PointerEvent | null) => {
+    let x = 0, y = 0;
+    if (e) {
+      const r = stick.getBoundingClientRect();
+      x = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+      y = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+      const len = Math.hypot(x, y);
+      if (len > 1) {
+        x /= len;
+        y /= len;
+      }
+    }
+    knob.style.transform = `translate(${x * 32}px, ${y * 32}px)`;
+    game.stick.x = x;
+    game.stick.y = -y; // yukarı = ileri
+  };
+  stick.addEventListener('pointerdown', (e) => {
+    stick.setPointerCapture(e.pointerId);
+    audio.unlock();
+    set(e);
+  });
+  stick.addEventListener('pointermove', (e) => {
+    if (stick.hasPointerCapture(e.pointerId)) set(e);
+  });
+  for (const type of ['pointerup', 'pointercancel'] as const) stick.addEventListener(type, () => set(null));
+}

@@ -74,6 +74,18 @@ button:hover { opacity: 1; }
 }
 @keyframes toast { 10%, 70% { opacity: 0.8; } 100% { opacity: 0; } }
 
+/* Dokunmatik yürüme çubuğu: yalnızca parmakla kullanılan ekranlarda. */
+#stick {
+  display: none; position: absolute; left: max(18px, env(safe-area-inset-left)); bottom: calc(var(--bar) + 18px);
+  width: 108px; height: 108px; border-radius: 50%; border: 1px solid #ffffff3a; background: #00000055;
+  pointer-events: auto; touch-action: none;
+}
+#stick-knob {
+  position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px;
+  border-radius: 50%; background: #e8e4da55; border: 1px solid #e8e4da88;
+}
+@media (pointer: coarse) { #stick { display: block; } }
+
 #weapons { display: flex; justify-content: center; flex-wrap: wrap; gap: 0 clamp(8px, 2.4vw, 26px); }
 .weapon { font-size: 14px; padding: 4px 2px; opacity: 0.4; border-bottom: 1px solid transparent; white-space: nowrap; }
 .weapon small { font-variant: normal; letter-spacing: 0; opacity: 0.7; margin-left: 5px; font-size: 11px; }

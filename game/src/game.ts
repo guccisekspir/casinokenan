@@ -23,6 +23,12 @@ const LADDER = [2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500];
 const REWARD = [10, 25, 50, 90, 140, 200, 280, 380, 500, 650];
 const MAX_REWARD = 1500;
 const PRESSURE_MAX = 100;
+/** Oyuncu gözünden oynarken vuruş menzili (metre). Tabancanın menzili sınırsız. */
+const REACH_FIST = 2.5;
+const REACH_BLADE = 3.0;
+const WALK_SPEED = 2.4;
+/** Oyuncu bu kadar süre hareketsiz ve saldırısız kalırsa kamera yeniden yönetmene geçer (sn). */
+const IDLE_TO_CINEMA = 9;
 const SEVER_PRESSURE = 14;
 const DECAY_DELAY = 2.5; // son vuruştan sonra baskının düşmeye başlaması (sn)
 const DECAY_RATE = 1.6; // baskı / sn
@@ -31,6 +37,7 @@ const _a = new THREE.Vector3();
 const _b = new THREE.Vector3();
 const _c = new THREE.Vector3();
 const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+const MOVE_KEYS = new Set(['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright']);
 
 /**
  * Film üç perde: karakterin canı azaldıkça oyunculuğu, replikleri ve kamera dili değişir.
@@ -120,6 +127,14 @@ export class Game {
   private shotTimer = 8;
   private pendingShot: { at: number; shot: Shot | null } | null = null;
   private severs = 0;
+  private farHintAt = 0;
+  /** Oyuncu sahnede yürüyerek mi oynuyor (kamera onun gözü). */
+  private walking = false;
+  private keys = new Set<string>();
+  /** Dokunmatik kumanda çubuğu: x = sağa, y = ileri (-1..1). */
+  stick = { x: 0, y: 0 };
+  private lastMoveAt = 0;
+  private stride = 0;
   private thudAt = 0;
   private endAt = 0;
 
@@ -182,6 +197,15 @@ export class Game {
     canvas.addEventListener('pointermove', this.onMove);
     canvas.addEventListener('pointerup', this.onUp);
     canvas.addEventListener('pointercancel', this.onUp);
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (MOVE_KEYS.has(k)) {
+        this.keys.add(k);
+        if (k.startsWith('arrow')) e.preventDefault();
+      }
+    });
+    window.addEventListener('keyup', (e) => this.keys.delete(e.key.toLowerCase()));
+    window.addEventListener('blur', () => this.keys.clear());
     window.addEventListener('resize', this.resize);
     this.resize();
     this.renderer.setAnimationLoop(this.frame);
@@ -210,6 +234,8 @@ export class Game {
     this.severs = 0;
     this.slowUntil = this.freezeUntil = 0;
     this.pendingShot = null;
+    this.walking = false;
+    this.director.player.set(0, 0, 4.2);
     this.endAt = 0;
     this.outcome = null;
     this.pressure = 0;
@@ -305,6 +331,11 @@ export class Game {
   }
 
   private cutTo(shot?: Shot) {
+    // Oyuncu yürüyerek oynuyorsa kamera onun gözüne döner; yönetmen yalnızca özel anlarda keser.
+    if (this.walking) {
+      this.director.cut('player');
+      return;
+    }
     const shots = ACTS[this.act].shots.filter((s) => s !== this.director.shot);
     this.director.cut(shot ?? pick(shots));
     this.shotTimer = 7 + Math.random() * 5;
@@ -350,6 +381,55 @@ export class Game {
     this.ndc.set((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1);
   }
 
+  /**
+   * Oyuncunun yürümesi (WASD / ok tuşları / dokunmatik çubuk). Bakış maskota kilitlidir:
+   * ileri-geri yaklaşıp uzaklaşır, sağ-sol etrafında döner.
+   */
+  private movePlayer(ch: Character, real: number) {
+    const k = this.keys;
+    let f = this.stick.y + (k.has('w') || k.has('arrowup') ? 1 : 0) - (k.has('s') || k.has('arrowdown') ? 1 : 0);
+    let r = this.stick.x + (k.has('d') || k.has('arrowright') ? 1 : 0) - (k.has('a') || k.has('arrowleft') ? 1 : 0);
+    const len = Math.hypot(f, r);
+    const p = this.director.player;
+
+    if (len > 0.05 && this.state === 'fight') {
+      if (len > 1) {
+        f /= len;
+        r /= len;
+      }
+      this.lastMoveAt = this.now;
+      if (!this.walking) {
+        this.walking = true;
+        if (!this.pendingShot) this.director.cut('player');
+      }
+      const body = ch.bodyPosition(_a);
+      const to = _b.set(body.x - p.x, 0, body.z - p.z);
+      const dist = to.length() || 1;
+      to.divideScalar(dist);
+      const step = WALK_SPEED * real;
+      // İleri: maskota doğru. Sağ: bakış yönünün sağı.
+      p.x += (to.x * f - to.z * r) * step;
+      p.z += (to.z * f + to.x * r) * step;
+      this.stride += step * 4.2;
+      // Maskotun içine girme; sahnenin ve arkadaki ekranın dışına çıkma.
+      const dx = p.x - body.x, dz = p.z - body.z;
+      const d = Math.hypot(dx, dz);
+      if (d < 1.15) {
+        p.x = body.x + (dx / (d || 1)) * 1.15;
+        p.z = body.z + (dz / (d || 1)) * 1.15;
+      }
+      const far = Math.hypot(p.x, p.z);
+      if (far > 6.5) p.multiplyScalar(6.5 / far);
+      p.z = Math.max(p.z, -2.4);
+    } else if (this.walking && this.state === 'fight' &&
+      this.now - Math.max(this.lastMoveAt, this.lastAttack) > IDLE_TO_CINEMA && !this.pendingShot) {
+      // Oyuncu durdu: kamera yeniden yönetmene geçer. İlk tuşta geri döner.
+      this.walking = false;
+      this.cutTo();
+    }
+    this.director.playerBob = Math.sin(this.stride) * 0.035 * Math.min(1, len);
+  }
+
   // ---------------------------------------------------------------- saldırı
 
   private attack(x: number, y: number, drag?: { dx: number; dy: number }) {
@@ -373,9 +453,16 @@ export class Game {
       else if (w.cauterize) this.audio.saber();
       else this.audio.swing();
     }
-    if (!hit) {
+    // Oyuncu kendi gözünden oynuyorsa yumruk ve kılıç ancak yakından isabet eder.
+    const tooFar = !!hit && this.director.shot === 'player' && w.kind !== 'shot' &&
+      hit.point.distanceTo(this.camera.position) > (w.kind === 'slash' ? REACH_BLADE : REACH_FIST);
+    if (!hit || tooFar) {
       this.stroke.clear(); // boşa çıkan kesik: aynı parçaya geri dönüp tekrar kesebilsin
       if (!drag) this.speak('miss');
+      if (tooFar && this.now > this.farHintAt) {
+        this.farHintAt = this.now + 4;
+        this.ui.toast('çok uzaksın — yaklaş');
+      }
       return;
     }
 
@@ -498,7 +585,7 @@ export class Game {
       this.openAct(ch.def.name, ACTS[act].name, 2.6);
       ch.act(act === 1 ? (ch.canWalk ? 'stagger' : 'guard') : 'plead');
       this.pendingShot = null;
-      this.cutTo(ACTS[act].shots[0]);
+      this.cutTo(ACTS[act].shots[0]); // yürüyerek oynanıyorsa oyuncunun gözünde kalır
     }
   }
 
@@ -562,7 +649,8 @@ export class Game {
 
     if (ch) {
       ch.setMood(this.outcome === 'cashout' ? 'smug' : this.outcome === 'maxwin' ? 'fear' : (['smug', 'angry', 'fear'] as const)[this.act]);
-      ch.update(dt, this.camera.position, this.audio.voiceLevel());
+      this.movePlayer(ch, real);
+      ch.update(dt, this.camera.position, this.audio.voiceLevel(), this.walking ? this.director.player : null);
       this.dialogue?.update(real);
 
       if (this.state === 'fight') {
@@ -579,7 +667,7 @@ export class Game {
           this.updateOffer(ch);
         }
         this.shotTimer -= real;
-        if (this.shotTimer <= 0 && !this.down && !this.pendingShot && this.now > this.slowUntil) this.cutTo();
+        if (this.shotTimer <= 0 && !this.walking && !this.down && !this.pendingShot && this.now > this.slowUntil) this.cutTo();
       }
       if (this.pendingShot && this.now >= this.pendingShot.at) {
         const shot = this.pendingShot.shot;

@@ -13,7 +13,8 @@ export type Shot =
   | 'top'     // tepeden bakış: karakter küçülür
   | 'far'     // karanlıkta uzak, yalnız figür
   | 'impact'  // kopan parçayı izleyen yakın plan
-  | 'finale'; // kapanış: vinçle yükselip uzaklaşma
+  | 'finale'  // kapanış: vinçle yükselip uzaklaşma
+  | 'player'; // oyuncunun gözü: sahnede yürüyen oyuncu, maskota kilitli bakış
 
 const _t = new THREE.Vector3();
 
@@ -29,6 +30,9 @@ export class Director {
   private from = new THREE.Vector3();
   private snap = true;
   private clock = Math.random() * 100;
+  /** Oyuncunun yerdeki konumu ve adım salınımı ('player' planı için; Game günceller). */
+  readonly player = new THREE.Vector3(0, 0, 4.2);
+  playerBob = 0;
 
   constructor(private camera: THREE.PerspectiveCamera) {}
 
@@ -121,6 +125,15 @@ export class Director {
         look.copy(f);
         fov = 36;
         shake = 0.025;
+        break;
+      }
+      case 'player': {
+        // Göz hizasından bakar; bakış maskotun göğsü ile başı arasına kilitlidir.
+        const eye = 1.55 * (cam.aspect < 0.8 ? 1.05 : 1);
+        pos.set(this.player.x, eye + this.playerBob, this.player.z);
+        look.set(b.x, by * 0.45 + h.y * 0.55 - 0.1, b.z);
+        fov = cam.aspect < 0.8 ? 68 : 54;
+        shake = 0.004;
         break;
       }
       case 'finale':

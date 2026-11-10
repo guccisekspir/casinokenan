@@ -120,6 +120,7 @@ export class Character {
     R: { w: 0, want: 0, target: new THREE.Vector3() },
   };
   private breath = 0;
+  private faceYaw = 0;
   private ikDirs: Record<Side, { w: number; upper: THREE.Vector3; fore: THREE.Vector3 }> = {
     L: { w: 0, upper: new THREE.Vector3(), fore: new THREE.Vector3() },
     R: { w: 0, upper: new THREE.Vector3(), fore: new THREE.Vector3() },
@@ -861,8 +862,9 @@ export class Character {
   /**
    * @param lookAt kafanın döneceği nokta (kamera): karakter seyirciyle göz teması kurar.
    * @param voice çalan ses kaydının anlık genliği (dudak hareketi için)
+   * @param faceTo gövdenin döneceği nokta: sahnede yürüyen oyuncu. Yoksa sahnenin önüne bakar.
    */
-  update(dt: number, lookAt?: THREE.Vector3, voice = 0) {
+  update(dt: number, lookAt?: THREE.Vector3, voice = 0, faceTo?: THREE.Vector3 | null) {
     this.face?.update(dt, voice);
     this.time += dt;
     const t = this.time;
@@ -909,7 +911,18 @@ export class Character {
     this.knock.addScaledVector(this.knockVel, dt);
     const grounded = this.posture === 'kneel' || this.posture === 'sit';
     const maxSpeed = this.posture === 'stand' ? 0.75 : grounded && (this.armOk('L') || this.armOk('R')) ? 0.2 : 0;
-    const to = _v2.set(this.target.x, this.target.z).sub(this.stand);
+    // Oyuncu sahnede dolaşıyorsa gövde ona döner; sahne içi hedefler de onunla birlikte döner
+    // (volta oyuncunun önünde atılır, geri çekilme oyuncudan uzağa olur).
+    let want = 0;
+    if (faceTo) want = Math.atan2(faceTo.x - this.root.position.x, faceTo.z - this.root.position.z);
+    let dYaw = want - this.faceYaw;
+    dYaw = Math.atan2(Math.sin(dYaw), Math.cos(dYaw));
+    const turn = (this.posture === 'stand' ? 2.2 : 0.8) * dt;
+    this.faceYaw += THREE.MathUtils.clamp(dYaw, -turn, turn);
+    const cy = Math.cos(this.faceYaw), sy = Math.sin(this.faceYaw);
+    const tx = THREE.MathUtils.clamp(this.target.x * cy + this.target.z * sy, -3.5, 3.5);
+    const tz = THREE.MathUtils.clamp(-this.target.x * sy + this.target.z * cy, -2.2, 3.5);
+    const to = _v2.set(tx, tz).sub(this.stand);
     const dist = to.length();
     const step = Math.min(dist, maxSpeed * dt);
     let speed = 0;
@@ -917,7 +930,8 @@ export class Character {
       this.stand.addScaledVector(to, step / dist);
       speed = step / Math.max(dt, 1e-4);
       // İleri mi geri mi? (baktığı yöne göre)
-      const fwd = Math.sin(this.pose.yaw) * to.x + Math.cos(this.pose.yaw) * to.y;
+      const yawNow = this.pose.yaw + this.faceYaw;
+      const fwd = Math.sin(yawNow) * to.x + Math.cos(yawNow) * to.y;
       this.walkPhase += (fwd >= 0 ? 1 : -1) * speed * (grounded ? 14 : 5.2) * dt;
     }
     this.walkAmp += (Math.min(1, speed / (grounded ? 0.15 : 0.5)) - this.walkAmp) * Math.min(1, dt * 8);
@@ -937,7 +951,7 @@ export class Character {
     const hop = this.posture === 'hop' ? Math.abs(Math.sin(t * 7.5)) * 0.07 * this.unit : 0;
     const bob = Math.abs(Math.sin(this.walkPhase)) * (grounded ? 0.025 : 0.03) * this.walkAmp;
     this.root.position.set(this.stand.x + this.knock.x, hop + bob - this.drop, this.stand.y + this.knock.z);
-    this.root.rotation.y = this.pose.yaw;
+    this.root.rotation.y = this.pose.yaw + this.faceYaw;
 
     this.applyPose(t, dt, lookAt);
 

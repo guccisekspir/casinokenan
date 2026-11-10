@@ -9,6 +9,10 @@ gövde orta, uzuvlar az. Canı biterse ölür ve ölü maskot ödeme yapmaz — 
 toparlanır, çarpan geri düşer. Aynı yere üst üste vurmak gittikçe daha az işe yarar. İstediğin an
 o anki çarpanı alıp çıkabilirsin. Ayarlar `src/game.ts` başındaki sabitlerde.
 
+**Yürüme:** WASD / ok tuşları (dokunmatik ekranda sol alttaki çubuk). Oyuncu sahnede dolaşır,
+bakışı maskota kilitlidir; yumruk ve kılıç ancak yakından isabet eder. Bir süre durursan kamera
+yeniden yönetmene geçer, ilk tuşta sana döner.
+
 Oyun bir **sanat filmi** gibi kurgulandı: siyah-beyaz görüntüde yalnızca kan, altın ve maskotun
 vurgu rengi renkli; sinemaskop çerçeve, altyazı, perde ara yazıları, kesmelerle değişen kamera
 planları, kopuşlarda ağır çekim. Maskotun oyunculuğu üç perdede değişir:
