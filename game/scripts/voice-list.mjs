@@ -43,6 +43,20 @@ for (const file of readdirSync(linesDir).filter((f) => f.endsWith('.json')).sort
 }
 
 md = md.replace('# Ses dosyaları\n', `# Ses dosyaları\n\nToplam **${total}** replik, kaydı olan: **${have}**.\n`);
+// Kayıt envanteri: oyun hangi repliklerin kaydı olduğunu buradan bilir. Bir olayın kayıtlı
+// replikleri varsa oyun yalnızca onları söyler (kayıt ile sesli okuma karışmasın).
+const recorded = [];
+const walk = (dir, prefix) => {
+  if (!existsSync(dir)) return;
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (e.isDirectory()) walk(join(dir, e.name), `${prefix}${e.name}/`);
+    else if (e.name.endsWith('.mp3')) recorded.push(`${prefix}${e.name.replace('.mp3', '')}`);
+  }
+};
+walk(join(root, 'public/audio'), '');
+writeFileSync(join(root, 'src/voice-manifest.json'), JSON.stringify(recorded.sort(), null, 2) + '\n');
+console.log(`${recorded.length} kayıt dosyası -> src/voice-manifest.json`);
+
 writeFileSync(join(root, 'VOICE_LINES.md'), md);
 writeFileSync(join(root, 'voice-lines.csv'), csv.join('\n') + '\n');
 console.log(`${total} replik (${have} kayıtlı) -> VOICE_LINES.md, voice-lines.csv`);

@@ -1,5 +1,9 @@
 import type { Audio } from './audio';
 import type { CharacterDef } from './characters';
+import manifest from './voice-manifest.json';
+
+/** Kaydı bulunan replikler (`npm run voice-list` üretir): "en/simsek-dede/intro_3" gibi. */
+const RECORDED = new Set<string>(manifest);
 
 /**
  * Konuşma yönetmeni. Oyun "ne oldu"yu (olay) bildirir; hangi repliğin, ne zaman söyleneceğine
@@ -71,6 +75,7 @@ export class Dialogue {
   onSpeak: (text: string, seconds: number) => void = () => {};
 
   private bags = new Map<string, number[]>();
+  private pools = new Map<string, number[]>();
   private lastUsed = new Map<string, number>();
   private last = '';
   private speakingPri = 0;
@@ -104,7 +109,10 @@ export class Dialogue {
       if (rule.chance !== undefined && Math.random() > rule.chance) return false;
     }
 
-    const i = this.draw(event, options.length);
+    // Bu olayın kaydedilmiş replikleri varsa yalnızca onlar söylenir; hiç kaydı yoksa hepsi
+    // (sesli okumayla) söylenir. Böylece kayıt sayısı replik sayısından az olabilir.
+    const pool = this.recorded(event, options.length);
+    const i = pool.length ? pool[this.draw(event, pool.length)] : this.draw(event, options.length);
     const text = options[i];
     this.last = `${event}_${i}`;
     this.lastUsed.set(event, this.now);
@@ -116,6 +124,18 @@ export class Dialogue {
     // Kayıtlar: Türkçe `audio/<id>/`, İngilizce `audio/en/<id>/`.
     this.play(`audio/${this.lang === 'en' ? 'en/' : ''}${this.def.id}/${event}_${i + 1}.mp3`, text);
     return true;
+  }
+
+  /** Bu olayda kaydı bulunan repliklerin sıra numaraları. */
+  private recorded(event: string, n: number): number[] {
+    let list = this.pools.get(event);
+    if (!list) {
+      const base = `${this.lang === 'en' ? 'en/' : ''}${this.def.id}/${event}_`;
+      list = [];
+      for (let i = 0; i < n; i++) if (RECORDED.has(`${base}${i + 1}`)) list.push(i);
+      this.pools.set(event, list);
+    }
+    return list;
   }
 
   stop() {

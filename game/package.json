@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "node scripts/voice-list.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
     "voice-list": "node scripts/voice-list.mjs"
   },
