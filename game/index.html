@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <meta name="theme-color" content="#120a24" />
+    <meta name="theme-color" content="#000000" />
     <title>Slot Dayağı</title>
   </head>
   <body>
@@ -11,42 +11,43 @@
     <canvas id="trail"></canvas>
 
     <div id="hud" hidden>
-      <div class="top">
-        <button id="btn-menu" class="icon" aria-label="Maskot seç">◀</button>
-        <div class="who">
-          <div class="names"><b id="ch-name"></b><small id="ch-slot"></small></div>
-          <div class="bar"><div id="hp-fill"></div><span id="hp-label"></span></div>
-        </div>
-        <div id="coins">🪙 0</div>
-        <button id="btn-mute" class="icon" aria-label="Ses">🔊</button>
+      <div class="bar top">
+        <button id="btn-menu" aria-label="Çık">çık</button>
+        <div class="who"><span id="ch-act"></span><b id="ch-name"></b><small id="ch-slot"></small></div>
+        <div class="right"><span id="coins"></span><button id="btn-mute" aria-label="Ses">ses açık</button></div>
+        <div class="line"><div id="hp-fill"></div></div>
       </div>
-      <div id="bubble" hidden></div>
-      <div id="floaters"></div>
-      <div class="bottom">
-        <div id="hint"></div>
+      <div id="subtitle" hidden></div>
+      <div id="toasts"></div>
+      <div class="bar bottom">
         <div id="weapons"></div>
+        <div id="hint"></div>
       </div>
     </div>
 
+    <div id="card" hidden><small id="card-top"></small><div id="card-main"></div><small id="card-sub"></small></div>
+
     <div id="menu" class="overlay">
-      <h1>SLOT <span>DAYAĞI</span></h1>
-      <p class="tag">Slotta sinirlendin mi? Gel, hıncını maskottan al.<br />Yeterince döversen MAX WIN veriyor.</p>
+      <small class="pre">üç perdelik bir intikam</small>
+      <h1>Slot Dayağı</h1>
+      <p class="tag">Makaralar döndü, yine vermedi.<br />Bu sefer maskot verecek.</p>
       <div id="cards"></div>
-      <p class="note">Parodi oyunudur. Gerçek para yok, bahis yok. Gerçek slotlarda kasa hep kazanır — burası hariç.</p>
+      <p class="note">Parodidir. Gerçek para yok, bahis yok. Gerçek slotlarda kasa hep kazanır.</p>
     </div>
 
     <div id="win" class="overlay" hidden>
-      <div class="maxwin">MAX WIN</div>
+      <small class="pre" id="win-who"></small>
+      <div class="maxwin" lang="en">Max Win</div>
       <div id="win-x"></div>
-      <div id="win-who"></div>
       <div id="win-bonus"></div>
       <div class="row">
-        <button id="btn-retry" class="cta">Tekrar döv</button>
-        <button id="btn-other" class="cta ghost">Başka maskot</button>
+        <button id="btn-retry">yeniden</button>
+        <button id="btn-other">başka bir maskot</button>
       </div>
+      <small class="fin">— son —</small>
     </div>
 
-    <div id="loading" hidden>Yükleniyor…</div>
+    <div id="loading" hidden>…</div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import type { Audio } from './audio';
+import { ALOOF, NEEDS_LEGS } from './character/acting';
 import { Character } from './character/character';
-import { PART_LABEL } from './character/rig';
 import type { CharacterDef } from './characters';
+import { Director, type Shot } from './director';
+import { Film } from './film';
 import { Gibs, Particles, Reels } from './fx';
 import type { UI } from './ui';
 import { buildViewModel, WEAPONS, type WeaponDef } from './weapons';
@@ -12,6 +14,28 @@ const _a = new THREE.Vector3();
 const _b = new THREE.Vector3();
 const _c = new THREE.Vector3();
 const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+
+/**
+ * Film üç perde: karakterin canı azaldıkça oyunculuğu, replikleri ve kamera dili değişir.
+ * I. perdede kamera karakteri alttan, heybetli gösterir; III. perdede tepeden ve uzaktan, küçücük.
+ */
+const ACTS: { no: string; name: string; sub: string; behaviors: string[]; shots: Shot[] }[] = [
+  {
+    no: 'I', name: 'Kibir', sub: 'kasa hep kazanır',
+    behaviors: ['smug', 'shrug', 'point', 'clap', 'turnAway', 'pace', 'nails'],
+    shots: ['wide', 'low', 'orbit', 'close'],
+  },
+  {
+    no: 'II', name: 'Öfke', sub: 'kaybetmeyi bilmeyen oynamasın',
+    behaviors: ['scold', 'guard', 'stagger', 'shrug', 'point'],
+    shots: ['dutch', 'close', 'orbit', 'low'],
+  },
+  {
+    no: 'III', name: 'Yakarış', sub: 'makaralar durunca',
+    behaviors: ['plead', 'cower', 'retreat', 'guard'],
+    shots: ['top', 'far', 'close', 'dutch'],
+  },
+];
 
 interface Drip {
   parent: THREE.Object3D;
@@ -28,16 +52,20 @@ export class Game {
 
   private renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
-  private camera = new THREE.PerspectiveCamera(45, 1, 0.05, 60);
-  private camBase = new THREE.Vector3(0, 1.45, 4.6);
+  private camera = new THREE.PerspectiveCamera(38, 1, 0.05, 80);
+  private director = new Director(this.camera);
+  private film: Film;
   private raycaster = new THREE.Raycaster();
   private lastFrame = performance.now();
 
   private character: Character | null = null;
   private state: 'idle' | 'fight' | 'won' = 'idle';
+  private act = 0;
   private particles: Particles;
   private gibs: Gibs;
   private reels = new Reels();
+  private rim = new THREE.PointLight(0xffffff, 14, 12);
+  private dust: THREE.Points;
   private drips: Drip[] = [];
 
   private vm: THREE.Group | null = null;
@@ -54,39 +82,70 @@ export class Game {
   private trail: { x: number; y: number; t: number }[] = [];
   private trailCtx: CanvasRenderingContext2D;
 
-  private shake = 0;
-  private tauntTimer = 2;
-  private lineCooldown = 0;
+  /** Gerçek zaman (sn). Oyun zamanı ağır çekimde yavaşlar, bu yavaşlamaz. */
   private now = 0;
+  private timeScale = 1;
+  private slowUntil = 0;
+  private slowScale = 1;
+  private freezeUntil = 0;
+  private blockUntil = 0;
+  private shake = 0;
+  private beatTimer = 2;
+  private shotTimer = 8;
+  private pendingShot: { at: number; shot: Shot | null } | null = null;
+  private lineCooldown = 0;
+  private severs = 0;
+  private winAt = 0;
 
   constructor(private canvas: HTMLCanvasElement, trailCanvas: HTMLCanvasElement, private ui: UI, private audio: Audio) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.0;
     this.trailCtx = trailCanvas.getContext('2d')!;
+    this.film = new Film(this.renderer, this.scene, this.camera);
 
+    // Sahne: karanlık bir boşluk, tek bir sert spot, arkada titreyen slot ekranı.
     const s = this.scene;
-    s.background = new THREE.Color(0x120a24);
-    s.fog = new THREE.Fog(0x120a24, 8, 22);
+    s.background = new THREE.Color(0x000000);
+    s.fog = new THREE.FogExp2(0x000000, 0.05);
     s.add(this.camera);
-    s.add(new THREE.HemisphereLight(0xffffff, 0x43306b, 1.3));
-    const sun = new THREE.DirectionalLight(0xfff1d6, 2.4);
-    sun.position.set(2.5, 5, 4);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
-    Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 4, bottom: -1, near: 0.5, far: 14 });
-    s.add(sun);
-    const rim = new THREE.PointLight(0xff4fd8, 30, 9);
-    rim.position.set(-2.5, 2.5, -1.2);
-    s.add(rim);
+    s.add(new THREE.HemisphereLight(0xdfe6ff, 0x101018, 0.5));
+
+    const keyPos = new THREE.Vector3(1.8, 6.5, 2.6);
+    const key = new THREE.SpotLight(0xfff4e0, 95, 0, 0.36, 0.6, 1.6);
+    key.position.copy(keyPos);
+    key.target.position.set(0, 0.9, -0.2);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.bias = -0.0005;
+    s.add(key, key.target);
+
+    // Işığın içinde süzülen toz.
+    const dustPos = new Float32Array(110 * 3);
+    for (let i = 0; i < 110; i++) {
+      dustPos.set([(Math.random() - 0.5) * 3.2, Math.random() * 4.5, (Math.random() - 0.5) * 3.2], i * 3);
+    }
+    const dg = new THREE.BufferGeometry();
+    dg.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+    this.dust = new THREE.Points(
+      dg,
+      new THREE.PointsMaterial({ color: 0xffffff, size: 0.014, transparent: true, opacity: 0.22, depthWrite: false }),
+    );
+    s.add(this.dust);
+
+    this.rim.position.set(0, 2.2, -2.6);
+    s.add(this.rim);
 
     const floor = new THREE.Mesh(
-      new THREE.CircleGeometry(7, 48).rotateX(-Math.PI / 2),
-      new THREE.MeshStandardMaterial({ color: 0x2a1c48, roughness: 0.55, metalness: 0.2 }),
+      new THREE.CircleGeometry(16, 64).rotateX(-Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: 0x4a4a52, roughness: 0.8, metalness: 0 }),
     );
     floor.receiveShadow = true;
     s.add(floor);
-    this.reels.mesh.position.set(0, 2.05, -2.4);
+
+    this.reels.mesh.position.set(0, 2.3, -3.4);
+    this.reels.mesh.scale.setScalar(1.25);
     s.add(this.reels.mesh);
 
     this.particles = new Particles(s);
@@ -116,16 +175,38 @@ export class Game {
     this.character = ch;
     this.scene.add(ch.root);
     this.reels.setTheme(def.symbols, def.theme);
+    this.rim.color.set(def.theme.accent);
     this.ui.setCharacter(def, ch.usingPlaceholder);
     this.ui.setHp(1);
+    this.ui.subtitle(null);
+
+    this.act = 0;
+    this.severs = 0;
+    this.slowUntil = this.freezeUntil = 0;
+    this.pendingShot = null;
+    this.winAt = 0;
     this.state = 'fight';
-    this.tauntTimer = 1;
+    ch.act('smug');
+    this.director.cut('wide');
+    this.shotTimer = 10;
+    this.openAct(def.slotName, def.name, 3.2);
+    this.audio.startMusic();
   }
 
   stop() {
     this.state = 'idle';
     window.speechSynthesis?.cancel();
-    this.ui.bubble(null);
+    this.ui.subtitle(null);
+  }
+
+  /** Perde ara yazısı: ekran kararır, başlık görünür, tek bir çan vurur. */
+  private openAct(top: string, main: string, seconds: number) {
+    const A = ACTS[this.act];
+    this.ui.setAct(`${A.no}. perde`);
+    this.ui.card(top, main, `${A.no}. ${A.name} — ${A.sub}`, seconds);
+    this.audio.toll();
+    this.blockUntil = this.now + seconds * 0.7;
+    this.beatTimer = seconds * 0.85;
   }
 
   /** Silahı seçer; sahip değilse ve para yetiyorsa satın alır. */
@@ -148,19 +229,39 @@ export class Game {
     this.vm?.removeFromParent();
     this.vm = buildViewModel(this.weapon);
     this.vm.scale.setScalar(0.62);
-    this.vm.position.set(0.42, -0.4, -0.95);
+    this.vm.visible = false;
     this.camera.add(this.vm);
   }
 
   private say(text: string) {
     const ch = this.character;
     if (!ch) return;
-    const dur = 1.3 + text.length * 0.055;
-    this.ui.bubble(text, dur);
+    const dur = 1.6 + text.length * 0.06;
+    this.ui.subtitle(text, dur);
     this.audio.speak(text, ch.def.voice);
     ch.talk(dur);
     this.reels.spin();
-    this.tauntTimer = dur + 2.5 + Math.random() * 2.5;
+    this.beatTimer = dur + 2 + Math.random() * 2.5;
+  }
+
+  /** Bir "vuruş": karakter yeni bir davranışa geçer ve repliğini söyler. */
+  private beat(ch: Character) {
+    const A = ACTS[this.act];
+    const options = A.behaviors.filter((b) => b !== ch.behaviorName && (ch.canWalk || !NEEDS_LEGS.has(b)));
+    if (this.act >= 1 && ch.lostArm && Math.random() < 0.35) ch.act('lookStump');
+    else if (options.length) ch.act(pick(options));
+    this.say(pick([ch.def.taunts, ch.def.midLines, ch.def.lowLines][this.act]));
+  }
+
+  private cutTo(shot?: Shot) {
+    const shots = ACTS[this.act].shots.filter((s) => s !== this.director.shot);
+    this.director.cut(shot ?? pick(shots));
+    this.shotTimer = 7 + Math.random() * 5;
+  }
+
+  private slow(scale: number, seconds: number) {
+    this.slowScale = scale;
+    this.slowUntil = this.now + seconds;
   }
 
   // ---------------------------------------------------------------- girdi
@@ -202,7 +303,7 @@ export class Game {
 
   private attack(x: number, y: number, drag?: { dx: number; dy: number }) {
     const ch = this.character;
-    if (!ch || ch.dead || this.state !== 'fight') return;
+    if (!ch || ch.dead || this.state !== 'fight' || this.now < this.blockUntil) return;
     const w = this.weapon;
     if (!drag) {
       if (this.now - this.lastAttack < w.cooldown) return;
@@ -250,8 +351,7 @@ export class Game {
 
     if (w.kind === 'blunt') {
       this.audio.punch(w.id !== 'fist');
-      this.particles.emit(hit.point, back, 5, 0xffe066, 2.5);
-      this.particles.emit(hit.point, back, w.id === 'fist' ? 2 : 6, blood, 2);
+      this.particles.emit(hit.point, back, w.id === 'fist' ? 3 : 8, blood, 2);
     } else if (w.cauterize) {
       this.particles.emit(hit.point, dir, 14, 0xffa030, 3);
     } else if (w.kind === 'slash') {
@@ -262,56 +362,98 @@ export class Game {
       this.particles.emit(hit.point, back, 12, blood, 3);
     }
 
-    const screen = this.toScreen(hit.point);
     this.coins += res.damage;
-    this.ui.floater(screen.x, screen.y, `+${res.damage}`, res.crit ? 'crit' : '');
-    this.shake = Math.min(0.14, this.shake + w.force * 0.005);
+    this.shake = Math.min(0.1, this.shake + w.force * 0.004);
+    if (res.crit) this.freezeUntil = this.now + 0.07; // kafaya isabet: bir anlık donma
+
+    // Karakter seni umursamıyorken vurulduysa: sahnesi bozulur, döner ve tepki verir.
+    if (!res.killed && ALOOF.has(ch.behaviorName)) {
+      ch.act(this.act === 0 ? 'scold' : 'guard');
+      this.say(pick(ch.def.hitLines));
+      this.lineCooldown = this.now + 2.5;
+    }
 
     const sev = res.severed;
     if (sev) {
+      this.severs++;
       this.audio.sever();
-      this.shake = 0.2;
+      this.shake = 0.16;
+      this.film.flash = 0.22;
+      this.slow(0.13, 1.15); // kopuş ağır çekimde izlenir
       if (sev.gib) {
         const vel = dir.clone().multiplyScalar(2.6);
         vel.y += 3.6;
         vel.x += (Math.random() - 0.5) * 1.5;
         this.gibs.add(sev.gib, vel, Math.max(0.06, sev.radius));
+        // Kamera kopan parçaya keser ve onu havada izler.
+        if (this.severs === 1 || sev.part === 'head' || Math.random() < 0.5) {
+          this.onUp(); // kesme anında kılıç darbesi biter
+          this.director.cut('impact', sev.gib);
+          this.pendingShot = { at: this.now + 1.3, shot: null };
+        }
       }
       if (w.cauterize) this.particles.emit(sev.joint, dir, 26, 0xffa030, 3.5, 0.9);
       else {
         this.particles.emit(sev.joint, dir, 45, blood, 4, 0.9);
-        this.drips.push({ parent: sev.stumpParent, local: sev.stumpLocal, until: this.now + 4 });
+        this.drips.push({ parent: sev.stumpParent, local: sev.stumpLocal, until: this.now + 5 });
       }
-      this.ui.floater(screen.x, screen.y - 46, `${PART_LABEL[sev.part]} KOPTU!`, 'sever');
-      if (!res.killed) this.say(pick(ch.def.severLines));
-    } else if (!res.killed && this.now > this.lineCooldown && Math.random() < 0.3) {
-      this.lineCooldown = this.now + 2.2;
-      this.say(pick(ch.hp / ch.maxHp < 0.35 ? ch.def.lowLines : ch.def.hitLines));
+      if (!res.killed) {
+        if (this.act >= 1 && sev.part.includes('arm')) ch.act('lookStump');
+        this.say(pick(ch.def.severLines));
+      }
+    } else if (!res.killed && this.now > this.lineCooldown && Math.random() < 0.25) {
+      this.lineCooldown = this.now + 3;
+      this.say(pick(ch.def.hitLines));
     }
 
     this.ui.setHp(ch.hp / ch.maxHp);
     if (res.killed) this.win(ch);
+    else this.checkAct(ch);
     this.onChange();
+  }
+
+  private checkAct(ch: Character) {
+    const r = ch.hp / ch.maxHp;
+    const act = r > 0.66 ? 0 : r > 0.33 ? 1 : 2;
+    if (act <= this.act) return;
+    this.act = act;
+    this.ui.subtitle(null);
+    window.speechSynthesis?.cancel();
+    this.openAct(ch.def.name, ACTS[act].name, 2.6);
+    ch.act(act === 1 ? (ch.canWalk ? 'stagger' : 'guard') : 'plead');
+    this.pendingShot = null;
+    this.cutTo(ACTS[act].shots[0]);
   }
 
   private win(ch: Character) {
     this.state = 'won';
     this.say(ch.def.deathLine);
     this.coins += WIN_BONUS;
-    this.shake = 0.3;
-    window.setTimeout(() => this.audio.win(), 500);
-    window.setTimeout(() => {
-      if (this.state === 'won' && this.character === ch) this.ui.showWin(ch.def, WIN_BONUS);
-    }, 1700);
+    this.shake = 0.2;
+    this.film.flash = 0.35;
+    this.slow(0.2, 3.6); // düşüş ağır çekimde
+    // Kafa koptuysa önce onu izle, sonra kapanış planı.
+    if (this.director.shot === 'impact') this.pendingShot = { at: this.now + 1.3, shot: 'finale' };
+    else {
+      this.pendingShot = null;
+      this.director.cut('finale');
+    }
+    window.setTimeout(() => this.audio.win(), 2600);
+    this.winAt = this.now + 4.8;
   }
 
   // ---------------------------------------------------------------- kare
 
   private frame = () => {
     const t = performance.now();
-    const dt = Math.max(0, Math.min((t - this.lastFrame) / 1000, 0.05));
+    const real = Math.max(0, Math.min((t - this.lastFrame) / 1000, 0.05));
     this.lastFrame = t;
-    this.now += dt;
+    this.now += real;
+
+    // Zaman: ağır çekim ve darbe donması.
+    const target = this.now < this.freezeUntil ? 0.02 : this.now < this.slowUntil ? this.slowScale : 1;
+    this.timeScale += (target - this.timeScale) * Math.min(1, real * (target < this.timeScale ? 40 : 4));
+    const dt = real * this.timeScale;
     const ch = this.character;
 
     if (this.pendingSlash) {
@@ -321,25 +463,35 @@ export class Game {
     }
 
     if (ch) {
-      ch.update(dt);
+      ch.update(dt, this.camera.position);
+
       if (this.state === 'fight') {
-        this.tauntTimer -= dt;
-        if (this.tauntTimer <= 0) this.say(pick(ch.hp / ch.maxHp < 0.35 ? ch.def.lowLines : ch.def.taunts));
+        this.beatTimer -= real;
+        if (this.beatTimer <= 0) this.beat(ch);
+        this.shotTimer -= real;
+        if (this.shotTimer <= 0 && !this.down && !this.pendingShot && this.now > this.slowUntil) this.cutTo();
       }
-      if (this.state === 'won' && Math.random() < 0.6) {
-        // jackpot: altın yağmuru
-        _a.set((Math.random() - 0.5) * 1.2, 0.6, (Math.random() - 0.5) * 0.6).add(ch.root.position);
-        this.particles.emit(_a, _b.set(0, 1.6, 0.3), 3, 0xffd23f, 3.5, 0.8);
+      if (this.pendingShot && this.now >= this.pendingShot.at) {
+        const shot = this.pendingShot.shot;
+        this.pendingShot = null;
+        if (shot) this.director.cut(shot);
+        else this.cutTo();
       }
-      const head = ch.headPosition(_a);
-      head.y += 0.62;
-      const s = this.toScreen(head);
-      this.ui.bubblePos(s.x, s.y);
+      if (this.state === 'won' && this.winAt && this.now >= this.winAt) {
+        this.winAt = 0;
+        this.ui.showWin(ch.def, WIN_BONUS);
+      }
+      if (this.state === 'won' && Math.random() < 0.7) {
+        // Max win: karanlıkta tek renk olarak altın yağar.
+        _a.set((Math.random() - 0.5) * 3, 5.5, (Math.random() - 0.5) * 2).add(ch.root.position);
+        this.particles.emit(_a, _b.set(0, -0.4, 0), 2, 0xffd23f, 1.2, 0.5);
+      }
+      this.director.update(real, ch.root.position, ch.headPosition(_a));
     }
 
     this.drips = this.drips.filter((d) => d.until > this.now);
     for (const d of this.drips) {
-      if (Math.random() < 0.7) {
+      if (Math.random() < 0.7 * this.timeScale + 0.1) {
         this.particles.emit(d.parent.localToWorld(_a.copy(d.local)), _b.set(0, -0.3, 0), 1, ch?.def.bloodColor ?? 0xc8102e, 1.2, 0.5);
       }
     }
@@ -347,45 +499,52 @@ export class Game {
     this.particles.update(dt);
     this.gibs.update(dt);
     this.reels.update(dt);
+    this.dust.rotation.y += real * 0.03;
+    // Arkadaki ekran eski bir televizyon gibi titrer.
+    const flick = 0.3 + 0.05 * Math.sin(this.now * 31) * Math.sin(this.now * 7.3) + (Math.random() < 0.02 ? -0.12 : 0);
+    (this.reels.mesh.material as THREE.MeshBasicMaterial).color.setScalar(flick);
+    this.rim.intensity = 30 * flick;
 
-    this.shake *= Math.exp(-9 * dt);
-    this.camera.position.copy(this.camBase);
+    this.shake *= Math.exp(-9 * real);
     this.camera.position.x += (Math.random() - 0.5) * this.shake;
     this.camera.position.y += (Math.random() - 0.5) * this.shake;
-    this.camera.lookAt(0, 1.15, 0);
     this.camera.updateMatrixWorld();
 
-    this.updateViewModel(dt);
+    this.updateViewModel(real);
     this.drawTrail();
-    this.renderer.render(this.scene, this.camera);
+    this.film.render(real);
   };
 
+  /** Oyuncunun eli kadrajda durmaz: yalnızca vururken kadrajın dışından girer. */
   private updateViewModel(dt: number) {
     const vm = this.vm;
     if (!vm) return;
-    this.strikeT = Math.min(1, this.strikeT + dt / 0.24);
+    this.strikeT = Math.min(1, this.strikeT + dt / 0.26);
     const k = this.strikeT < 1 ? Math.sin(Math.PI * Math.pow(this.strikeT, 0.55)) : 0;
     const cam = this.camera;
+    const kind = this.weapon.kind;
+    const holding = kind === 'slash' && this.down;
+    vm.visible = this.strikeT < 1 || holding;
+    if (!vm.visible) return;
+
     this.raycaster.setFromCamera(this.ndc, cam);
     const ray = this.raycaster.ray;
     const aim = ray.at(3.2, new THREE.Vector3());
-    const rest = _b.set(cam.aspect < 0.8 ? 0.2 : 0.42, -0.4, -0.95);
-    const kind = this.weapon.kind;
+    const rest = _b.set(cam.aspect < 0.8 ? 0.18 : 0.38, -0.78, -0.9);
     let look = aim;
 
     if (kind === 'blunt') {
       const t = cam.worldToLocal(_c.copy(this.strikeTarget)).multiplyScalar(0.84);
       vm.position.copy(rest).lerp(t, k);
-      if (k > 0) look = this.strikeTarget;
+      look = this.strikeTarget;
     } else if (kind === 'slash') {
       const hold = cam.worldToLocal(ray.at(1.5, _c));
       hold.y -= 0.42;
       hold.x += 0.08;
-      rest.lerp(hold, this.down ? 1 : k);
+      rest.lerp(hold, holding ? 1 : k);
       vm.position.lerp(rest, 1 - Math.exp(-28 * dt));
     } else {
-      vm.position.copy(rest);
-      vm.position.z += 0.14 * k;
+      vm.position.set(rest.x, -0.4 - 0.38 * (1 - Math.min(1, k * 3)), rest.z + 0.14 * k);
     }
 
     vm.lookAt(look);
@@ -398,7 +557,7 @@ export class Game {
   private drawTrail() {
     const c = this.trailCtx;
     c.clearRect(0, 0, c.canvas.width, c.canvas.height);
-    this.trail = this.trail.filter((p) => this.now - p.t < 0.22);
+    this.trail = this.trail.filter((p) => this.now - p.t < 0.3);
     if (this.trail.length < 2) return;
     const color = this.weapon.color !== undefined ? `#${this.weapon.color.toString(16).padStart(6, '0')}` : '#ffffff';
     c.lineCap = 'round';
@@ -407,9 +566,9 @@ export class Game {
     c.shadowBlur = 14;
     for (let i = 1; i < this.trail.length; i++) {
       const a = this.trail[i - 1], b = this.trail[i];
-      const life = 1 - (this.now - b.t) / 0.22;
+      const life = 1 - (this.now - b.t) / 0.3;
       c.globalAlpha = life;
-      c.lineWidth = 2 + 9 * life;
+      c.lineWidth = 1 + 6 * life;
       c.beginPath();
       c.moveTo(a.x, a.y);
       c.lineTo(b.x, b.y);
@@ -418,17 +577,13 @@ export class Game {
     c.globalAlpha = 1;
   }
 
-  private toScreen(p: THREE.Vector3) {
-    const v = _c.copy(p).project(this.camera);
-    return { x: (v.x * 0.5 + 0.5) * window.innerWidth, y: (-v.y * 0.5 + 0.5) * window.innerHeight };
-  }
-
   private resize = () => {
     const w = window.innerWidth, h = window.innerHeight;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const pr = Math.min(window.devicePixelRatio, 2);
+    this.renderer.setPixelRatio(pr);
     this.renderer.setSize(w, h, false);
+    this.film.setSize(w, h, pr);
     this.camera.aspect = w / h;
-    this.camBase.z = this.camera.aspect < 0.7 ? 5.6 : 4.6;
     this.camera.updateProjectionMatrix();
     this.trailCtx.canvas.width = w;
     this.trailCtx.canvas.height = h;

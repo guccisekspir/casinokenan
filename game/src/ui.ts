@@ -5,11 +5,12 @@ const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getEleme
 const fmt = (n: number) => n.toLocaleString('tr-TR');
 
 const HINT: Record<WeaponDef['kind'], string> = {
-  blunt: 'Tıkla / dokun: vur',
-  slash: 'Basılı tutup sürükle: kes',
-  shot: 'Tıkla / dokun: ateş et',
+  blunt: 'dokun: vur',
+  slash: 'basılı tutup sürükle: kes',
+  shot: 'dokun: ateş et',
 };
 
+/** Arayüz bir film çerçevesi gibi: sinemaskop şeritleri, altyazı, ara yazılar. */
 export class UI {
   onPick: (def: CharacterDef) => void = () => {};
   onWeapon: (id: string) => void = () => {};
@@ -17,7 +18,7 @@ export class UI {
   onMenu: () => void = () => {};
   onRetry: () => void = () => {};
 
-  private bubbleTimer = 0;
+  private subTimer = 0;
 
   constructor() {
     $('btn-menu').onclick = () => this.onMenu();
@@ -27,14 +28,11 @@ export class UI {
   }
 
   showMenu(chars: CharacterDef[]) {
-    const cards = $('cards');
-    cards.replaceChildren(
+    $('cards').replaceChildren(
       ...chars.map((c) => {
         const b = document.createElement('button');
         b.className = 'card';
-        b.style.setProperty('--accent', c.theme.accent);
-        b.style.setProperty('--bg', c.theme.bg);
-        b.innerHTML = `<span class="emoji">${c.emoji}</span><b>${c.name}</b><small>${c.slotName}</small><em>MAX WIN ${fmt(c.maxWin)}x</em>`;
+        b.innerHTML = `<b>${c.name}</b><small>${c.slotName}</small><em>${fmt(c.maxWin)}x</em>`;
         b.onclick = () => this.onPick(c);
         return b;
       }),
@@ -42,6 +40,7 @@ export class UI {
     $('menu').hidden = false;
     $('hud').hidden = true;
     $('win').hidden = true;
+    $('card').hidden = true;
   }
 
   showGame() {
@@ -57,7 +56,10 @@ export class UI {
   setCharacter(def: CharacterDef, placeholder: boolean) {
     $('ch-name').textContent = def.name;
     $('ch-slot').textContent = def.slotName + (placeholder ? ' · geçici model' : '');
-    $('hp-label').textContent = "MAX WIN'E KALAN SABRI";
+  }
+
+  setAct(label: string) {
+    $('ch-act').textContent = label;
   }
 
   setHp(ratio: number) {
@@ -65,11 +67,11 @@ export class UI {
   }
 
   setCoins(n: number) {
-    $('coins').textContent = `🪙 ${fmt(n)}`;
+    $('coins').textContent = `${fmt(n)} jeton`;
   }
 
   setMuted(m: boolean) {
-    $('btn-mute').textContent = m ? '🔇' : '🔊';
+    $('btn-mute').textContent = m ? 'ses kapalı' : 'ses açık';
   }
 
   setWeapons(list: WeaponDef[], owned: Set<string>, current: string, coins: number) {
@@ -78,8 +80,7 @@ export class UI {
         const b = document.createElement('button');
         const has = owned.has(w.id);
         b.className = 'weapon' + (w.id === current ? ' active' : '') + (has ? '' : coins >= w.price ? ' buyable' : ' locked');
-        b.innerHTML = `<span>${w.icon}</span><small>${has ? w.name : `🪙 ${fmt(w.price)}`}</small>`;
-        b.title = has ? w.name : `${w.name} — ${fmt(w.price)} jeton`;
+        b.innerHTML = w.name + (has ? '' : `<small>${fmt(w.price)}</small>`);
         b.onclick = () => this.onWeapon(w.id);
         return b;
       }),
@@ -88,43 +89,43 @@ export class UI {
     if (cur) $('hint').textContent = HINT[cur.kind];
   }
 
-  bubble(text: string | null, seconds = 2) {
-    const el = $('bubble');
-    window.clearTimeout(this.bubbleTimer);
-    if (!text) {
-      el.hidden = true;
-      return;
-    }
-    el.textContent = text;
+  /** Karakterin repliği: film altyazısı. */
+  subtitle(text: string | null, seconds = 2) {
+    const el = $('subtitle');
+    window.clearTimeout(this.subTimer);
+    el.hidden = true;
+    if (!text) return;
+    el.textContent = `— ${text}`;
+    void el.offsetWidth; // animasyonu yeniden başlat
     el.hidden = false;
-    this.bubbleTimer = window.setTimeout(() => (el.hidden = true), seconds * 1000);
+    this.subTimer = window.setTimeout(() => (el.hidden = true), seconds * 1000);
   }
 
-  bubblePos(x: number, y: number) {
-    const el = $('bubble');
-    const half = Math.min(150, window.innerWidth / 2 - 8);
-    const cx = Math.max(half + 8, Math.min(window.innerWidth - half - 8, x));
-    el.style.transform = `translate(${cx}px, ${Math.max(70, y)}px) translate(-50%, -100%)`;
-  }
-
-  floater(x: number, y: number, text: string, cls = '') {
-    const el = document.createElement('span');
-    el.className = `floater ${cls}`;
-    el.textContent = text;
-    el.style.left = `${x + (Math.random() - 0.5) * 30}px`;
-    el.style.top = `${y}px`;
-    el.onanimationend = () => el.remove();
-    $('floaters').append(el);
+  /** Tam ekran ara yazı (perde başlığı). */
+  card(top: string, main: string, sub: string, seconds: number) {
+    const el = $('card');
+    $('card-top').textContent = top;
+    $('card-main').textContent = main;
+    $('card-sub').textContent = sub;
+    el.style.setProperty('--dur', `${seconds}s`);
+    el.hidden = true;
+    void el.offsetWidth;
+    el.hidden = false;
+    el.onanimationend = () => (el.hidden = true);
   }
 
   toast(text: string) {
-    this.floater(window.innerWidth / 2, window.innerHeight - 150, text, 'toast');
+    const el = document.createElement('span');
+    el.className = 'toast';
+    el.textContent = text;
+    el.onanimationend = () => el.remove();
+    $('toasts').replaceChildren(el);
   }
 
   showWin(def: CharacterDef, bonus: number) {
     $('win-x').textContent = `${fmt(def.maxWin)}x`;
     $('win-who').textContent = `${def.name} pes etti`;
-    $('win-bonus').textContent = `+${fmt(bonus)} 🪙`;
+    $('win-bonus').textContent = `+${fmt(bonus)} jeton`;
     $('win').hidden = false;
   }
 }

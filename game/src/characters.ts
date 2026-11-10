@@ -34,6 +34,8 @@ export interface CharacterDef {
   symbols: string[];
   theme: { bg: string; accent: string };
   taunts: string[];
+  /** II. perde: öfke, inkâr, azar. */
+  midLines: string[];
   hitLines: string[];
   severLines: string[];
   lowLines: string[];
@@ -63,9 +65,16 @@ export const CHARACTERS: CharacterDef[] = [
       'Bonus satın al, bu sefer öder. Söz. Belki.',
       'Kaybettiğini çıkarmadan kalkılır mı hiç?',
     ],
+    midLines: [
+      'Sen kimsin de tanrıya el kaldırıyorsun?',
+      'Ben adilim! Sertifikam var benim!',
+      'Kaybetmeyi bilmeyen oynamasın!',
+      'Bu yaptığın kurallara aykırı. Şikâyet edeceğim.',
+      'Vurarak RTP yükselmez evlat.',
+    ],
     hitLines: ['Ah! Bu bile ödemedi!', 'Vur vur, çarpan yine sıfır!', 'Of! Elin de bakiyen kadar hafif!', 'Bana vuracağına bir spin atsaydın!'],
     severLines: ['Kolum! Onunla çarpan atıyordum!', 'O uzuv bonus dışıydı!', 'Bu... bu oyunun kurallarında yok!'],
-    lowLines: ['Dur dur! Bir sonraki spin kesin veriyorum!', 'Tamam, yirmi x vereyim, anlaşalım!', 'Şimşek çarpmasın seni... lütfen?'],
+    lowLines: ['Dur dur! Bir sonraki spin kesin veriyorum!', 'Tamam, yirmi x vereyim, anlaşalım!', 'Şimşek çarpmasın seni... lütfen?', 'Ben yalnızca bir sayı üretecisiyim...', 'Makaralar durunca ben kimim ki?'],
     deathLine: 'Tamam! Tamam! Al sana MAX WIN!',
   },
   {
@@ -89,9 +98,16 @@ export const CHARACTERS: CharacterDef[] = [
       'Bugün şanslı günün! Şaka şaka.',
       'Üç scatter geldi! Dördüncüyü ben yedim.',
     ],
+    midLines: [
+      'Ay sen ciddi misin şu an?',
+      'Bana bak, destek hattını ararım!',
+      'Kaybeden hep böyle huysuz olur zaten.',
+      'Ben sana oyna demedim ki, kendin geldin!',
+      'Elbisem leke oldu! Bunu bakiyenden keserim.',
+    ],
     hitLines: ['Ay! Saçım!', 'Kaba şey! Bu da ödemez!', 'Iyy! Elin yapış yapış oldu!', 'Tacıma dokunma!'],
     severLines: ['Kolum! Yeni manikür yaptırmıştım!', 'O benim en tatlı tarafımdı!', 'Şurubum akıyor!'],
-    lowLines: ['Tamam canım, sakin ol, free spin vereyim!', 'Dur! Çarpan bombası atacağım, söz!', 'Prensese vurulmaz!'],
+    lowLines: ['Tamam canım, sakin ol, free spin vereyim!', 'Dur! Çarpan bombası atacağım, söz!', 'Prensese vurulmaz!', 'Şekerim eriyor... beni kim hatırlayacak?', 'Ben de kazanmak isterdim, bir kere olsun.'],
     deathLine: 'Peki peki! Al MAX WIN senin olsun, kaba şey!',
   },
   {
@@ -114,9 +130,16 @@ export const CHARACTERS: CharacterDef[] = [
       'İki kitap geldi. Üçüncüsü piramitte kaldı.',
       'Lanetli değilim, sadece RTP düşük.',
     ],
+    midLines: [
+      'Mezar soyguncuları bile daha kibardı.',
+      'Bin yıllık lanet isteyen böyle davranır.',
+      'Kitapta böyle bir özellik yok!',
+      'Kayıp senin kaderindi, ben yalnızca yazdım.',
+      'Bana vurma, sağlayıcıya vur!',
+    ],
     hitLines: ['Sargılarım!', 'Mumyaya el kalkmaz!', 'Uf! Üç bin yıllık belim!', 'Lanetlerim seni!'],
     severLines: ['O parça müzelikti!', 'Onu üç bin yıldır taşıyordum!', 'Kumum dökülüyor!'],
-    lowLines: ['Dur! Genişleyen sembol veriyorum!', 'Hazinenin yerini söylerim, vurma!', 'Tamam, on free spin!'],
+    lowLines: ['Dur! Genişleyen sembol veriyorum!', 'Hazinenin yerini söylerim, vurma!', 'Tamam, on free spin!', 'Üç bin yıl bekledim... bunun için mi?', 'Kum saati benim için de akıyormuş.'],
     deathLine: 'Yeter! Hazine senin... MAX WIN!',
   },
 ];

@@ -3,6 +3,8 @@ export class Audio {
   muted = false;
   private ctx: AudioContext | null = null;
   private noiseBuf: AudioBuffer | null = null;
+  private out: GainNode | null = null;
+  private music: GainNode | null = null;
 
   /** İlk kullanıcı etkileşiminde çağrılmalı (tarayıcı otomatik oynatma kuralı). */
   unlock() {
@@ -14,6 +16,21 @@ export class Audio {
       this.noiseBuf = this.ctx.createBuffer(1, n, n);
       const d = this.noiseBuf.getChannelData(0);
       for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+
+      // Boş bir salon: bütün sesler uzun bir yankıya da gider.
+      this.out = this.ctx.createGain();
+      this.out.connect(this.ctx.destination);
+      const len = Math.floor(n * 2.8);
+      const ir = this.ctx.createBuffer(2, len, n);
+      for (let ch = 0; ch < 2; ch++) {
+        const x = ir.getChannelData(ch);
+        for (let i = 0; i < len; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+      }
+      const verb = this.ctx.createConvolver();
+      verb.buffer = ir;
+      const wet = this.ctx.createGain();
+      wet.gain.value = 0.42;
+      this.out.connect(verb).connect(wet).connect(this.ctx.destination);
     }
     void this.ctx.resume();
   }
@@ -21,6 +38,57 @@ export class Audio {
   setMuted(m: boolean) {
     this.muted = m;
     if (m) window.speechSynthesis?.cancel();
+    if (this.music && this.ctx) this.music.gain.setTargetAtTime(m ? 0 : 1, this.ctx.currentTime, 0.3);
+  }
+
+  /** Film müziği: alçak bir dem sesi üstüne seyrek, yalnız piyano notaları. */
+  startMusic() {
+    const ctx = this.ctx;
+    if (!ctx || this.music || !this.out) return;
+    const m = (this.music = ctx.createGain());
+    m.gain.value = this.muted ? 0 : 1;
+    m.connect(this.out);
+    for (const [f, g] of [[73.4, 0.05], [110, 0.03], [146.2, 0.018]]) {
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = f;
+      const gain = ctx.createGain();
+      gain.gain.value = g;
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = 0.05 + Math.random() * 0.08;
+      const depth = ctx.createGain();
+      depth.gain.value = g * 0.6;
+      lfo.connect(depth).connect(gain.gain);
+      o.connect(gain).connect(m);
+      o.start();
+      lfo.start();
+    }
+    const scale = [293.7, 349.2, 392, 440, 523.3, 587.3, 698.5]; // re minör
+    let last = 3;
+    const note = () => {
+      last = Math.max(0, Math.min(scale.length - 1, last + Math.floor(Math.random() * 5) - 2));
+      const t = ctx.currentTime + 0.05;
+      for (const [mult, vol] of [[1, 0.07], [2, 0.02], [0.5, 0.03]]) {
+        const o = ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = scale[last] * mult;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol, t + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0005, t + 3.5);
+        o.connect(g).connect(m);
+        o.start(t);
+        o.stop(t + 3.6);
+      }
+      window.setTimeout(note, 1800 + Math.random() * 3800);
+    };
+    window.setTimeout(note, 1500);
+  }
+
+  /** Ara yazı / perde geçişi: tek, derin bir vuruş. */
+  toll() {
+    this.tone('sine', 55, 52, 2.5, 0.5);
+    this.tone('sine', 220, 219, 2.2, 0.06);
   }
 
   private noise(dur: number, type: BiquadFilterType, f0: number, f1: number, gain: number, delay = 0) {
@@ -36,7 +104,7 @@ export class Audio {
     const g = ctx.createGain();
     g.gain.setValueAtTime(gain, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    src.connect(f).connect(g).connect(ctx.destination);
+    src.connect(f).connect(g).connect(this.out!);
     src.start(t, Math.random() * 0.5, dur);
   }
 
@@ -51,7 +119,7 @@ export class Audio {
     const g = ctx.createGain();
     g.gain.setValueAtTime(gain, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(g).connect(ctx.destination);
+    o.connect(g).connect(this.out!);
     o.start(t);
     o.stop(t + dur);
   }

@@ -56,7 +56,7 @@ ui.onWeapon = (id) => {
   audio.unlock();
   if (!game.selectWeapon(id)) {
     const w = WEAPONS.find((x) => x.id === id)!;
-    ui.toast(`${w.name} için ${(w.price - game.coins).toLocaleString('tr-TR')} jeton daha lazım. Dövmeye devam!`);
+    ui.toast(`${w.name} için ${(w.price - game.coins).toLocaleString('tr-TR')} jeton daha gerek.`);
   }
 };
 ui.onMute = () => {

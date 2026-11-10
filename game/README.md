@@ -3,6 +3,12 @@
 Slotta sinirlenenlerin hıncını slot maskotlarından aldığı web oyunu. Maskot sinir bozucu laflar
 eder; yeterince dövülünce **MAX WIN** verir. Parodidir: gerçek para / bahis yoktur.
 
+Oyun bir **sanat filmi** gibi kurgulandı: siyah-beyaz görüntüde yalnızca kan, altın ve maskotun
+vurgu rengi renkli; sinemaskop çerçeve, altyazı, perde ara yazıları, kesmelerle değişen kamera
+planları, kopuşlarda ağır çekim. Maskotun oyunculuğu üç perdede değişir:
+**I. Kibir** (alay eder, sırtını döner, volta atar) → **II. Öfke** (azarlar, korunur, sersemler) →
+**III. Yakarış** (diz çöker, büzülür, geri geri kaçar).
+
 Three.js + TypeScript + Vite. Ses dosyası yok (WebAudio ile sentez), konuşma tarayıcı TTS'i ile.
 
 ```bash
@@ -41,8 +47,11 @@ olması (Mixamo / Unreal / Blender tarzı adlandırmalar otomatik tanınır).
 | `src/weapons.ts` | Silah tanımları + birinci şahıs silah modelleri |
 | `src/character/rig.ts` | Kemik adlarından vücut parçalarını bulur |
 | `src/character/character.ts` | Model yükleme, isabet → parça, yaylı vuruş tepkisi, **uzuv koparma** |
+| `src/character/acting.ts` | Oyunculuk: davranışlar (pozlar uzuv *yönü* olarak tarif edilir, her rig'de aynı görünür) |
 | `src/character/placeholder.ts` | Geçici karakter (gerçek iskelet + SkinnedMesh üretir) |
-| `src/game.ts` | Sahne, girdi, saldırı akışı, efektler |
+| `src/game.ts` | Sahne, girdi, saldırı akışı, perdeler, ağır çekim |
+| `src/director.ts` | Kamera planları (genel, alt açı, yakın, eğik, tepe, uzak, kopuş, final) ve kesmeler |
+| `src/film.ts` | Renk banyosu: seçici renk, gren, vinyet |
 | `src/fx.ts` | Kan/kıvılcım parçacıkları, kopan parçaların fiziği, arkadaki slot makarası |
 
 **Uzuv koparma** (`Character.sever`): kopan kemiğin alt ağacına ağırlıklı üçgenler o anki pozda
@@ -54,3 +63,6 @@ kesik yerine kapak konur. Herhangi bir rig'li mesh ile çalışır.
 `cauterize` kan yerine dağlama yapar. Görseli `buildViewModel` içine eklenir.
 
 **Yeni maskot**: `CHARACTERS` listesine kayıt ekle (+ isteğe bağlı GLB).
+
+**Yeni davranış**: `acting.ts` içindeki `BEHAVIORS`'a bir fonksiyon ekle, `game.ts`'teki `ACTS`
+listesinde ilgili perdeye adını yaz. **Yeni kamera planı**: `director.ts` içindeki `switch`'e ekle.

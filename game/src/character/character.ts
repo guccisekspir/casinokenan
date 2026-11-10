@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { CharacterDef } from '../characters';
 import type { WeaponDef } from '../weapons';
+import { BEHAVIORS, blendPose, newPose, resetPose, type Behavior, type LimbKey } from './acting';
 import { buildPlaceholder } from './placeholder';
 import { detectRig, PART_CHILDREN, PART_IDS, type PartId, type Rig } from './rig';
 
@@ -43,6 +44,10 @@ const _q = new THREE.Quaternion();
 const _q2 = new THREE.Quaternion();
 const _q3 = new THREE.Quaternion();
 const _e = new THREE.Euler();
+const _q4 = new THREE.Quaternion();
+const _rootInv = new THREE.Quaternion();
+const _v2 = new THREE.Vector2();
+const _v3 = new THREE.Vector3();
 
 export class Character {
   readonly root = new THREE.Group();
@@ -72,6 +77,19 @@ export class Character {
   private dropTarget = 0;
   private deadT = 0;
   private legLen = { thigh: 0.4, shin: 0.4 };
+
+  // Oyunculuk
+  private limbs: { key: LimbKey; part: PartId; bone: THREE.Bone; dir: THREE.Vector3 }[] = [];
+  private pose = newPose();
+  private target = newPose();
+  private behavior: Behavior = BEHAVIORS.smug;
+  private behT = 0;
+  private stand = new THREE.Vector2(); // sahnedeki (x, z) konumu
+  private walkPhase = 0;
+  private walkAmp = 0;
+  private lookYaw = 0;
+  private lookPitch = 0;
+  behaviorName = 'smug';
 
   private constructor(readonly def: CharacterDef) {
     this.maxHp = this.hp = def.hp;
@@ -162,9 +180,23 @@ export class Character {
       }
     }
 
+    // Uzuv yönleri (kemik yerel uzayında): pozlar "şu uzuv şu yöne baksın" diye uygulanır.
+    const limb = (key: LimbKey, part: PartId, childPart?: PartId) => {
+      const bone = this.rig.parts[part];
+      if (!bone) return;
+      const child = (childPart && this.rig.parts[childPart]) || bone.children.find((c) => (c as THREE.Bone).isBone);
+      if (!child) return;
+      const dir = bone.worldToLocal(child.getWorldPosition(new THREE.Vector3())).normalize();
+      this.limbs.push({ key, part, bone, dir });
+    };
+    limb('armL', 'armL', 'forearmL'); limb('foreL', 'forearmL');
+    limb('armR', 'armR', 'forearmR'); limb('foreR', 'forearmR');
+    limb('legL', 'legL', 'shinL'); limb('shinL', 'shinL');
+    limb('legR', 'legR', 'shinR'); limb('shinR', 'shinR');
+
     for (const m of this.meshes) {
       m.computeBoundingSphere();
-      m.boundingSphere!.radius *= 1.6; // savrulma payı
+      m.boundingSphere!.radius *= 3; // savrulma + sahnede yürüme payı
     }
 
     if (clips.length && cfg.useClips !== false) {
@@ -414,20 +446,83 @@ export class Character {
     this.saved.push([b, b.quaternion.clone()]);
   }
 
-  update(dt: number) {
+  /** Davranışı (sahneyi) değiştirir. */
+  act(name: string) {
+    const b = BEHAVIORS[name];
+    if (!b || name === this.behaviorName) return;
+    this.behavior = b;
+    this.behaviorName = name;
+    this.behT = 0;
+  }
+
+  get canWalk(): boolean {
+    return !(['legL', 'legR', 'shinL', 'shinR'] as PartId[]).some((p) => this.parts.get(p)?.severed);
+  }
+
+  get lostArm(): boolean {
+    return (['armL', 'armR', 'forearmL', 'forearmR'] as PartId[]).some((p) => this.parts.get(p)?.severed);
+  }
+
+  /** @param lookAt kafanın döneceği nokta (kamera): karakter seyirciyle göz teması kurar. */
+  update(dt: number, lookAt?: THREE.Vector3) {
     this.time += dt;
     const t = this.time;
 
-    // Geçen karede eklenen prosedürel ofsetleri geri al (animasyon/dinlenme pozu bozulmasın).
+    // Geçen karede eklenen yay/konuşma ofsetlerini geri al.
     for (const [b, q] of this.saved) b.quaternion.copy(q);
     this.saved.length = 0;
     this.savedSet.clear();
 
-    if (this.mixer) {
-      if (!this.dead) this.mixer.update(dt);
-    } else if (!this.dead) {
-      this.proceduralIdle(t);
+    if (this.mixer && !this.dead) this.mixer.update(dt);
+
+    // Kök: sahnede yürüme + geri savrulma + çökme + nakavt
+    this.knockVel.addScaledVector(this.knock, -60 * dt).multiplyScalar(Math.exp(-7 * dt));
+    this.knock.addScaledVector(this.knockVel, dt);
+    this.drop += (this.dropTarget - this.drop) * Math.min(1, dt * 10);
+
+    if (!this.dead) {
+      this.behT += dt;
+      resetPose(this.target);
+      this.behavior(this.behT, this.target, {
+        lostArmL: !!(this.parts.get('armL')?.severed || this.parts.get('forearmL')?.severed),
+        lostArmR: !!(this.parts.get('armR')?.severed || this.parts.get('forearmR')?.severed),
+      });
+      if (!this.canWalk) this.target.x = this.target.z = 0;
+      blendPose(this.pose, this.target, 1 - Math.exp(-7 * dt));
+
+      // Hedefe kaymak yok: sınırlı hızla yürür, bacaklar hıza göre adım atar.
+      const to = _v2.set(this.target.x, this.target.z).sub(this.stand);
+      const dist = to.length();
+      const step = Math.min(dist, 0.75 * dt);
+      let speed = 0;
+      if (dist > 1e-4) {
+        this.stand.addScaledVector(to, step / dist);
+        speed = step / Math.max(dt, 1e-4);
+        // İleri mi geri mi yürüyor? (baktığı yöne göre)
+        const fwd = Math.sin(this.pose.yaw) * to.x + Math.cos(this.pose.yaw) * to.y;
+        this.walkPhase += (fwd >= 0 ? 1 : -1) * speed * 5.2 * dt;
+      }
+      this.walkAmp += (Math.min(1, speed / 0.5) - this.walkAmp) * Math.min(1, dt * 8);
     }
+
+    let lift = 0;
+    if (this.dead) {
+      this.deadT += dt;
+      const k = bounceOut(Math.min(this.deadT / 0.9, 1));
+      this.root.rotation.x = -k * Math.PI * 0.5;
+      lift = k * 0.22;
+      this.knock.z -= dt * 0.6 * (1 - k);
+    }
+    const kneelDrop = this.pose.kneel * this.legLen.shin * 0.92;
+    const bob = Math.abs(Math.sin(this.walkPhase)) * 0.03 * this.walkAmp;
+    this.root.position.set(
+      this.stand.x + this.knock.x,
+      lift + bob - Math.max(this.drop, kneelDrop),
+      this.stand.y + this.knock.z,
+    );
+    this.root.rotation.y = this.pose.yaw;
+
+    if (!this.dead) this.applyPose(t, lookAt);
 
     // Konuşma: kafa sallama
     const head = this.parts.get('head');
@@ -435,7 +530,7 @@ export class Character {
       this.talkT -= dt;
       this.touch(head.bone);
       head.bone.quaternion.multiply(
-        _q.setFromEuler(_e.set(Math.sin(t * 22) * 0.07, Math.sin(t * 9) * 0.1, Math.sin(t * 13) * 0.06)),
+        _q.setFromEuler(_e.set(Math.sin(t * 22) * 0.06, Math.sin(t * 9) * 0.08, Math.sin(t * 13) * 0.05)),
       );
     }
 
@@ -463,35 +558,71 @@ export class Character {
       c.t += dt;
       c.mat.emissiveIntensity = 0.25 + 2.75 * Math.exp(-c.t * 0.8);
     }
-
-    // Kök: geri savrulma + bacaksız kalınca çökme + nakavt
-    this.knockVel.addScaledVector(this.knock, -60 * dt).multiplyScalar(Math.exp(-7 * dt));
-    this.knock.addScaledVector(this.knockVel, dt);
-    this.drop += (this.dropTarget - this.drop) * Math.min(1, dt * 10);
-    let lift = 0;
-    if (this.dead) {
-      this.deadT += dt;
-      const k = bounceOut(Math.min(this.deadT / 0.9, 1));
-      this.root.rotation.x = -k * Math.PI * 0.5;
-      lift = k * 0.22;
-      this.knock.z -= dt * 0.6 * (1 - k);
-    }
-    this.root.position.set(this.knock.x, lift - this.drop, this.knock.z);
   }
 
-  /** Animasyon klibi olmayan modeller için: nefes alma + ukala sallanma. */
-  private proceduralIdle(t: number) {
-    const set = (b: THREE.Bone | undefined | null, x: number, y: number, z: number) => {
-      if (!b) return;
-      b.quaternion.copy(this.rest.get(b)!).multiply(_q.setFromEuler(_e.set(x, y, z)));
+  /** Pozu iskelete uygular: gövde/kafa eğimi + uzuvları hedef yöne çevirme. */
+  private applyPose(t: number, lookAt?: THREE.Vector3) {
+    const p = this.pose;
+    const rootQ = this.root.quaternion;
+    const rootInv = _rootInv.copy(rootQ).invert();
+    const breath = Math.sin(t * 1.6) * 0.02;
+    const shake = p.tremble * 0.035;
+
+    // Eğim: karakter uzayındaki dönüşü dünya üzerinden kemiğe taşı.
+    const lean = (bone: THREE.Bone, x: number, y: number, z: number) => {
+      const P = bone.parent!.getWorldQuaternion(_q2);
+      _q.setFromEuler(_e.set(x, y, z));
+      const Qw = _q3.copy(rootQ).multiply(_q).multiply(rootInv);
+      const Wrest = _q4.copy(P).multiply(this.rest.get(bone)!);
+      bone.quaternion.copy(P).invert().multiply(Qw).multiply(Wrest);
     };
+
     const sp = this.rig.spine;
-    sp.forEach((b, i) => set(b, Math.sin(t * 1.8) * 0.025, Math.sin(t * 0.9 + i) * 0.04, Math.sin(t * 1.1) * 0.02));
-    set(this.rig.parts.head, Math.sin(t * 1.4) * 0.05, Math.sin(t * 0.7) * 0.18, Math.sin(t * 1.9) * 0.05);
-    set(this.rig.parts.armL, 0, 0, Math.sin(t * 1.8) * 0.06);
-    set(this.rig.parts.armR, 0, 0, -Math.sin(t * 1.8) * 0.06);
-    set(this.rig.parts.forearmL, 0, Math.sin(t * 1.3) * 0.1, 0);
-    set(this.rig.parts.forearmR, 0, -Math.sin(t * 1.3 + 1) * 0.1, 0);
+    const n = Math.max(1, sp.length);
+    sp.forEach((b, i) =>
+      lean(
+        b,
+        (p.spine.x + breath) / n + Math.sin(t * 41 + i) * shake,
+        p.spine.y / n,
+        p.spine.z / n + Math.sin(t * 37 + i * 2) * shake,
+      ),
+    );
+
+    const head = this.parts.get('head');
+    if (head && !head.severed) {
+      if (lookAt) {
+        const d = _v.copy(lookAt).sub(head.bone.getWorldPosition(_v3)).applyQuaternion(rootInv);
+        const yaw = THREE.MathUtils.clamp(Math.atan2(d.x, d.z), -1.15, 1.15);
+        const pitch = THREE.MathUtils.clamp(-Math.atan2(d.y, Math.hypot(d.x, d.z)), -0.6, 0.6);
+        this.lookYaw += (yaw - this.lookYaw) * 0.12;
+        this.lookPitch += (pitch - this.lookPitch) * 0.12;
+      }
+      lean(
+        head.bone,
+        p.head.x + this.lookPitch * p.look - p.spine.x * 0.5 * p.look + Math.sin(t * 43) * shake,
+        p.head.y + this.lookYaw * p.look - p.spine.y * p.look,
+        p.head.z + Math.sin(t * 39) * shake,
+      );
+    }
+
+    // Yürüme: bacak yönlerini adım döngüsüyle karıştır.
+    const w = this.walkAmp * (1 - p.kneel);
+    for (const l of this.limbs) {
+      if (this.parts.get(l.part)!.severed) continue;
+      const dir = _v.copy(p[l.key]);
+      if (w > 0.01 && (l.key.startsWith('leg') || l.key.startsWith('shin'))) {
+        const ph = this.walkPhase + (l.key.endsWith('R') ? Math.PI : 0);
+        let a = 0.5 * Math.sin(ph);
+        if (l.key.startsWith('shin')) a -= 0.75 * Math.max(0, Math.sin(ph + 1.9)); // diz kırma
+        dir.lerp(_v3.set(dir.x, -Math.cos(a), Math.sin(a)), w);
+      }
+      const P = l.bone.parent!.getWorldQuaternion(_q2);
+      const Wrest = _q4.copy(P).multiply(this.rest.get(l.bone)!);
+      const cur = _v3.copy(l.dir).applyQuaternion(Wrest);
+      const tgt = dir.normalize().applyQuaternion(rootQ);
+      _q.setFromUnitVectors(cur, tgt);
+      l.bone.quaternion.copy(P).invert().multiply(_q).multiply(Wrest);
+    }
   }
 
   dispose() {
