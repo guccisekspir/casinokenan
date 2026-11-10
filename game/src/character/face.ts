@@ -32,7 +32,7 @@ export type Mood = 'smug' | 'angry' | 'fear' | 'dead';
 
 interface Expression {
   jaw: number;
-  /** + kapalı, − iri açılmış göz. */
+  /** 0 açık, 1 kapalı göz kapağı. */
   eyeL: number; eyeR: number;
   /** + kalkık, − inik kaş. */
   browL: number; browR: number;
@@ -43,13 +43,14 @@ interface Expression {
 }
 
 const MOODS: Record<Mood, Expression> = {
-  // Tek kaşı kalkık, gözleri kısık, sırıtan.
-  smug: { jaw: 0, eyeL: 0.12, eyeR: 0.3, browL: 0.9, browR: -0.25, furrow: 0.1, smile: 0.8 },
-  angry: { jaw: 0.05, eyeL: 0.35, eyeR: 0.35, browL: -0.7, browR: -0.7, furrow: 1, smile: -0.5 },
-  fear: { jaw: 0.22, eyeL: -0.55, eyeR: -0.55, browL: 1, browR: 1, furrow: -0.5, smile: -0.8 },
-  dead: { jaw: 0.55, eyeL: 0.72, eyeR: 0.6, browL: 0, browR: 0, furrow: 0, smile: -0.2 },
+  // Tek kaşı kalkık, gözleri hafif kısık, sırıtan.
+  smug: { jaw: 0, eyeL: 0.1, eyeR: 0.3, browL: 1, browR: -0.3, furrow: 0, smile: 1 },
+  angry: { jaw: 0.04, eyeL: 0.3, eyeR: 0.3, browL: -0.8, browR: -0.8, furrow: 1, smile: -0.6 },
+  // Kaşlar kalkık, ağız aralık. (Gözleri "iri açmak" yontulmuş yüzü bozduğu için yok.)
+  fear: { jaw: 0.3, eyeL: 0, eyeR: 0, browL: 1, browR: 1, furrow: -0.6, smile: -1 },
+  dead: { jaw: 0.55, eyeL: 0.8, eyeR: 0.65, browL: 0, browR: 0, furrow: 0, smile: -0.3 },
 };
-const PAIN: Expression = { jaw: 0.85, eyeL: 1, eyeR: 1, browL: -0.6, browR: -0.6, furrow: 1, smile: -0.6 };
+const PAIN: Expression = { jaw: 0.8, eyeL: 1, eyeR: 1, browL: -0.7, browR: -0.7, furrow: 1, smile: -0.6 };
 const KEYS = ['jaw', 'eyeL', 'eyeR', 'browL', 'browR', 'furrow', 'smile'] as const;
 
 /** Ağız açıklığı: Türkçe ünlülere ve dudak ünsüzlerine göre. */
@@ -258,22 +259,24 @@ vec3 faceDeform(vec3 p) {
   q.y -= jaw * 0.6 * s;
   q.z -= jaw * 0.14 * s;
 
-  // Göz kapakları: + kapanır (göz çizgisine doğru ezilir), − iri açılır.
-  float we = faceBump((p.xy - vec2(side * ex, ey)) / vec2(0.95 * s, 0.5 * s)) * front;
-  q.y = mix(q.y, ey - 0.06 * s, clamp(lid, 0.0, 1.0) * 0.92 * we);
-  q.y += (p.y - ey) * max(-lid, 0.0) * 0.4 * we;
+  // Bölgeler bilerek dar ve hareketler küçük: yontulmuş bir yüzde geniş bir bölgeyi oynatmak
+  // burnu, yanakları ve alnı da sürükleyip yüzü bozar.
 
-  // Kaşlar: kalkma / inme, ortada çatılma.
-  float wb = faceBump((p.xy - vec2(side * ex * 0.95, by)) / vec2(1.25 * s, 0.55 * s)) * front;
-  q.y += brow * 0.24 * s * wb;
-  float wi = faceBump((p.xy - vec2(side * ex * 0.35, by)) / vec2(0.7 * s, 0.6 * s)) * front;
-  q.y -= uFaceP.z * 0.2 * s * wi;
-  q.x -= side * uFaceP.z * 0.1 * s * wb;
+  // Üst göz kapağı: yalnızca gözün hemen üstündeki şerit göz çizgisine iner. Alt kapak, burun
+  // kemeri ve yanak yerinde kalır.
+  vec2 de = (p.xy - vec2(side * ex, ey)) / vec2(0.5 * s, 0.26 * s);
+  float we = faceBump(de) * front * smoothstep(-0.1 * s, 0.06 * s, p.y - ey);
+  q.y -= max(p.y - ey + 0.02 * s, 0.0) * clamp(lid, 0.0, 1.0) * we;
 
-  // Ağız köşeleri: sırıtış (yukarı-dışa) / sarkma.
-  float wc = faceBump((p.xy - vec2(side * ex * 0.85, my + 0.25 * s)) / vec2(0.75 * s, 0.6 * s)) * front;
-  q.y += uFaceP.y * 0.3 * s * wc;
-  q.x += side * uFaceP.y * 0.18 * s * wc;
+  // Kaşlar: dar bir şerit, en fazla bir santim kadar kalkar / iner; ortada hafifçe çatılır.
+  float wb = faceBump((p.xy - vec2(side * ex, by)) / vec2(0.85 * s, 0.26 * s)) * front;
+  q.y += brow * 0.11 * s * wb;
+  float wi = faceBump((p.xy - vec2(side * ex * 0.45, by)) / vec2(0.45 * s, 0.26 * s)) * front;
+  q.y -= uFaceP.z * 0.09 * s * wi;
+
+  // Ağız köşeleri: küçük bir kıvrılma (bıyık / sakal altında fazlası yüzü çarpıtır).
+  float wc = faceBump((p.xy - vec2(side * ex * 0.75, my + 0.1 * s)) / vec2(0.4 * s, 0.3 * s)) * front;
+  q.y += uFaceP.y * 0.08 * s * wc;
   return q;
 }
 `;
