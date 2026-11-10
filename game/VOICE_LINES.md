@@ -1,6 +1,6 @@
 # Ses dosyaları
 
-Toplam **190** replik, kaydı olan: **0**.
+Toplam **196** replik, kaydı olan: **0**.
 
 Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değiştirmek için
 `src/lines/<karakter>.json` dosyalarını düzenleyip komutu yeniden çalıştırın.
@@ -10,7 +10,7 @@ Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değ
 - Dosyası olmayan replik oyunda tarayıcının sesli okumasıyla söylenir; yani kayıtlar parça parça eklenebilir.
 - Her olayın alternatifleri vardır; oyun hepsini söylemeden hiçbirini tekrar etmez.
 
-## Asansörcü — 95 replik
+## Asansörcü — 98 replik
 
 Klasör: `public/audio/asansorcu/`
 
@@ -160,6 +160,16 @@ Oyuncu ışın kılıcını eline aldı.
 | `weapon_saber_2.mp3` | Onu söndür, patron görürse el koyar. | — |
 | `weapon_saber_3.mp3` | Tamam, sakin. O şey önlüğü de keser mi? | — |
 
+### weapon_saw
+
+Oyuncu testereyi çalıştırdı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_saw_1.mp3` | Testere mi? O benim alet çantamdan çıkmış! | — |
+| `weapon_saw_2.mp3` | Kapat şunu, asansör boşluğunda yankı yapıyor! | — |
+| `weapon_saw_3.mp3` | Hııh. Kasaba testereyle gelinmez. | — |
+
 ### sever_arm
 
 Kolu / ön kolu koptu.
@@ -277,7 +287,7 @@ Pes etti, max win veriyor.
 | `death_2.mp3` | Ölü... asansörcü... ödemez... | — |
 | `death_3.mp3` | Kapılar... kapanıyor... | — |
 
-## Şimşek Dede — 95 replik
+## Şimşek Dede — 98 replik
 
 Klasör: `public/audio/simsek-dede/`
 
@@ -426,6 +436,16 @@ Oyuncu ışın kılıcını eline aldı.
 | `weapon_saber_1.mp3` | O ışık ne? Şimşek benim işim! | — |
 | `weapon_saber_2.mp3` | Bunu hangi slottan çıkardın sen? | — |
 | `weapon_saber_3.mp3` | Tamam, tamam, sakin. Bırak o parlak şeyi. | — |
+
+### weapon_saw
+
+Oyuncu testereyi çalıştırdı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_saw_1.mp3` | O gürültü ne? Gök gürültüsü benim işim! | — |
+| `weapon_saw_2.mp3` | Testere mi? Evlat, ben odun değilim! | — |
+| `weapon_saw_3.mp3` | Kapat şunu, sakalıma talaş kaçacak! | — |
 
 ### sever_arm
 

@@ -9,6 +9,7 @@ const HINT: Record<WeaponDef['kind'], string> = {
   blunt: `${GOAL} · dokun: vur`,
   slash: `${GOAL} · basılı tutup sürükle: kes`,
   shot: `${GOAL} · dokun: ateş et`,
+  saw: `${GOAL} · basılı tut: testere değdiği sürece keser`,
 };
 
 /** Arayüz bir film çerçevesi gibi: sinemaskop şeritleri, altyazı, ara yazılar. */

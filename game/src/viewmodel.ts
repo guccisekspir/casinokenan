@@ -95,6 +95,31 @@ function pistol(): THREE.Group {
   return g;
 }
 
+const SAW_BODY = new THREE.MeshStandardMaterial({ color: 0xe0531f, roughness: 0.5 });
+
+/** Motorlu testere. Orijin ön tutamak; pala +Z'ye uzanır. Zincir `chain` adlı parçadır. */
+function chainsaw(): THREE.Group {
+  const g = new THREE.Group();
+  g.add(mesh(new RoundedBoxGeometry(0.15, 0.13, 0.24, 3, 0.025), SAW_BODY, 0, 0, -0.06)); // motor
+  g.add(mesh(new RoundedBoxGeometry(0.11, 0.05, 0.1, 2, 0.015), DARK, 0, 0.085, -0.08)); // hava filtresi
+  g.add(mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.06, 10), GUNMETAL, 0.05, 0.08, 0.02)); // egzoz
+  // Arka tutamak ve üstten dolanan ön tutamak
+  g.add(mesh(new THREE.TorusGeometry(0.055, 0.013, 8, 14, Math.PI).rotateY(Math.PI / 2).rotateX(-Math.PI / 2), DARK, 0, 0.0, -0.2));
+  g.add(mesh(new THREE.TorusGeometry(0.095, 0.011, 8, 16, Math.PI).rotateZ(0), DARK, 0, 0.02, 0.03));
+  // Pala + zincir (koyu, dişli kenar)
+  g.add(mesh(new RoundedBoxGeometry(0.012, 0.085, 0.62, 2, 0.005), STEEL, 0.03, -0.01, 0.38));
+  const chain = new THREE.Group();
+  chain.name = 'chain';
+  for (let i = 0; i < 22; i++) {
+    for (const y of [0.04, -0.06]) {
+      chain.add(mesh(new THREE.BoxGeometry(0.016, 0.014, 0.016), GUNMETAL, 0.03, y, 0.09 + i * 0.028));
+    }
+  }
+  chain.add(mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.016, 12, 1, false, 0, Math.PI).rotateZ(Math.PI / 2).rotateX(Math.PI / 2), GUNMETAL, 0.03, -0.01, 0.69));
+  g.add(chain);
+  return g;
+}
+
 function sword(def: WeaponDef): THREE.Group {
   const g = new THREE.Group();
   if (def.cauterize) {
@@ -137,6 +162,8 @@ export interface ViewState {
   holding: boolean;
   /** Yürüme salınımı (-1..1). */
   bob: number;
+  /** Testere şu an ete değiyor mu. */
+  cutting?: boolean;
 }
 
 export class ViewModel {
@@ -147,6 +174,7 @@ export class ViewModel {
   /** Tabanca / kılıç: silah ve onu tutan iki el. */
   private tool: THREE.Group | null = null;
   private flash: THREE.Object3D | null = null;
+  private chain: THREE.Object3D | null = null;
   private strikeT = 1;
   private hand: 'L' | 'R' = 'L';
   private target = new THREE.Vector3();
@@ -165,7 +193,7 @@ export class ViewModel {
 
   setWeapon(def: WeaponDef) {
     for (const g of [this.left, this.right, this.tool]) g?.removeFromParent();
-    this.left = this.right = this.tool = this.flash = null;
+    this.left = this.right = this.tool = this.flash = this.chain = null;
     this.def = def;
 
     if (def.kind === 'blunt') {
@@ -187,6 +215,18 @@ export class ViewModel {
       l.rotation.set(0.1, 0.35, 0.4);
       t.add(r, l);
       this.flash = t.getObjectByName('flash') ?? null;
+      this.root.add(t);
+    } else if (def.kind === 'saw') {
+      const t = (this.tool = new THREE.Group());
+      t.add(chainsaw());
+      this.chain = t.getObjectByName('chain') ?? null;
+      // Sağ el arka tutamakta, sol el üstteki ön tutamakta.
+      const r = arm(1, 0.5, 0.35);
+      r.position.set(0, 0.0, -0.25);
+      const l = arm(-1, 0.75, 0.5);
+      l.rotation.z = Math.PI / 2;
+      l.position.set(-0.08, 0.07, 0.03);
+      t.add(r, l);
       this.root.add(t);
     } else {
       const t = (this.tool = new THREE.Group());
@@ -272,6 +312,28 @@ export class ViewModel {
       g.lookAt(s.ray.at(8, _a));
       g.rotateX(-0.38 * k); // geri tepme
       if (this.flash) this.flash.visible = this.strikeT < 0.3;
+      return;
+    }
+
+    if (def.kind === 'saw') {
+      // Rölantide belde, hafifçe titrer; tetiğe basınca pala imlecin gösterdiği yere uzanır ve
+      // ete değdiğinde bütün alet sarsılır.
+      const rev = s.holding ? 1 : 0;
+      const buzz = (s.cutting ? 0.012 : s.holding ? 0.005 : 0.0018);
+      const jx = (Math.random() - 0.5) * buzz, jy = (Math.random() - 0.5) * buzz;
+      const rest = _c.set(0.14 * narrow + lagX + swayX + jx, -0.21 + hide + lagY + swayY + jy, -0.5);
+      const hold = cam.worldToLocal(s.ray.at(1.25, _b));
+      // Gövde imlecin sağ altında kalır, pala çaprazdan imlece uzanır: kesilen yer ve dişler görünür.
+      hold.y -= 0.3;
+      hold.x += 0.24 * narrow;
+      hold.z += 0.5;
+      rest.lerp(hold, rev);
+      g.position.lerp(rest, 1 - Math.exp(-20 * dt));
+      g.lookAt(s.ray.at(3.2 - 1.7 * rev, _a));
+      g.rotateX(-0.3 * (1 - rev) + (s.cutting ? (Math.random() - 0.5) * 0.05 : 0));
+      g.rotateZ(0.12 * (1 - rev));
+      // Zincir dönüyor izlenimi: dişler pala boyunca ileri geri kayar.
+      if (this.chain) this.chain.position.z = s.holding ? (t * 3) % 0.028 : 0;
       return;
     }
 

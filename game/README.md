@@ -84,7 +84,7 @@ sağlam eliyle güdüğü tutar, titrer, hızlı nefes alır; canı azaldıkça 
 Kopan parça kendi iskeletiyle ayrı bir ragdoll'dur; ölüm de aynı fizikle bir yığılmadır.
 
 **Yeni silah**: `WEAPONS` listesine satır ekle. Davranış `kind` ile gelir —
-`blunt` (tıkla-vur), `slash` (sürükle-kes), `shot` (tıkla-ateş). `sever > 0` ise uzuv koparır,
+`blunt` (tıkla-vur), `slash` (sürükle-kes), `shot` (tıkla-ateş), `saw` (basılı tut, değdiği sürece keser). `sever > 0` ise uzuv koparır,
 `cauterize` kan yerine dağlama yapar. Görseli `src/viewmodel.ts` içine eklenir.
 
 **Yeni maskot**: `CHARACTERS` listesine kayıt ekle (+ isteğe bağlı GLB).

@@ -127,6 +127,10 @@ export class Game {
   private pendingShot: { at: number; shot: Shot | null } | null = null;
   private severs = 0;
   private farHintAt = 0;
+  private ptrX = 0;
+  private ptrY = 0;
+  /** Testere şu an ete değiyor mu (ses, titreşim ve el modeli için). */
+  private sawBiteAt = -1;
   /** Oyuncu sahnede yürüyerek mi oynuyor (kamera onun gözü). */
   private walking = false;
   private keys = new Set<string>();
@@ -349,6 +353,8 @@ export class Game {
     this.down = true;
     this.lastX = e.clientX;
     this.lastY = e.clientY;
+    this.ptrX = e.clientX;
+    this.ptrY = e.clientY;
     this.setNdc(e.clientX, e.clientY);
     this.stroke.clear();
     this.trail.length = 0;
@@ -356,6 +362,8 @@ export class Game {
   };
 
   private onMove = (e: PointerEvent) => {
+    this.ptrX = e.clientX;
+    this.ptrY = e.clientY;
     this.setNdc(e.clientX, e.clientY);
     if (!this.down || this.weapon.kind !== 'slash') return;
     this.trail.push({ x: e.clientX, y: e.clientY, t: this.now });
@@ -441,7 +449,7 @@ export class Game {
     const ray = this.raycaster.ray;
     const hit = ch.raycast(ray);
 
-    if (!drag) {
+    if (!drag && w.kind !== 'saw') {
       this.view.strike(hit ? hit.point : ray.at(4, _a));
       if (w.kind === 'shot') this.audio.shot();
       else if (w.cauterize) this.audio.saber();
@@ -449,7 +457,7 @@ export class Game {
     }
     // Oyuncu kendi gözünden oynuyorsa yumruk ve kılıç ancak yakından isabet eder.
     const tooFar = !!hit && this.director.shot === 'player' && w.kind !== 'shot' &&
-      hit.point.distanceTo(this.camera.position) > (w.kind === 'slash' ? REACH_BLADE : REACH_FIST);
+      hit.point.distanceTo(this.camera.position) > (w.kind === 'blunt' ? REACH_FIST : REACH_BLADE);
     if (!hit || tooFar) {
       this.stroke.clear(); // boşa çıkan kesik: aynı parçaya geri dönüp tekrar kesebilsin
       if (!drag) this.speak('miss');
@@ -482,7 +490,11 @@ export class Game {
     const blood = ch.def.bloodColor;
     const back = _a.copy(ray.direction).multiplyScalar(-0.6);
 
-    if (w.kind === 'blunt') {
+    if (w.kind === 'saw') {
+      // Dişler eti savurur: kan, zincirin döndüğü yöne (yukarı ve oyuncuya doğru) püskürür.
+      this.sawBiteAt = this.now;
+      this.particles.emit(hit.point, _b.copy(back).setY(1.1), 7, blood, 4.2, 0.55);
+    } else if (w.kind === 'blunt') {
       this.audio.punch(w.id !== 'fist');
       this.particles.emit(hit.point, back, w.id === 'fist' ? 3 : 8, blood, 2);
     } else if (w.cauterize) {
@@ -496,7 +508,7 @@ export class Game {
     }
 
     this.shake = Math.min(0.1, this.shake + w.force * 0.004);
-    if (res.crit) this.freezeUntil = this.now + 0.07; // kafaya isabet: bir anlık donma
+    if (res.crit && w.kind !== 'saw') this.freezeUntil = this.now + 0.07; // kafaya isabet: bir anlık donma
     this.lastHitAt = this.now;
     // Baskı: uzuvlara vurmak hem daha çok sıkıştırır hem daha az can götürür. Aynı yere üst üste
     // vurmak ise gittikçe daha az işe yarar (alışır): oyuncu hedef değiştirmek zorunda.
@@ -635,6 +647,13 @@ export class Game {
     const dt = real * this.timeScale;
     const ch = this.character;
 
+    // Testere: basılı tutulduğu sürece dişler saniyede ~12 kez vurur.
+    const sawing = this.weapon.kind === 'saw' && this.state === 'fight';
+    if (sawing && this.down && this.now - this.lastAttack >= this.weapon.cooldown) this.attack(this.ptrX, this.ptrY);
+    const biting = sawing && this.down && this.now - this.sawBiteAt < 0.2;
+    this.audio.saw(!sawing ? 0 : biting ? 3 : this.down ? 2 : 1);
+    if (biting) this.shake = Math.max(this.shake, 0.035);
+
     if (this.pendingSlash) {
       const p = this.pendingSlash;
       this.pendingSlash = null;
@@ -720,7 +739,8 @@ export class Game {
     this.view.update(real, {
       pov: this.director.shot === 'player',
       ray: this.raycaster.ray,
-      holding: this.weapon.kind === 'slash' && this.down,
+      holding: (this.weapon.kind === 'slash' || this.weapon.kind === 'saw') && this.down,
+      cutting: biting,
       bob: this.director.playerBob,
     });
     this.drawTrail();

@@ -8,6 +8,7 @@ export class Audio {
   private analyser: AnalyserNode | null = null;
   private wave: Uint8Array<ArrayBuffer> | null = null;
   private voiceEl: HTMLAudioElement | null = null;
+  private sawNodes: { gain: GainNode; lp: BiquadFilterNode; a: OscillatorNode; b: OscillatorNode; lfo: OscillatorNode } | null = null;
 
   /** İlk kullanıcı etkileşiminde çağrılmalı (tarayıcı otomatik oynatma kuralı). */
   unlock() {
@@ -180,6 +181,47 @@ export class Audio {
     this.noise(0.35, 'lowpass', 1400, 150, 0.7);
     this.tone('sine', 90, 40, 0.3, 0.5);
   }
+  /**
+   * Testere motoru. Her karede çağrılır: 0 kapalı, 1 rölanti, 2 gaz, 3 ete değiyor (motor boğulur).
+   */
+  saw(level: 0 | 1 | 2 | 3) {
+    const ctx = this.ctx;
+    if (!ctx || !this.out) return;
+    if (!this.sawNodes) {
+      if (level === 0) return;
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 900;
+      const a = ctx.createOscillator(), b = ctx.createOscillator(), lfo = ctx.createOscillator();
+      a.type = 'sawtooth';
+      b.type = 'square';
+      lfo.type = 'square';
+      lfo.frequency.value = 23; // motorun patlama ritmi
+      const depth = ctx.createGain();
+      depth.gain.value = 0.5;
+      const trem = ctx.createGain();
+      trem.gain.value = 0.5;
+      lfo.connect(depth).connect(trem.gain);
+      a.connect(lp);
+      b.connect(lp);
+      lp.connect(trem).connect(gain).connect(this.out);
+      a.start();
+      b.start();
+      lfo.start();
+      this.sawNodes = { gain, lp, a, b, lfo };
+    }
+    const n = this.sawNodes, t = ctx.currentTime;
+    const f = [50, 52, 118, 84][level];
+    n.a.frequency.setTargetAtTime(f, t, 0.06);
+    n.b.frequency.setTargetAtTime(f * 1.51, t, 0.06);
+    n.lfo.frequency.setTargetAtTime([20, 21, 46, 33][level], t, 0.06);
+    n.lp.frequency.setTargetAtTime([400, 600, 2200, 1300][level], t, 0.06);
+    n.gain.gain.setTargetAtTime(this.muted ? 0 : [0, 0.05, 0.17, 0.2][level], t, 0.05);
+    if (level === 3 && Math.random() < 0.35) this.noise(0.07, 'bandpass', 2600, 900, 0.16); // dişlerin hırıltısı
+  }
+
   /** Bedenin ya da kopan bir uzvun yere düşmesi. */
   thud(heavy = false) {
     this.tone('sine', heavy ? 95 : 130, 38, heavy ? 0.3 : 0.16, heavy ? 0.8 : 0.35);

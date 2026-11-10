@@ -1,4 +1,4 @@
-export type WeaponKind = 'blunt' | 'slash' | 'shot';
+export type WeaponKind = 'blunt' | 'slash' | 'shot' | 'saw';
 
 export interface WeaponDef {
   id: string;
@@ -23,7 +23,8 @@ export interface WeaponDef {
 
 /**
  * Yeni silah eklemek için buraya bir satır + viewmodel.ts içine görseli eklemek yeterli.
- * Davranış `kind` üzerinden gelir: blunt = tıkla-vur, slash = sürükle-kes, shot = tıkla-ateş et.
+ * Davranış `kind` üzerinden gelir: blunt = tıkla-vur, slash = sürükle-kes, shot = tıkla-ateş et,
+ * saw = basılı tut, dişler değdiği sürece keser (değerler diş vuruşu başınadır).
  */
 export const WEAPONS: WeaponDef[] = [
   { id: 'fist', name: 'Yumruk', icon: '👊', price: 0, kind: 'blunt', damage: 4, force: 7, sever: 0, fear: 1.9, cooldown: 0.12 },
@@ -31,4 +32,5 @@ export const WEAPONS: WeaponDef[] = [
   { id: 'katana', name: 'Katana', icon: '🗡️', price: 600, kind: 'slash', damage: 12, force: 9, sever: 16, fear: 5, cooldown: 0.1 },
   { id: 'gun', name: 'Tabanca', icon: '🔫', price: 1500, kind: 'shot', damage: 10, force: 10, sever: 11, fear: 5, cooldown: 0.18 },
   { id: 'saber', name: 'Işın Kılıcı', icon: '⚡', price: 3000, kind: 'slash', damage: 20, force: 6, sever: 40, fear: 7, cauterize: true, cooldown: 0.1, color: 0x35e0ff },
+  { id: 'saw', name: 'Testere', icon: '🪚', price: 2200, kind: 'saw', damage: 1, force: 2.5, sever: 5, fear: 1, cooldown: 0.08 },
 ];
