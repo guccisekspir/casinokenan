@@ -89,9 +89,13 @@ export class UI {
     this.subTimer = window.setTimeout(() => (el.hidden = true), seconds * 1000);
   }
 
-  /** Tam ekran ara yazı (perde başlığı). */
-  card(top: string, main: string, sub: string, seconds: number) {
+  /**
+   * Ara yazı (perde başlığı). Varsayılan: sahneyi kapatmayan üst bant.
+   * @param full yalnızca sahne açılışında: tam ekran
+   */
+  card(top: string, main: string, sub: string, seconds: number, full = false) {
     const el = $('card');
+    el.classList.toggle('full', full);
     $('card-top').textContent = top;
     $('card-main').textContent = main;
     $('card-sub').textContent = sub;

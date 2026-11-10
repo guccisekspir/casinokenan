@@ -277,7 +277,7 @@ export class Game {
     ch.act('smug');
     this.director.cut('wide');
     this.shotTimer = 10;
-    this.openAct(boss(def.id, 'slot', def.slotName), boss(def.id, 'name', def.name), 3.2);
+    this.openAct(boss(def.id, 'slot', def.slotName), boss(def.id, 'name', def.name), 3.2, true);
     this.beatTimer = 99;
     this.introAt = this.blockUntil; // ara yazı açılırken: övünür ve ilk çarpanı gösterir
     this.audio.startMusic();
@@ -319,13 +319,14 @@ export class Game {
   }
 
   /** Perde ara yazısı: ekran kararır, başlık görünür, tek bir çan vurur. */
-  private openAct(top: string, main: string, seconds: number) {
+  /** @param opening sahnenin açılışı: tam ekran ve o sırada vurulamaz. Perde geçişleri akışı kesmez. */
+  private openAct(top: string, main: string, seconds: number, opening = false) {
     const A = ACTS[this.act];
     const n = this.act + 1;
     this.ui.setAct(`${A.no}. ${t('hud.act')}`);
-    this.ui.card(top, main, `${A.no}. ${t(`act.${n}` as Key)} — ${t(`act.${n}.sub` as Key)}`, seconds);
+    this.ui.card(top, main, `${A.no}. ${t(`act.${n}` as Key)} — ${t(`act.${n}.sub` as Key)}`, seconds, opening);
     this.audio.toll();
-    this.blockUntil = this.now + seconds * 0.7;
+    if (opening) this.blockUntil = this.now + seconds * 0.7;
     this.beatTimer = seconds * 0.85;
   }
 
@@ -668,9 +669,8 @@ export class Game {
       this.pressure = STALL_PRESSURE;
       act = 0;
       this.onUp();
-      this.ui.card(boss(ch.def.id, 'name', ch.def.name), 'II?', t('stall.sub'), 1.7);
+      this.ui.card(boss(ch.def.id, 'name', ch.def.name), 'II?', t('stall.sub'), 2.2);
       this.audio.toll();
-      this.blockUntil = this.now + 1.1;
       this.speak('stall', true);
       ch.act('shrug');
       this.showOffer();
@@ -679,8 +679,8 @@ export class Game {
       this.act = act;
       this.openAct(boss(ch.def.id, 'name', ch.def.name), t(`act.${act + 1}` as Key), 2.6);
       ch.act(act === 1 ? (ch.canWalk ? 'stagger' : 'guard') : 'plead');
-      this.pendingShot = null;
-      this.cutTo(ACTS[act].shots[0]); // yürüyerek oynanıyorsa oyuncunun gözünde kalır
+      // Kamera o an kopan bir uzvu izliyorsa plan bozulmaz; izleme bitince yeni perdenin planına geçilir.
+      if (!this.pendingShot) this.cutTo(ACTS[act].shots[0]); // yürüyerek oynanıyorsa oyuncunun gözünde kalır
       this.showOffer();
     }
   }
