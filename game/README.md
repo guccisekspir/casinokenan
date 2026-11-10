@@ -38,6 +38,8 @@ Her maskot için geçici (kodla üretilen) bir karakter var. Gerçek modeli ekle
 3. Gerekirse `src/characters.ts` içindeki `model` alanıyla ayarla:
    - `height`, `rotationY`: boy ve yön (yön verilmezse iskeletten otomatik bulunur)
    - `idleClip` / `useClips: false`: hangi animasyon
+   - `face`: yüz ölçüleri (göz, kaş, ağız konumu). Verilmezse tahmin edilir; ifade yanlış yere
+     oturuyorsa buradan ayarlanır
    - `boneMap`: otomatik kemik eşleme tutmazsa parça → kemik adı. Tutmayan parçalar ve
      modeldeki tüm kemik adları tarayıcı konsoluna yazılır.
 
@@ -54,6 +56,7 @@ olması (Mixamo / Unreal / Blender tarzı adlandırmalar otomatik tanınır).
 | `src/character/rig.ts` | Kemik adlarından vücut parçalarını bulur |
 | `src/character/character.ts` | Model yükleme, isabet → parça, yaylı vuruş tepkisi, **uzuv koparma** |
 | `src/character/acting.ts` | Oyunculuk: davranışlar (pozlar uzuv *yönü* olarak tarif edilir, her rig'de aynı görünür) |
+| `src/character/face.ts` | Yüz: kafayı tek kemiğe bağlama (gerilme olmasın), gölgelendiricide çene / göz / kaş / ağız, dudak hareketi |
 | `src/character/ragdoll.ts` | Konum tabanlı fizik: kopan uzuvlar ve ölü beden eklemlerinden bükülür, yere serilir |
 | `src/character/placeholder.ts` | Geçici karakter (gerçek iskelet + SkinnedMesh üretir) |
 | `src/game.ts` | Sahne, girdi, saldırı akışı, perdeler, ağır çekim |

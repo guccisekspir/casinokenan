@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { CharacterDef } from '../characters';
 import type { WeaponDef } from '../weapons';
 import { BEHAVIORS, blendPose, newPose, resetPose, type Behavior, type LimbKey, type Pose } from './acting';
+import { FaceRig, faceDepthMaterial, installFace, rigidHead, type FaceLayout, type Mood } from './face';
 import { buildPlaceholder } from './placeholder';
 import { Ragdoll } from './ragdoll';
 import { detectRig, PART_CHILDREN, PART_IDS, type PartId, type Rig } from './rig';
@@ -93,6 +94,10 @@ export class Character {
   private dropVel = 0;
   private ragdoll: Ragdoll | null = null;
   private hips: THREE.Bone | null = null;
+  /** Asıl kafa kemiği. 'head' parçası boyundan kesilir; bakış ve yüz bu kemiğe göredir. */
+  private headBone: THREE.Bone | null = null;
+  private neck: THREE.Bone | null = null;
+  private face: FaceRig | null = null;
   /** Model ölçeği (2.25 birim boya göre 1). */
   private unit = 1;
   private armLen = { upper: 0.3, fore: 0.3 };
@@ -206,6 +211,14 @@ export class Character {
     this.root.updateMatrixWorld(true);
 
     this.rig = detectRig(this.bones, cfg.boneMap);
+    // Kafa boyundan kopar ve boyundan döner: kesim/eğim kemiği olarak boyun kullanılır.
+    this.headBone = this.rig.parts.head ?? null;
+    const above = this.headBone?.parent as THREE.Bone | undefined;
+    if (above?.isBone && /neck/i.test(above.name)) {
+      this.neck = above;
+      this.rig.parts.head = above;
+    }
+    this.setupFace(model, cfg.height ?? 2.25);
     for (const id of PART_IDS) {
       const bone = this.rig.parts[id];
       if (bone) this.parts.set(id, { bone, hp: id === 'head' ? HEAD_HP : LIMB_HP, severed: false });
@@ -226,7 +239,7 @@ export class Character {
     }
 
     // Kafa kemiği rig'e göre boyunda ya da yüzün ortasında olabilir: merkezi tepeye göre bul.
-    const headBone = this.rig.parts.head;
+    const headBone = this.headBone;
     if (headBone) {
       const top = (cfg.height ?? 2.25) - headBone.getWorldPosition(new THREE.Vector3()).y;
       this.headOffset = THREE.MathUtils.clamp(top * 0.45, 0, 0.35);
@@ -280,6 +293,57 @@ export class Character {
       this.mixer = new THREE.AnimationMixer(model);
       this.mixer.clipAction(clip).play();
     }
+  }
+
+  /**
+   * Kafayı katılaştırır (yüz gerilmesin) ve yüz deformasyonunu malzemeye kurar.
+   * Dinlenme pozunda, kök henüz orijindeyken çağrılır.
+   */
+  private setupFace(model: THREE.Object3D, height: number) {
+    const hb = this.headBone;
+    if (!hb) return;
+    this.root.updateMatrixWorld(true);
+    const H = 0.135 * height; // kafa boyu
+    const hp = hb.getWorldPosition(new THREE.Vector3());
+    const center = new THREE.Vector3(hp.x, height - 0.85 * H, hp.z + 0.13 * H);
+    const radii = new THREE.Vector3(0.67 * H, 1.1 * H, 0.67 * H);
+
+    let layout: FaceLayout;
+    const custom = this.def.model?.face;
+    if (!this.usingPlaceholder && custom) {
+      const u = height / 2.25;
+      layout = { eyeX: custom.eyeX * u, eyeY: custom.eyeY * u, browY: custom.browY * u, mouthY: custom.mouthY * u, front: custom.front * u, size: custom.size * u };
+    } else if (this.usingPlaceholder) {
+      const k = model.scale.x; // geçici modelin yüzü kodla çizildi: ölçüleri belli
+      layout = { eyeX: 0.12 * k, eyeY: 0.34 * k, browY: 0.44 * k, mouthY: 0.2 * k, front: 0.3 * k, size: 0.1 * k };
+    } else {
+      const eyeY = height - 0.62 * H - hp.y;
+      layout = { eyeX: 0.28 * H, eyeY, browY: eyeY + 0.18 * H, mouthY: eyeY - 0.5 * H, front: 0.42 * H, size: 0.33 * H };
+    }
+
+    for (const mesh of this.meshes) {
+      const headIndex = mesh.skeleton.bones.indexOf(hb);
+      if (headIndex < 0) continue;
+      if (!this.usingPlaceholder) {
+        rigidHead(mesh, this.skinCache(mesh).pos, headIndex, center, radii);
+        this.skin.delete(mesh); // ağırlıklar değişti: isabet önbelleği yeniden kurulsun
+      }
+      if (this.face) continue;
+      // Mesh'in bağlama uzayı -> karakterin dinlenme uzayı (orijin: kafa kemiği).
+      const faceMat = new THREE.Matrix4()
+        .makeTranslation(-hp.x, -hp.y, -hp.z)
+        .multiply(hb.matrixWorld)
+        .multiply(mesh.skeleton.boneInverses[headIndex])
+        .multiply(mesh.bindMatrix);
+      this.face = new FaceRig(layout, faceMat, headIndex);
+      for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) installFace(m, this.face.uniforms);
+      mesh.customDepthMaterial = faceDepthMaterial(this.face.uniforms);
+    }
+  }
+
+  /** Yüz ifadesi: perdeye göre kibirli / öfkeli / korkmuş. */
+  setMood(mood: Mood) {
+    if (!this.dead) this.face?.setMood(mood);
   }
 
   // ---------------------------------------------------------------- isabet
@@ -419,6 +483,8 @@ export class Character {
     res.zone = h.part === 'head' ? 'head' : h.part ? 'limb' : 'body';
     res.crit = res.zone === 'head';
     res.damage = Math.max(1, Math.round(w.damage * (res.zone === 'head' ? 1.5 : res.zone === 'limb' ? 0.5 : 1)));
+
+    this.face?.wince(res.zone === 'head' ? 1.2 : 0.8);
 
     // Tepki: vurulan kemik + ataları, kaldıraç koluna göre savrulur.
     const bone = h.part ? this.parts.get(h.part)!.bone : this.rig.spine[this.rig.spine.length - 1] ?? this.rig.hips;
@@ -561,6 +627,7 @@ export class Character {
       const piece = new THREE.SkinnedMesh(geo, mesh.material);
       piece.frustumCulled = false;
       piece.castShadow = true;
+      if (mesh.customDepthMaterial) piece.customDepthMaterial = mesh.customDepthMaterial;
       const bones = mesh.skeleton.bones.map((b) => (cloneOf.get(b) as THREE.Bone | undefined) ?? ghost(b));
       piece.bind(new THREE.Skeleton(bones, mesh.skeleton.boneInverses.map((m) => m.clone())), mesh.bindMatrix);
       gib.add(piece);
@@ -655,6 +722,7 @@ export class Character {
     const isArm = part.includes('arm');
     this.shock = 1;
     this.shockT = 0;
+    this.face?.wince(2.2); // uzun, sıkı bir acı ifadesi
     this.woundSide = part === 'head' ? 0 : side === 'L' ? 1 : -1;
     this.woundIsLeg = !isArm && part !== 'head';
     this.woundBone = (stumpParent as THREE.Bone).isBone ? (stumpParent as THREE.Bone) : null;
@@ -705,10 +773,12 @@ export class Character {
       }
     });
     const head = this.parts.get('head');
-    if (head && !head.severed) {
-      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(head.bone.getWorldQuaternion(new THREE.Quaternion()));
-      tips.set(head.bone, head.bone.getWorldPosition(new THREE.Vector3()).addScaledVector(up, this.headOffset * 2));
+    if (head && !head.severed && this.headBone) {
+      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.headBone.getWorldQuaternion(new THREE.Quaternion()));
+      tips.set(head.bone, this.headBone.getWorldPosition(new THREE.Vector3()).addScaledVector(up, this.headOffset * 2));
     }
+    this.face?.setMood('dead');
+    this.face?.silence();
     const severed = new Set(this.severedBones);
     const big = new Set<THREE.Bone | null>([hips, chest ?? null, head?.bone ?? null]);
     this.ragdoll = new Ragdoll(hips, {
@@ -733,16 +803,17 @@ export class Character {
 
   // ---------------------------------------------------------------- kare güncellemesi
 
-  /** Konuşurken kafa sallama süresi. */
-  talk(seconds: number) {
+  /** Bir repliği söyler: dudak hareketi + vurgulara göre kafa hareketi. */
+  talk(text: string, seconds: number) {
     this.talkT = seconds;
+    this.face?.speak(text, seconds);
   }
 
   /** Kafanın (yaklaşık) merkezi: kamera kadrajı ve altyazı için. */
   headPosition(out: THREE.Vector3): THREE.Vector3 {
     const head = this.parts.get('head');
-    if (head && !head.severed) {
-      head.bone.getWorldPosition(out);
+    if (head && !head.severed && this.headBone) {
+      this.headBone.getWorldPosition(out);
       out.y += this.headOffset;
       return out;
     }
@@ -778,8 +849,12 @@ export class Character {
     return (['armL', 'armR', 'forearmL', 'forearmR'] as PartId[]).some((p) => this.parts.get(p)?.severed);
   }
 
-  /** @param lookAt kafanın döneceği nokta (kamera): karakter seyirciyle göz teması kurar. */
-  update(dt: number, lookAt?: THREE.Vector3) {
+  /**
+   * @param lookAt kafanın döneceği nokta (kamera): karakter seyirciyle göz teması kurar.
+   * @param voice çalan ses kaydının anlık genliği (dudak hareketi için)
+   */
+  update(dt: number, lookAt?: THREE.Vector3, voice = 0) {
+    this.face?.update(dt, voice);
     this.time += dt;
     const t = this.time;
 
@@ -857,13 +932,14 @@ export class Character {
 
     this.applyPose(t, dt, lookAt);
 
-    // Konuşma: kafa sallama
+    // Konuşma: kafa, hecelerin vurgusuyla hafifçe öne iner ve ağır ağır salınır.
     const head = this.parts.get('head');
-    if (this.talkT > 0 && head && !head.severed) {
+    if (this.talkT > 0 && head && !head.severed && this.headBone) {
       this.talkT -= dt;
-      this.touch(head.bone);
-      head.bone.quaternion.multiply(
-        _q.setFromEuler(_e.set(Math.sin(t * 22) * 0.06, Math.sin(t * 9) * 0.08, Math.sin(t * 13) * 0.05)),
+      const j = this.face?.jaw ?? 0.3 + 0.3 * Math.sin(t * 11);
+      this.touch(this.headBone);
+      this.headBone.quaternion.multiply(
+        _q.setFromEuler(_e.set(j * 0.09 - 0.02, Math.sin(t * 2.3) * 0.05, Math.sin(t * 1.7) * 0.035)),
       );
     }
 
@@ -1032,20 +1108,22 @@ export class Character {
     );
 
     const head = this.parts.get('head');
-    if (head && !head.severed) {
+    const hb = this.headBone;
+    if (head && !head.severed && hb) {
       if (lookAt) {
-        const d = _v.copy(lookAt).sub(head.bone.getWorldPosition(_v3)).applyQuaternion(rootInv);
-        const yaw = THREE.MathUtils.clamp(Math.atan2(d.x, d.z), -1.15, 1.15);
-        const pitch = THREE.MathUtils.clamp(-Math.atan2(d.y, Math.hypot(d.x, d.z)), -0.6, 0.6);
+        const d = _v.copy(lookAt).sub(hb.getWorldPosition(_v3)).applyQuaternion(rootInv);
+        const yaw = THREE.MathUtils.clamp(Math.atan2(d.x, d.z), -1.0, 1.0);
+        const pitch = THREE.MathUtils.clamp(-Math.atan2(d.y, Math.hypot(d.x, d.z)), -0.5, 0.5);
         this.lookYaw += (yaw - this.lookYaw) * 0.12;
         this.lookPitch += (pitch - this.lookPitch) * 0.12;
       }
-      lean(
-        head.bone,
-        p.head.x + this.lookPitch * p.look - p.spine.x * 0.5 * p.look + Math.sin(t * 43) * shake,
-        p.head.y + this.lookYaw * p.look - p.spine.y * p.look,
-        p.head.z + Math.sin(t * 39) * shake,
-      );
+      const hx = p.head.x + this.lookPitch * p.look - p.spine.x * 0.5 * p.look + Math.sin(t * 43) * shake;
+      const hy = p.head.y + this.lookYaw * p.look - p.spine.y * p.look;
+      const hz = p.head.z + Math.sin(t * 39) * shake;
+      // Dönüşün çoğu boyundan gelir (kafa boyun ekleminden döner), kalanı kafadan.
+      const n = this.neck ? 0.7 : 0;
+      if (this.neck) lean(this.neck, hx * n, hy * n, hz * n);
+      lean(hb, hx * (1 - n), hy * (1 - n), hz * (1 - n));
     }
 
     // Kol ters kinematiği: el belirli bir noktaya (zemin, yara) gidecekse dirseği çöz.

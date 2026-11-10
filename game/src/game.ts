@@ -220,7 +220,7 @@ export class Game {
     this.dialogue = new Dialogue(def, def.lines, this.audio);
     this.dialogue.onSpeak = (text, seconds) => {
       this.ui.subtitle(text, seconds);
-      ch.talk(seconds);
+      ch.talk(text, seconds);
       this.reels.spin();
       this.beatTimer = seconds + 2 + Math.random() * 2.5;
     };
@@ -561,7 +561,8 @@ export class Game {
     }
 
     if (ch) {
-      ch.update(dt, this.camera.position);
+      ch.setMood(this.outcome === 'cashout' ? 'smug' : this.outcome === 'maxwin' ? 'fear' : (['smug', 'angry', 'fear'] as const)[this.act]);
+      ch.update(dt, this.camera.position, this.audio.voiceLevel());
       this.dialogue?.update(real);
 
       if (this.state === 'fight') {

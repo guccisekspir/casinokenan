@@ -5,6 +5,9 @@ export class Audio {
   private noiseBuf: AudioBuffer | null = null;
   private out: GainNode | null = null;
   private music: GainNode | null = null;
+  private analyser: AnalyserNode | null = null;
+  private wave: Uint8Array<ArrayBuffer> | null = null;
+  private voiceEl: HTMLAudioElement | null = null;
 
   /** İlk kullanıcı etkileşiminde çağrılmalı (tarayıcı otomatik oynatma kuralı). */
   unlock() {
@@ -39,6 +42,34 @@ export class Audio {
     this.muted = m;
     if (m) window.speechSynthesis?.cancel();
     if (this.music && this.ctx) this.music.gain.setTargetAtTime(m ? 0 : 1, this.ctx.currentTime, 0.3);
+  }
+
+  /** Çalan bir ses kaydını analizöre bağlar: genliği dudak hareketini sürer. */
+  attachVoice(el: HTMLAudioElement) {
+    const ctx = this.ctx;
+    if (!ctx || !this.out) return;
+    try {
+      if (!this.analyser) {
+        this.analyser = ctx.createAnalyser();
+        this.analyser.fftSize = 512;
+        this.analyser.connect(this.out);
+        this.wave = new Uint8Array(this.analyser.fftSize);
+      }
+      ctx.createMediaElementSource(el).connect(this.analyser);
+      this.voiceEl = el;
+    } catch {
+      /* analiz edilemiyorsa kayıt yine normal çalar */
+    }
+  }
+
+  /** Çalan kaydın anlık genliği (0..1). Kayıt yoksa 0. */
+  voiceLevel(): number {
+    const el = this.voiceEl;
+    if (!this.analyser || !this.wave || !el || el.paused || el.ended) return 0;
+    this.analyser.getByteTimeDomainData(this.wave);
+    let sum = 0;
+    for (const v of this.wave) sum += (v - 128) * (v - 128);
+    return Math.min(1, (Math.sqrt(sum / this.wave.length) / 128) * 3);
   }
 
   /** Film müziği: alçak bir dem sesi üstüne seyrek, yalnız piyano notaları. */

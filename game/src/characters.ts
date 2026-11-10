@@ -1,3 +1,4 @@
+import type { FaceLayout } from './character/face';
 import type { PlaceholderLook } from './character/placeholder';
 import type { PartId } from './character/rig';
 import type { Lines } from './dialogue';
@@ -33,6 +34,11 @@ export interface CharacterDef {
     idleClip?: string;
     /** false: GLB'deki animasyonları yok say. */
     useClips?: boolean;
+    /**
+     * Yüz ölçüleri (metre, 2.25 birim boya göre; kafa kemiğinin dinlenme konumundan).
+     * Verilmezse kafa boyundan tahmin edilir; ifade yanlış yere oturuyorsa buradan ayarlanır.
+     */
+    face?: FaceLayout;
     /** Otomatik kemik eşleme tutmazsa: parça -> kemik adı. */
     boneMap?: Partial<Record<PartId, string>>;
   };
@@ -53,6 +59,8 @@ export const CHARACTERS: CharacterDef[] = [
     hp: 220,
     voice: { pitch: 0.5, rate: 1.05 },
     bloodColor: 0xc8102e,
+    // Modelden ölçüldü: gözler kafa kemiğinin 3 cm üstünde, ağız 20 cm altında (bıyığın altı).
+    model: { face: { eyeX: 0.085, eyeY: 0.03, browY: 0.085, mouthY: -0.2, front: 0.13, size: 0.1 } },
     look: { skin: 0xe2b08a, top: 0xf4f1e6, bottom: 0xd9b23a, hair: 0xf2f2f2, beard: 0xffffff, crown: 0xf2c230, skirt: true },
     symbols: ['⚡', '👑', '💍', '⏳', '🏺', '🔷', '🟣', '🟢'],
     theme: { bg: '#2a1a5e', accent: '#ffd23f' },

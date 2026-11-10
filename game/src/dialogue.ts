@@ -161,6 +161,7 @@ export class Dialogue {
       }
     };
     el.src = url;
+    this.audio.attachVoice(el); // genlik -> dudak hareketi
     void el.play().catch(() => {});
   }
 }
