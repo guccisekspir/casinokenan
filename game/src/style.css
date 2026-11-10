@@ -11,6 +11,8 @@
 [hidden] { display: none !important; }
 html, body {
   margin: 0; height: 100%; overflow: hidden; background: #000;
+  /* Barındıran sayfa gövdeye kendi renk ve yazı tipini verebilir: burada açıkça belirt. */
+  color: #e8e4da; font-family: var(--serif); color-scheme: dark;
   user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
 }
@@ -122,7 +124,7 @@ h1 { margin: 0; font-weight: 400; font-size: clamp(44px, 11vw, 104px); letter-sp
 .row button { font-size: 17px; border-bottom: 1px solid #ffffff55; }
 .fin { margin-top: 22px; letter-spacing: 0.4em; opacity: 0.35; font-size: 12px; }
 
-#loading { position: fixed; inset: 0; display: grid; place-items: center; background: #000; font-size: 28px; letter-spacing: 0.3em; }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; background: #000; font-size: 18px; font-style: italic; letter-spacing: 0.2em; opacity: 0.8; }
 
 @media (max-width: 520px) {
   .who small, .who span { display: none; }

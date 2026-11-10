@@ -12,7 +12,7 @@ const ui = new UI();
 const audio = new Audio();
 const game = new Game(el<HTMLCanvasElement>('scene'), el<HTMLCanvasElement>('trail'), ui, audio);
 
-// Kayıt: bakiye + sahip olunan silahlar. (?unlock ile tüm silahlar açılır — geliştirme için.)
+// Kayıt: bakiye + sahip olunan silahlar.
 try {
   const s = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null');
   if (s) {
@@ -22,7 +22,8 @@ try {
 } catch {
   /* bozuk kayıt: sıfırdan başla */
 }
-if (new URLSearchParams(location.search).has('unlock')) WEAPONS.forEach((w) => game.owned.add(w.id));
+// Şimdilik bütün silahlar açık (deneme sürümü). Jetonla açma düzeni için bu satırı kaldırın.
+WEAPONS.forEach((w) => game.owned.add(w.id));
 
 const refresh = () => {
   ui.setCoins(game.coins);

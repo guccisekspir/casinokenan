@@ -24,7 +24,7 @@ npm run dev      # geliştirme: http://localhost:5173
 npm run build    # dist/ -> herhangi bir statik hosting'e atılabilir
 ```
 
-`?unlock` parametresi tüm silahları açar (test için): `http://localhost:5173/?unlock`
+Deneme sürümünde bütün silahlar açık gelir (`src/main.ts`).
 
 ## Tripo modelini ekleme
 
