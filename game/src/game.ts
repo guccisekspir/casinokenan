@@ -6,7 +6,7 @@ import type { CharacterDef } from './characters';
 import { Dialogue, type DialogueEvent } from './dialogue';
 import { Director, type Shot } from './director';
 import { Film } from './film';
-import { Gibs, Particles, Reels } from './fx';
+import { Gibs, Impacts, Particles, Reels } from './fx';
 import { boss, t, type Key } from './i18n';
 import type { UI } from './ui';
 import { ViewModel } from './viewmodel';
@@ -26,7 +26,7 @@ const REWARD = [10, 25, 50, 90, 140, 200, 280, 380, 500, 650];
 const MAX_REWARD = 1500;
 const PRESSURE_MAX = 100;
 /** Oyuncu gözünden oynarken vuruş menzili (metre). Tabancanın menzili sınırsız. */
-const REACH_FIST = 2.5;
+const REACH_FIST = 2.1;
 const REACH_BLADE = 3.0;
 const WALK_SPEED = 2.4;
 /** Oyuncu bu kadar süre hareketsiz ve saldırısız kalırsa kamera yeniden yönetmene geçer (sn). */
@@ -130,6 +130,12 @@ export class Game {
   private pendingShot: { at: number; shot: Shot | null } | null = null;
   private severs = 0;
   private farHintAt = 0;
+  private impacts: Impacts;
+  private pendingPunch: { x: number; y: number; at: number; heavy: boolean } | null = null;
+  private combo = 0;
+  private comboAt = -9;
+  /** Darbe anında kameranın ileri tepmesi (0..1, söner). */
+  private kick = 0;
   /** Set çeken maskotun kalan set sayısı. */
   private blocksLeft = 0;
   private ptrX = 0;
@@ -199,6 +205,7 @@ export class Game {
 
     this.particles = new Particles(s);
     this.gibs = new Gibs(s);
+    this.impacts = new Impacts(s);
     this.setWeaponModel();
 
     canvas.addEventListener('pointerdown', this.onDown);
@@ -242,6 +249,7 @@ export class Game {
     this.severs = 0;
     this.slowUntil = this.freezeUntil = 0;
     this.pendingShot = null;
+    this.pendingPunch = null;
     this.walking = false;
     this.director.player.set(0, 0, 4.2);
     this.endAt = 0;
@@ -455,11 +463,31 @@ export class Game {
 
   // ---------------------------------------------------------------- saldırı
 
-  private attack(x: number, y: number, drag?: { dx: number; dy: number }) {
+  /**
+   * @param punch yumruk hedefe ulaştı: darbe şimdi iner. (Yumruklar tıklandığı an değil, el
+   *   hedefe vardığı an isabet eder; tıklama yalnızca yumruğu başlatır.)
+   */
+  private attack(x: number, y: number, drag?: { dx: number; dy: number }, punch?: { heavy: boolean }) {
     const ch = this.character;
     if (!ch || ch.dead || this.state !== 'fight' || this.now < this.blockUntil) return;
     const w = this.weapon;
-    if (!drag) {
+    if (w.kind === 'blunt' && !punch) {
+      if (this.pendingPunch || this.now - this.lastAttack < w.cooldown) return;
+      this.lastAttack = this.now;
+      // Kombo: art arda iki hızlı direkt, üçüncüsü ağır (yukarıya kroşe, aşağıya aparkat).
+      this.combo = this.now - this.comboAt < 0.9 ? this.combo + 1 : 1;
+      this.comboAt = this.now;
+      const heavy = this.combo % 3 === 0;
+      this.setNdc(x, y);
+      this.raycaster.setFromCamera(this.ndc, this.camera);
+      const aim = ch.raycast(this.raycaster.ray);
+      this.view.strike(aim ? aim.point : this.raycaster.ray.at(3, _a), heavy ? (this.ndc.y < -0.05 ? 'upper' : 'hook') : 'jab');
+      this.audio.swing(heavy);
+      this.pendingPunch = { x, y, at: this.now + (heavy ? 0.15 : 0.075), heavy };
+      return;
+    }
+    const power = punch?.heavy ? 1.7 : 1;
+    if (!drag && !punch) {
       if (this.now - this.lastAttack < w.cooldown) return;
       this.lastAttack = this.now;
     }
@@ -469,7 +497,7 @@ export class Game {
     const ray = this.raycaster.ray;
     const hit = ch.raycast(ray);
 
-    if (!drag && w.kind !== 'saw') {
+    if (!drag && !punch && w.kind !== 'saw') {
       this.view.strike(hit ? hit.point : ray.at(4, _a));
       if (w.kind === 'shot') this.audio.shot();
       else if (w.cauterize) this.audio.saber();
@@ -506,7 +534,7 @@ export class Game {
     }
     dir.normalize();
 
-    const res = ch.hit({ point: hit.point, dir, part, weapon: w });
+    const res = ch.hit({ point: hit.point, dir, part, weapon: w, power });
     const blood = ch.def.bloodColor;
     const back = _a.copy(ray.direction).multiplyScalar(-0.6);
 
@@ -515,8 +543,15 @@ export class Game {
       this.sawBiteAt = this.now;
       this.particles.emit(hit.point, _b.copy(back).setY(1.1), 7, blood, 4.2, 0.55);
     } else if (w.kind === 'blunt') {
-      this.audio.punch(w.id !== 'fist');
-      this.particles.emit(hit.point, back, w.id === 'fist' ? 3 : 8, blood, 2);
+      // Darbe: halka, kıvılcım gibi saçılan ter, kan; kısa bir donma karesi ve kameranın tepmesi.
+      const heavy = power > 1;
+      this.audio.punch(w.id !== 'fist', power);
+      this.impacts.spawn(hit.point, heavy ? 0.62 : 0.34);
+      this.particles.emit(hit.point, back, heavy ? 16 : 6, 0xfff2d6, heavy ? 4.2 : 2.8, 0.95);
+      this.particles.emit(hit.point, back, (w.id === 'fist' ? 3 : 7) * (heavy ? 2.5 : 1), blood, heavy ? 3.4 : 2.2, 0.8);
+      this.freezeUntil = this.now + (heavy ? 0.13 : 0.05);
+      this.kick = Math.max(this.kick, heavy ? 1 : 0.45);
+      if (heavy) this.film.flash = Math.max(this.film.flash, 0.14);
     } else if (w.cauterize) {
       this.particles.emit(hit.point, dir, 14, 0xffa030, 3);
     } else if (w.kind === 'slash') {
@@ -527,15 +562,15 @@ export class Game {
       this.particles.emit(hit.point, back, 12, blood, 3);
     }
 
-    this.shake = Math.min(0.1, this.shake + w.force * 0.004);
-    if (res.crit && w.kind !== 'saw') this.freezeUntil = this.now + 0.07; // kafaya isabet: bir anlık donma
+    this.shake = Math.min(0.16, this.shake + w.force * 0.005 * power);
+    if (res.crit && w.kind !== 'saw' && w.kind !== 'blunt') this.freezeUntil = this.now + 0.07; // kafaya isabet: bir anlık donma
     this.lastHitAt = this.now;
     // Baskı: uzuvlara vurmak hem daha çok sıkıştırır hem daha az can götürür. Aynı yere üst üste
     // vurmak ise gittikçe daha az işe yarar (alışır): oyuncu hedef değiştirmek zorunda.
     const spot = part ?? 'body';
     this.sameSpot = spot === this.lastSpot ? this.sameSpot + 1 : 0;
     this.lastSpot = spot;
-    this.pressure += w.fear * (res.zone === 'limb' ? 1 : 0.6) * Math.max(0.3, Math.pow(0.82, this.sameSpot));
+    this.pressure += w.fear * (power > 1 ? 1.5 : 1) * (res.zone === 'limb' ? 1 : 0.6) * Math.max(0.3, Math.pow(0.82, this.sameSpot));
 
     // Karakter seni umursamıyorken vurulduysa: sahnesi bozulur, döner ve tepki verir.
     if (!res.killed && ALOOF.has(ch.behaviorName)) {
@@ -689,6 +724,11 @@ export class Game {
     this.audio.saw(!sawing ? 0 : biting ? 3 : this.down ? 2 : 1);
     if (biting) this.shake = Math.max(this.shake, 0.035);
 
+    if (this.pendingPunch && this.now >= this.pendingPunch.at) {
+      const p = this.pendingPunch;
+      this.pendingPunch = null;
+      this.attack(p.x, p.y, undefined, { heavy: p.heavy });
+    }
     if (this.pendingSlash) {
       const p = this.pendingSlash;
       this.pendingSlash = null;
@@ -739,6 +779,13 @@ export class Game {
         this.shake = Math.max(this.shake, 0.09);
       }
       this.director.update(real, ch.bodyPosition(_b), ch.headPosition(_a));
+      // Kamera darbeyle birlikte ileri atılır ve görüş açısı bir an daralır.
+      if (this.kick > 0.01) {
+        this.camera.translateZ(-0.11 * this.kick);
+        this.camera.fov -= 3.2 * this.kick;
+        this.camera.updateProjectionMatrix();
+        this.kick *= Math.exp(-13 * real);
+      }
     }
 
     // Kan nabızla atar: her kalp atışında fışkırır, zamanla zayıflar.
@@ -754,6 +801,7 @@ export class Game {
 
     this.particles.update(dt);
     this.gibs.update(dt);
+    this.impacts.update(real, this.camera);
     if (this.gibs.impact > 2.2 && this.now > this.thudAt) {
       this.thudAt = this.now + 0.12;
       this.audio.thud();
@@ -771,7 +819,7 @@ export class Game {
     this.camera.updateMatrixWorld();
 
     this.raycaster.setFromCamera(this.ndc, this.camera);
-    this.view.update(real, {
+    this.view.update(this.now < this.freezeUntil ? real * 0.12 : real, { // donma karesinde yumruk da hedefte asılı kalır
       pov: this.director.shot === 'player',
       ray: this.raycaster.ray,
       holding: (this.weapon.kind === 'slash' || this.weapon.kind === 'saw') && this.down,

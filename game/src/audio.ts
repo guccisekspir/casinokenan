@@ -156,13 +156,22 @@ export class Audio {
     o.stop(t + dur);
   }
 
-  swing() {
-    this.noise(0.16, 'bandpass', 500, 2400, 0.12);
+  /** Yumruğun havayı yarması. Ağır yumrukta daha uzun ve kalın. */
+  swing(heavy = false) {
+    this.noise(heavy ? 0.24 : 0.14, 'bandpass', heavy ? 300 : 600, heavy ? 1800 : 2600, heavy ? 0.2 : 0.12);
   }
-  punch(heavy = false) {
-    this.tone('sine', heavy ? 170 : 140, 45, 0.16, 0.7);
-    this.noise(0.09, 'lowpass', heavy ? 2600 : 1600, 300, 0.5);
-    if (heavy) this.tone('triangle', 1800, 900, 0.06, 0.12);
+  /**
+   * Darbe: gövdeye inen boğuk vuruş + etin şaklaması. Her vuruş biraz farklı tınlar.
+   * @param metal muşta gibi sert bir şeyle mi vuruldu
+   * @param power 1 normal, >1 ağır
+   */
+  punch(metal = false, power = 1) {
+    const v = 0.9 + Math.random() * 0.25, heavy = power > 1.2;
+    this.tone('sine', (heavy ? 120 : 150) * v, 38, heavy ? 0.26 : 0.15, heavy ? 0.95 : 0.7);
+    this.noise(heavy ? 0.13 : 0.08, 'lowpass', (heavy ? 3200 : 1900) * v, 260, heavy ? 0.75 : 0.5);
+    this.noise(0.035, 'highpass', 2200 * v, 5200, heavy ? 0.4 : 0.22); // şaklama
+    if (heavy) this.tone('sine', 62, 30, 0.34, 0.6, 0.015); // göğüste hissedilen alt vuruş
+    if (metal) this.tone('triangle', 1900 * v, 950, 0.07, heavy ? 0.2 : 0.12);
   }
   slash() {
     this.noise(0.22, 'bandpass', 5000, 900, 0.3);

@@ -12,8 +12,8 @@ import type { WeaponDef } from './weapons';
  * Yumruk ve muşta iki ayrı eldir ve sırayla vurur. Tabanca, katana ve ışın kılıcı iki elle
  * tutulan tek bir gruptur. Parçaların "ileri" yönü +Z'dir (`lookAt` +Z'yi hedefe çevirir).
  */
-const SKIN = new THREE.MeshStandardMaterial({ color: 0xd9a37c, roughness: 0.62 });
-const WRAP = new THREE.MeshStandardMaterial({ color: 0xe9e4d8, roughness: 0.9 });
+const SKIN = new THREE.MeshStandardMaterial({ color: 0xc27a4e, roughness: 0.72 });
+const WRAP = new THREE.MeshStandardMaterial({ color: 0xa8a294, roughness: 0.95 });
 const STEEL = new THREE.MeshStandardMaterial({ color: 0xe6ebf2, roughness: 0.3, metalness: 0.35 });
 const GUNMETAL = new THREE.MeshStandardMaterial({ color: 0x3a3c46, roughness: 0.45, metalness: 0.3 });
 const DARK = new THREE.MeshStandardMaterial({ color: 0x2a2a31, roughness: 0.8 });
@@ -22,12 +22,36 @@ const GOLD = new THREE.MeshStandardMaterial({ color: 0xf2c230, roughness: 0.35, 
 const _a = new THREE.Vector3();
 const _b = new THREE.Vector3();
 const _c = new THREE.Vector3();
+const smooth = (x: number) => x * x * (3 - 2 * x);
 
 function mesh(geo: THREE.BufferGeometry, mat: THREE.Material, x = 0, y = 0, z = 0): THREE.Mesh {
   const m = new THREE.Mesh(geo, mat);
   m.position.set(x, y, z);
   m.frustumCulled = false;
   return m;
+}
+
+const SKIN_DARK = new THREE.MeshStandardMaterial({ color: 0x9c5c3a, roughness: 0.75 });
+
+/** Kıvrık bir parmak: üç boğum, eklem yerlerinde yuvarlak. `curl` her boğumun bükülme açısı. */
+function finger(len: number, r: number, curl: [number, number, number]): THREE.Group {
+  const root = new THREE.Group();
+  let parent: THREE.Object3D = root;
+  const seg = [len * 0.44, len * 0.31, len * 0.25];
+  for (let i = 0; i < 3; i++) {
+    const j = new THREE.Group();
+    j.rotation.x = curl[i];
+    const rr = r * (1 - i * 0.09);
+    j.add(mesh(new THREE.CapsuleGeometry(rr, seg[i], 3, 8).rotateX(Math.PI / 2), SKIN, 0, 0, seg[i] / 2));
+    if (i < 2) {
+      const next = new THREE.Group();
+      next.position.z = seg[i];
+      j.add(next);
+      parent.add(j);
+      parent = next;
+    } else parent.add(j);
+  }
+  return root;
 }
 
 /**
@@ -37,37 +61,58 @@ function mesh(geo: THREE.BufferGeometry, mat: THREE.Material, x = 0, y = 0, z = 
  */
 function arm(side: number, pitch = 0.3, yaw = 0.2): THREE.Group {
   const g = new THREE.Group();
-  g.add(mesh(new RoundedBoxGeometry(0.1, 0.086, 0.1, 3, 0.022), SKIN));
-  // Dört parmak: üstte bir boğum, önde aşağı kıvrılan ikinci boğum.
-  for (let i = 0; i < 4; i++) {
-    const x = (-0.036 + i * 0.024) * side;
-    const len = i === 0 || i === 3 ? 0.03 : 0.036;
-    g.add(mesh(new THREE.CapsuleGeometry(0.0125, len, 3, 8).rotateX(Math.PI / 2), SKIN, x, 0.031, 0.04));
-    g.add(mesh(new THREE.CapsuleGeometry(0.012, 0.034, 3, 8), SKIN, x, 0.004, 0.063));
-  }
-  // Başparmak: parmakların önünde çapraz.
-  const thumb = mesh(new THREE.CapsuleGeometry(0.0135, 0.05, 3, 8).rotateZ(Math.PI / 2), SKIN, -0.012 * side, -0.027, 0.062);
-  thumb.rotation.y = 0.35 * side;
-  g.add(thumb);
-  g.add(mesh(new THREE.SphereGeometry(0.02, 8, 6), SKIN, -0.05 * side, -0.012, 0.03));
+  // Avuç: arkası hafif bombeli, bileğe doğru daralan bir blok.
+  const palm = mesh(new RoundedBoxGeometry(0.096, 0.05, 0.1, 4, 0.02), SKIN, 0, 0.012, -0.004);
+  g.add(palm);
+  g.add(mesh(new THREE.SphereGeometry(0.05, 14, 10).scale(0.98, 0.42, 1.02), SKIN, 0, 0.03, -0.006)); // el sırtı
+  g.add(mesh(new THREE.SphereGeometry(0.034, 12, 8).scale(1, 0.8, 1.2), SKIN, -0.03 * side, -0.014, -0.012)); // başparmak yastığı
 
-  // Ön kol: bilekten dirseğe kalınlaşır; bilekte sargı.
+  // Dört parmak: eklem kemikleri sırtta bir sıra tümsek; parmaklar avuca kıvrılır.
+  const lens = [0.07, 0.078, 0.074, 0.062], rad = [0.0118, 0.0124, 0.0118, 0.0105];
+  for (let i = 0; i < 4; i++) {
+    const x = (-0.035 + i * 0.0235) * side;
+    const f = finger(lens[i], rad[i], [1.25, 1.55, 1.2]);
+    f.position.set(x, 0.03 - Math.abs(i - 1.5) * 0.0022, 0.042 - Math.abs(i - 1.3) * 0.004);
+    f.rotation.y = (i - 1.5) * -0.05 * side;
+    g.add(f);
+    g.add(mesh(new THREE.SphereGeometry(rad[i] * 1.12, 10, 8), SKIN_DARK, x, 0.033 - Math.abs(i - 1.5) * 0.0022, 0.045 - Math.abs(i - 1.3) * 0.004));
+  }
+  // Başparmak: işaret ve orta parmağın üstüne çapraz kapanır.
+  const thumb = finger(0.075, 0.0138, [0.15, 0.55, 0.5]);
+  thumb.position.set(-0.05 * side, -0.004, 0.012);
+  thumb.rotation.set(0.5, 0.95 * side, -0.2 * side);
+  g.add(thumb);
+
+  // Ön kol: bilekten kas göbeğine kalınlaşıp dirseğe doğru yeniden incelir.
   const fore = new THREE.Group();
-  fore.position.set(0, -0.004, -0.045);
+  fore.position.set(0, 0.004, -0.05);
   fore.rotation.set(-pitch, -yaw * side, 0); // + pitch: dirsek aşağı, + yaw: dirsek dışarı
-  fore.add(mesh(new THREE.CylinderGeometry(0.056, 0.04, 0.36, 14).rotateX(Math.PI / 2), SKIN, 0, 0, -0.19));
-  fore.add(mesh(new THREE.CylinderGeometry(0.044, 0.042, 0.07, 14).rotateX(Math.PI / 2), WRAP, 0, 0, -0.045));
-  fore.add(mesh(new THREE.SphereGeometry(0.041, 10, 8), SKIN));
+  // (bilek -> kas göbeği -> dirsek; üst üste üç konik parça)
+  const taper: [number, number, number][] = [[0.036, 0.047, 0.14], [0.047, 0.056, 0.14], [0.056, 0.048, 0.14]];
+  let z = 0;
+  for (const [r0, r1, len] of taper) {
+    fore.add(mesh(new THREE.CylinderGeometry(r1, r0, len, 18, 1, true).rotateX(Math.PI / 2).scale(1.08, 0.9, 1), SKIN, 0, 0, z - len / 2));
+    z -= len;
+  }
+  // Bilek ve el sırtı sargısı: üst üste binen bantlar.
+  for (let i = 0; i < 4; i++) {
+    const band = mesh(new THREE.CylinderGeometry(0.0395 + i * 0.0012, 0.0385 + i * 0.0012, 0.026, 16).rotateX(Math.PI / 2).scale(1.08, 0.9, 1), WRAP, 0, 0, -0.012 - i * 0.022);
+    band.rotation.z = (i % 2 ? 0.12 : -0.1);
+    fore.add(band);
+  }
   g.add(fore);
+  const strap = mesh(new THREE.TorusGeometry(0.05, 0.0075, 6, 20).scale(1.02, 0.62, 1).rotateX(Math.PI / 2), WRAP, 0, 0.012, 0.004);
+  strap.rotation.z = 0.14 * side;
+  g.add(strap);
   return g;
 }
 
 function knuckleDuster(side: number): THREE.Group {
   const g = new THREE.Group();
   for (let i = 0; i < 4; i++) {
-    g.add(mesh(new THREE.TorusGeometry(0.0155, 0.006, 8, 14), GOLD, (-0.036 + i * 0.024) * side, 0.02, 0.075));
+    g.add(mesh(new THREE.TorusGeometry(0.0155, 0.0065, 8, 14), GOLD, (-0.035 + i * 0.0235) * side, 0.012, 0.062));
   }
-  g.add(mesh(new RoundedBoxGeometry(0.104, 0.02, 0.018, 2, 0.006), GOLD, 0, 0.0, 0.082));
+  g.add(mesh(new RoundedBoxGeometry(0.104, 0.022, 0.02, 2, 0.006), GOLD, 0, 0.012, 0.074));
   return g;
 }
 
@@ -153,6 +198,8 @@ function sword(def: WeaponDef): THREE.Group {
   return g;
 }
 
+export type PunchStyle = 'jab' | 'hook' | 'upper';
+
 export interface ViewState {
   /** Oyuncu kendi gözünden mi oynuyor. */
   pov: boolean;
@@ -177,6 +224,7 @@ export class ViewModel {
   private chain: THREE.Object3D | null = null;
   private strikeT = 1;
   private hand: 'L' | 'R' = 'L';
+  private style: PunchStyle = 'jab';
   private target = new THREE.Vector3();
   private pov = 0;
   private time = 0;
@@ -186,7 +234,7 @@ export class ViewModel {
   constructor(private camera: THREE.PerspectiveCamera) {
     camera.add(this.root);
     // Eller karanlık sahnede kaybolmasın: yalnızca yakını aydınlatan zayıf bir ışık.
-    const fill = new THREE.PointLight(0xfff0dc, 0.9, 1.6, 1.4);
+    const fill = new THREE.PointLight(0xfff0dc, 0.28, 1.6, 1.4);
     fill.position.set(0, 0.25, 0.1);
     this.root.add(fill);
   }
@@ -247,9 +295,11 @@ export class ViewModel {
   }
 
   /** Bir vuruş başlatır. Yumruklar sırayla vurur. */
-  strike(target: THREE.Vector3) {
+  /** @param style 'jab' hızlı direkt; 'hook' yandan savrulan kroşe; 'upper' alttan gelen aparkat */
+  strike(target: THREE.Vector3, style: PunchStyle = 'jab') {
     this.strikeT = 0;
     this.target.copy(target);
+    this.style = style;
     this.hand = this.hand === 'L' ? 'R' : 'L';
   }
 
@@ -259,7 +309,7 @@ export class ViewModel {
     const cam = this.camera;
     this.time += dt;
     this.pov += ((s.pov ? 1 : 0) - this.pov) * Math.min(1, dt * 7);
-    const dur = def.kind === 'blunt' ? 0.24 : def.kind === 'shot' ? 0.2 : 0.3;
+    const dur = def.kind === 'blunt' ? (this.style === 'jab' ? 0.26 : 0.4) : def.kind === 'shot' ? 0.2 : 0.3;
     this.strikeT = Math.min(1, this.strikeT + dt / dur);
     const striking = this.strikeT < 1;
     const k = striking ? Math.sin(Math.PI * Math.pow(this.strikeT, 0.55)) : 0;
@@ -284,27 +334,54 @@ export class ViewModel {
 
     if (def.kind === 'blunt') {
       const tgt = cam.worldToLocal(_b.copy(this.target));
+      // Yumruğun evreleri: kurulma (ağır yumrukta), fırlama, hedefte bir an asılı kalma, geri çekme.
+      const u = this.strikeT, heavy = this.style !== 'jab';
+      const t0 = heavy ? 0.26 : 0.06, t1 = heavy ? 0.42 : 0.3, t2 = heavy ? 0.56 : 0.42;
+      const wind = !striking ? 0 : u < t0 ? Math.sin((u / t0) * Math.PI * 0.5) : Math.max(0, 1 - (u - t0) / (t1 - t0));
+      const ext = !striking || u < t0 ? 0
+        : u < t1 ? 1 - Math.pow(1 - (u - t0) / (t1 - t0), 3)
+        : u < t2 ? 1
+        : 1 - smooth((u - t2) / (1 - t2));
       for (const [g, sgn, lead] of [[this.left, -1, 0.04], [this.right, 1, 0]] as const) {
         if (!g) continue;
         const mine = striking && (this.hand === 'R') === (sgn === 1);
         g.visible = this.pov > 0.02 || mine;
         const rest = _c.set(sgn * 0.2 * narrow + lagX + swayX, -0.145 + hide + lagY + swayY * (sgn === 1 ? 1 : 0.8), -0.52 - lead);
         if (mine) {
-          // Vuran el hedefe uzanır, bilek içe döner.
-          g.position.copy(rest).lerp(_a.copy(tgt).multiplyScalar(0.84), k);
-          g.lookAt(toWorld(guard(sgn).lerp(tgt, Math.min(1, k * 1.6))));
-          g.rotateZ(-sgn * (0.55 - 0.9 * k));
+          // Kurulma: direkt geri çekilir, kroşe yana açılır, aparkat aşağı iner.
+          const back = this.style === 'hook' ? _a.set(sgn * 0.3, 0.02, 0.2) : this.style === 'upper' ? _a.set(sgn * 0.05, -0.2, 0.16) : _a.set(0, -0.01, 0.1);
+          rest.addScaledVector(back, wind);
+          // Kendi gözünden oynarken kol boyu sınırlıdır; sinema planında yumruk kadraj dışından gelir.
+          const hitAt = _a.copy(tgt).multiplyScalar(0.86);
+          if (s.pov && hitAt.length() > 1.25) hitAt.setLength(1.25);
+          g.position.copy(rest).lerp(hitAt, ext);
+          // Yay: kroşe dışarıdan içeri, aparkat aşağıdan yukarı kavis çizer.
+          const arc = Math.sin(ext * Math.PI) * (1 - ext * 0.3);
+          if (this.style === 'hook') g.position.x += sgn * 0.26 * arc;
+          if (this.style === 'upper') g.position.y -= 0.24 * arc;
+          g.lookAt(toWorld(guard(sgn).lerp(tgt, Math.min(1, ext * 1.4 + wind * 0.3))));
+          // Bilek: direkt içe döner; kroşede yumruk yatay, aparkatta avuç yukarı bakar.
+          g.rotateZ(-sgn * (0.55 - (this.style === 'hook' ? 2.0 : 0.95) * ext));
+          if (this.style === 'upper') g.rotateX(-0.9 * ext);
+          if (this.style === 'hook') g.rotateY(-sgn * 0.7 * ext);
         } else {
-          // Öbür el gardını alır.
-          rest.z += 0.05 * k;
-          rest.y += 0.03 * k;
+          // Öbür el çeneyi korur: vuruş anında yukarı ve içe toplanır.
+          rest.z += 0.06 * ext;
+          rest.y += 0.05 * ext;
+          rest.x -= sgn * 0.04 * ext;
           g.position.copy(rest);
           g.lookAt(toWorld(guard(sgn)));
           g.rotateZ(-sgn * 0.55);
         }
       }
+      // Omuz dönüşü: bütün gövde yumruğun arkasına girer.
+      const turn = (this.hand === 'R' ? 1 : -1) * (heavy ? 0.16 : 0.07);
+      this.root.rotation.set(0, turn * (ext - wind * 0.6), turn * -0.5 * ext);
+      this.root.position.set(0, heavy ? -0.03 * wind : 0, heavy ? 0.06 * wind - 0.05 * ext : -0.02 * ext);
       return;
     }
+    this.root.rotation.set(0, 0, 0);
+    this.root.position.set(0, 0, 0);
 
     const g = this.tool!;
     if (def.kind === 'shot') {

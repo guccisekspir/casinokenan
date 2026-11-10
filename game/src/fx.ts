@@ -78,6 +78,48 @@ export class Particles {
   }
 }
 
+/** Darbe halkası: isabet noktasında kameraya dönük, hızla genişleyip sönen parlak bir halka. */
+export class Impacts {
+  private rings: { mesh: THREE.Mesh; t: number; size: number }[] = [];
+  constructor(scene: THREE.Scene) {
+    const geo = new THREE.RingGeometry(0.72, 1, 28);
+    for (let i = 0; i < 6; i++) {
+      const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+        color: 0xfff4dc, transparent: true, opacity: 0, depthTest: false, depthWrite: false,
+        blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false,
+      }));
+      mesh.visible = false;
+      mesh.renderOrder = 5;
+      mesh.frustumCulled = false;
+      scene.add(mesh);
+      this.rings.push({ mesh, t: 1, size: 0.3 });
+    }
+  }
+
+  spawn(point: THREE.Vector3, size: number) {
+    const r = this.rings.reduce((a, b) => (b.t > a.t ? b : a)); // en eskisini yeniden kullan
+    r.t = 0;
+    r.size = size;
+    r.mesh.position.copy(point);
+    r.mesh.visible = true;
+  }
+
+  update(dt: number, camera: THREE.Camera) {
+    for (const r of this.rings) {
+      if (!r.mesh.visible) continue;
+      r.t += dt / 0.22;
+      if (r.t >= 1) {
+        r.mesh.visible = false;
+        continue;
+      }
+      const e = 1 - Math.pow(1 - r.t, 3);
+      r.mesh.scale.setScalar(r.size * (0.25 + 0.75 * e));
+      (r.mesh.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - r.t);
+      r.mesh.quaternion.copy(camera.quaternion);
+    }
+  }
+}
+
 interface Gib {
   obj: THREE.Object3D;
   ragdoll: Ragdoll;

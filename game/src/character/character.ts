@@ -120,6 +120,7 @@ export class Character {
     R: { w: 0, want: 0, target: new THREE.Vector3() },
   };
   private breath = 0;
+  private flinch: { t: number; power: number; zone: 'head' | 'body' | 'arm' | 'leg'; side: number; point: THREE.Vector3 } | null = null;
   private faceYaw = 0;
   private ikDirs: Record<Side, { w: number; upper: THREE.Vector3; fore: THREE.Vector3 }> = {
     L: { w: 0, upper: new THREE.Vector3(), fore: new THREE.Vector3() },
@@ -491,7 +492,8 @@ export class Character {
     return best;
   }
 
-  hit(h: { point: THREE.Vector3; dir: THREE.Vector3; part: PartId | null; weapon: WeaponDef }): HitResult {
+  /** @param h.power darbenin gücü: 1 normal, >1 ağır yumruk (hasar, savrulma ve tepki büyür) */
+  hit(h: { point: THREE.Vector3; dir: THREE.Vector3; part: PartId | null; weapon: WeaponDef; power?: number }): HitResult {
     const res: HitResult = { damage: 0, crit: false, zone: 'body', severed: null, killed: false };
     if (this.dead) return res;
     const w = h.weapon;
@@ -500,14 +502,23 @@ export class Character {
     // karakteri öldürmeden sıkıştırmak olduğu için nereye vurduğu önemlidir.
     res.zone = h.part === 'head' ? 'head' : h.part ? 'limb' : 'body';
     res.crit = res.zone === 'head';
-    res.damage = Math.max(1, Math.round(w.damage * (res.zone === 'head' ? 1.5 : res.zone === 'limb' ? 0.5 : 1)));
+    const power = h.power ?? 1;
+    res.damage = Math.max(1, Math.round(w.damage * power * (res.zone === 'head' ? 1.5 : res.zone === 'limb' ? 0.5 : 1)));
 
     this.face?.wince(res.zone === 'head' ? 1.2 : 0.8);
 
     // Tepki: vurulan kemik + ataları, kaldıraç koluna göre savrulur.
     const bone = h.part ? this.parts.get(h.part)!.bone : this.rig.spine[this.rig.spine.length - 1] ?? this.rig.hips;
-    if (bone) this.impulse(bone, h.point, h.dir, w.force);
-    this.knockVel.addScaledVector(h.dir, w.force * 0.12);
+    if (bone) this.impulse(bone, h.point, h.dir, w.force * power);
+    this.knockVel.addScaledVector(h.dir, w.force * 0.17 * power);
+
+    // Tepki pozu: nereden vurulduysa beden ona göre büzülür / savrulur.
+    const local = _v.copy(h.point).sub(this.root.position).applyQuaternion(_q.copy(this.root.quaternion).invert());
+    this.flinch = {
+      t: 0, power: Math.min(1.6, 0.55 + w.force * 0.045 * power),
+      zone: res.zone === 'limb' ? (h.part!.includes('arm') ? 'arm' : 'leg') : res.zone,
+      side: local.x >= 0 ? 1 : -1, point: h.point.clone(),
+    };
 
     // Uzuv koparma. Kafa da kopar — ama kafası kopan karakter ölür.
     if (h.part && w.sever > 0) {
@@ -943,6 +954,13 @@ export class Character {
       this.walkPhase += (fwd >= 0 ? 1 : -1) * speed * (grounded ? 14 : 5.2) * dt;
     }
     this.walkAmp += (Math.min(1, speed / (grounded ? 0.15 : 0.5)) - this.walkAmp) * Math.min(1, dt * 8);
+    // Sendeleme: darbeyle geri savrulurken ayakları da adım atar (kaymaz).
+    const stagger = this.knockVel.length();
+    if (this.posture === 'stand' && stagger > 0.25) {
+      this.walkPhase -= stagger * 6 * dt;
+      this.walkAmp = Math.max(this.walkAmp, Math.min(0.9, stagger / 1.4));
+    }
+    if (this.flinch && (this.flinch.t += dt) > 1.1) this.flinch = null;
 
     // --- Kök: yükseklik. Bacağını yitiren beden yere yay gibi değil, ağırlığıyla iner ve hafif seker.
     const knee = this.legLen.shin * 0.92;
@@ -1035,6 +1053,47 @@ export class Character {
 
     p.spine.x += 0.22 * weak * weak;
     p.head.x += 0.15 * weak * weak;
+
+    // Ağırlık aktarma: hiçbir poz kazık gibi durmaz; gövde ağır ağır salınır, baş dengeler.
+    // Canı azaldıkça salınım sersemliğe döner.
+    const sway = Math.sin(t * 0.55), dizzy = weak * weak;
+    p.spine.z += sway * 0.035 + Math.sin(t * 1.7) * 0.11 * dizzy;
+    p.spine.y += Math.sin(t * 0.4) * 0.04;
+    p.head.z -= sway * 0.03 - Math.sin(t * 1.3) * 0.08 * dizzy;
+
+    // Darbe tepkisi: ilk anda sert, sonra sönerek geçer.
+    const fl = this.flinch;
+    if (fl) {
+      const f = fl.power * Math.exp(-fl.t * 6.5) * Math.min(1, fl.t * 40);
+      const hold = fl.t > 0.12 && fl.t < 0.85; // acıyan yeri tutma süresi
+      const hand: Side | null = fl.side > 0 ? (okR ? 'R' : okL ? 'L' : null) : okL ? 'L' : okR ? 'R' : null;
+      if (fl.zone === 'head') {
+        // Kafa geri savrulur, gövde geriye yaylanır, kollar açılır.
+        p.spine.x -= 0.4 * f;
+        p.spine.z -= fl.side * 0.22 * f;
+        p.head.x -= 0.35 * f;
+        p.look = Math.min(p.look, 1 - Math.min(1, f));
+        p.armL.lerp(_v3.set(0.9, 0.1, -0.25), Math.min(0.75, f * 0.7));
+        p.armR.lerp(_v3.set(-0.9, 0.1, -0.25), Math.min(0.75, f * 0.7));
+      } else if (fl.zone === 'body') {
+        // İki büklüm olur, eli karnına gider.
+        p.spine.x += 0.7 * f;
+        p.head.x += 0.25 * f;
+        if (hold && hand) reach(hand, fl.point);
+        if (this.posture === 'stand') p.kneel = Math.max(p.kneel, Math.min(0.25, 0.3 * f));
+      } else if (fl.zone === 'arm') {
+        // Vurulan omuz geri kaçar, öbür el oraya gider.
+        p.spine.y += fl.side * 0.5 * f;
+        p.spine.z += fl.side * 0.15 * f;
+        const other: Side = fl.side > 0 ? 'R' : 'L';
+        if (hold && this.armOk(other)) reach(other, fl.point);
+      } else {
+        // Dizi boşalır, o tarafa yığılır gibi olur.
+        p.spine.x += 0.35 * f;
+        p.spine.z += fl.side * 0.25 * f;
+        if (this.posture === 'stand') p.kneel = Math.max(p.kneel, Math.min(0.5, 0.6 * f));
+      }
+    }
 
     if (this.shock > 0) {
       p.tremble = Math.max(p.tremble, this.shock);
