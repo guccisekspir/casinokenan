@@ -1,26 +1,26 @@
-# Grandpa Thunder (Şimşek Dede) — ElevenLabs recording list, English
+# Grandpa Thunder (Şimşek Dede) — ElevenLabs recording list, English, Eleven v4
 
-Each entry: the file name, then the text to paste into ElevenLabs. The bracketed direction only
-works on the Eleven v3 model; on any other model delete it and paste the sentence alone.
+Each entry: the file name, then the text to paste into ElevenLabs with the Eleven v4 model.
+Square brackets are audio tags (delivery and reactions); they are not read aloud.
 Save the files to `game/public/audio/en/simsek-dede/` under exactly these names.
 
 ## intro
 
 `intro_1.mp3`
 
-    [smug, boastful] I throw beautiful multipliers, kid. I am a wonderful grandpa. Look: two x!
+    [smug, grand, like a showman] I throw beautiful multipliers, kid. I am a wonderful grandpa. Look: two x! [chuckles]
 
 `intro_2.mp3`
 
-    [smug, boastful] Welcome, kid! I am feeling generous today. Here, have a two x.
+    [smug, grand, like a showman] Welcome, kid! I am feeling generous today. Here, have a two x. [chuckles]
 
 `intro_3.mp3`
 
-    [smug, boastful] You again? Come, come. You already got two x out of your grandpa. Be happy.
+    [smug, grand, like a showman] You again? Come, come. You already got two x out of your grandpa. Be happy. [chuckles]
 
 `intro_4.mp3`
 
-    [smug, boastful] The gates of the clouds have opened! And out came... a two x. Applause.
+    [smug, grand, like a showman] The gates of the clouds have opened! And out came... a two x. Applause. [chuckles]
 
 ## idle_1
 
@@ -56,89 +56,89 @@ Save the files to `game/public/audio/en/simsek-dede/` under exactly these names.
 
 `idle_2_1.mp3`
 
-    [angry, indignant] Who are you to raise a hand against a god?
+    [angry, indignant, raising his voice] Who are you to raise a hand against a god?
 
 `idle_2_2.mp3`
 
-    [angry, indignant] I am fair! I have a certificate!
+    [angry, indignant, raising his voice] I am fair! I have a certificate!
 
 `idle_2_3.mp3`
 
-    [angry, indignant] If you cannot stand losing, do not play!
+    [angry, indignant, raising his voice] If you cannot stand losing, do not play!
 
 `idle_2_4.mp3`
 
-    [angry, indignant] Hitting me does not raise the RTP, kid.
+    [angry, indignant, raising his voice] Hitting me does not raise the RTP, kid.
 
 `idle_2_5.mp3`
 
-    [angry, indignant] I am reporting you to customer support.
+    [angry, indignant, raising his voice] I am reporting you to customer support.
 
 `idle_2_6.mp3`
 
-    [angry, indignant] I paid you! What more do you want?
+    [angry, indignant, raising his voice] I paid you! What more do you want?
 
 ## idle_3
 
 `idle_3_1.mp3`
 
-    [pleading, scared] Wait, wait! The next spin pays, I swear!
+    [pleading, voice shaking] Wait, wait! The next spin pays, I swear!
 
 `idle_3_2.mp3`
 
-    [pleading, scared] I am only a random number generator...
+    [pleading, voice shaking] I am only a random number generator...
 
 `idle_3_3.mp3`
 
-    [pleading, scared] When the reels stop, who am I, really?
+    [pleading, voice shaking] When the reels stop, who am I, really?
 
 `idle_3_4.mp3`
 
-    [pleading, scared] Kid, do not do this to your grandpa.
+    [pleading, voice shaking] Kid, do not do this to your grandpa.
 
 `idle_3_5.mp3`
 
-    [pleading, scared] A little more patience. I am paying, I am paying!
+    [pleading, voice shaking] A little more patience. I am paying, I am paying!
 
 `idle_3_6.mp3`
 
-    [pleading, scared] It is close, I said, it is close! It is always close.
+    [pleading, voice shaking] It is close, I said, it is close! It is always close.
 
 ## hit_head
 
 `hit_head_1.mp3`
 
-    [yelps in pain] Ow! My crown!
+    [sharp yelp of pain] Ow! My crown!
 
 `hit_head_2.mp3`
 
-    [yelps in pain] Not the head! That is where I keep the multipliers!
+    [sharp yelp of pain] Not the head! That is where I keep the multipliers!
 
 `hit_head_3.mp3`
 
-    [yelps in pain] Do not touch the beard!
+    [sharp yelp of pain] Do not touch the beard!
 
 `hit_head_4.mp3`
 
-    [yelps in pain] Oof! I saw lightning. My own lightning!
+    [sharp yelp of pain] Oof! I saw lightning. My own lightning!
 
 ## hit_body
 
 `hit_body_1.mp3`
 
-    [grunts, dismissive] Hit me all you like. The multiplier stays low.
+    [short grunt] [dismissive] Hit me all you like. The multiplier stays low.
 
 `hit_body_2.mp3`
 
-    [grunts, dismissive] That tickled, kid.
+    [short grunt] [dismissive] That tickled, kid.
 
 `hit_body_3.mp3`
 
-    [grunts, dismissive] Your punch is as light as your balance.
+    [short grunt] [dismissive] Your punch is as light as your balance.
 
 `hit_body_4.mp3`
 
-    [grunts, dismissive] You should have spent that on a spin.
+    [short grunt] [dismissive] You should have spent that on a spin.
 
 ## hit_arm
 
@@ -162,79 +162,79 @@ Save the files to `game/public/audio/en/simsek-dede/` under exactly these names.
 
 `hit_leg_1.mp3`
 
-    [winces] My knee! My three thousand year old knee!
+    [winces, through his teeth] My knee! My three thousand year old knee!
 
 `hit_leg_2.mp3`
 
-    [winces] Easy! I have rheumatism.
+    [winces, through his teeth] Easy! I have rheumatism.
 
 `hit_leg_3.mp3`
 
-    [winces] Get off my sandal!
+    [winces, through his teeth] Get off my sandal!
 
 `hit_leg_4.mp3`
 
-    [winces] Not the leg, I climb cloud stairs with it!
+    [winces, through his teeth] Not the leg, I climb cloud stairs with it!
 
 ## miss
 
 `miss_1.mp3`
 
-    [chuckles, mocking] You missed! Just like the bonus.
+    [chuckles] [mocking] You missed! Just like the bonus.
 
 `miss_2.mp3`
 
-    [chuckles, mocking] Close. The scatter is always close too.
+    [chuckles] [mocking] Close. The scatter is always close too.
 
 `miss_3.mp3`
 
-    [chuckles, mocking] You hit the air, kid. Air does not pay.
+    [chuckles] [mocking] You hit the air, kid. Air does not pay.
 
 `miss_4.mp3`
 
-    [chuckles, mocking] Another dead spin.
+    [chuckles] [mocking] Another dead spin.
 
 ## weapon_knuckles
 
 `weapon_knuckles_1.mp3`
 
-    [offended] Brass knuckles? On an old man? Shame.
+    [offended, scoffing] Brass knuckles? On an old man? Shame.
 
 `weapon_knuckles_2.mp3`
 
-    [offended] Did you buy that with your balance? So you still have money.
+    [offended, scoffing] Did you buy that with your balance? So you still have money.
 
 `weapon_knuckles_3.mp3`
 
-    [offended] Iron on your fist does not bring you luck, kid.
+    [offended, scoffing] Iron on your fist does not bring you luck, kid.
 
 ## weapon_katana
 
 `weapon_katana_1.mp3`
 
-    [nervous] What is that? Wait, let us talk.
+    [nervous, backing off] What is that? Wait, let us talk.
 
 `weapon_katana_2.mp3`
 
-    [nervous] You cannot cut a multiplier with a sword! You can cut me, though!
+    [nervous, backing off] You cannot cut a multiplier with a sword! You can cut me, though!
 
 `weapon_katana_3.mp3`
 
-    [nervous] Kid, that is sharp. Put it down.
+    [nervous, backing off] Kid, that is sharp. Put it down.
 
 ## weapon_gun
 
 `weapon_gun_1.mp3`
 
-    [alarmed] A pistol? This is a casino, not a western!
+    [alarmed, fast] A pistol? This is a casino, not a western!
 
 `weapon_gun_2.mp3`
 
-    [alarmed] Lower it! A dead grandpa pays nothing!
+    [alarmed, fast] Lower it! A dead grandpa pays nothing!
 
 `weapon_gun_3.mp3`
 
-    [alarmed] If you shoot, the multipliers die too. Just so you know.
+    [alarmed, fast] If you shoot, the multipliers die too. Just so you know.
 
 ## weapon_saber
 
@@ -254,183 +254,183 @@ Save the files to `game/public/audio/en/simsek-dede/` under exactly these names.
 
 `weapon_saw_1.mp3`
 
-    [alarmed, shouting over noise] What is that noise? Thunder is my job!
+    [shouting over loud noise, alarmed] What is that noise? Thunder is my job!
 
 `weapon_saw_2.mp3`
 
-    [alarmed, shouting over noise] A chainsaw? Kid, I am not firewood!
+    [shouting over loud noise, alarmed] A chainsaw? Kid, I am not firewood!
 
 `weapon_saw_3.mp3`
 
-    [alarmed, shouting over noise] Turn it off, I will get sawdust in my beard!
+    [shouting over loud noise, alarmed] Turn it off, I will get sawdust in my beard!
 
 ## weapon_slap
 
 `weapon_slap_1.mp3`
 
-    [nervous] Why is that hand open, kid? Close it.
+    [uneasy, wary] Why is that hand open, kid? Close it.
 
 `weapon_slap_2.mp3`
 
-    [nervous] A slap? You do not slap a god!
+    [uneasy, wary] A slap? You do not slap a god!
 
 `weapon_slap_3.mp3`
 
-    [nervous] That palm looks too big for me.
+    [uneasy, wary] That palm looks too big for me.
 
 ## buried
 
 `buried_1.mp3`
 
-    [muffled, panicking] I came down from the clouds... and went straight into the ground!
+    [dazed, panicking, out of breath] I came down from the clouds... and went straight into the ground!
 
 `buried_2.mp3`
 
-    [muffled, panicking] Get me out of here! My beard is full of dirt!
+    [dazed, panicking, out of breath] Get me out of here! My beard is full of dirt!
 
 `buried_3.mp3`
 
-    [muffled, panicking] I was never the god of the underworld!
+    [dazed, panicking, out of breath] I was never the god of the underworld!
 
 ## sever_arm
 
 `sever_arm_1.mp3`
 
-    [screams, shocked] My arm! I was throwing multipliers with that!
+    [screams] [shocked, disbelieving] My arm! I was throwing multipliers with that!
 
 `sever_arm_2.mp3`
 
-    [screams, shocked] That limb was not part of the bonus!
+    [screams] [shocked, disbelieving] That limb was not part of the bonus!
 
 `sever_arm_3.mp3`
 
-    [screams, shocked] You can still spin with one arm... I think.
+    [screams] [shocked, disbelieving] You can still spin with one arm... I think.
 
 `sever_arm_4.mp3`
 
-    [screams, shocked] I did not read this on the rules page!
+    [screams] [shocked, disbelieving] I did not read this on the rules page!
 
 ## sever_leg
 
 `sever_leg_1.mp3`
 
-    [screams, shocked] My leg! How do I get back up to the clouds?
+    [screams] [shocked, disbelieving] My leg! How do I get back up to the clouds?
 
 `sever_leg_2.mp3`
 
-    [screams, shocked] That leg was not insured!
+    [screams] [shocked, disbelieving] That leg was not insured!
 
 `sever_leg_3.mp3`
 
-    [screams, shocked] Am I going to be a limping grandpa now?
+    [screams] [shocked, disbelieving] Am I going to be a limping grandpa now?
 
 `sever_leg_4.mp3`
 
-    [screams, shocked] This... this is not in the game rules!
+    [screams] [shocked, disbelieving] This... this is not in the game rules!
 
 ## offer_small
 
 `offer_small_1.mp3`
 
-    [condescending] Here, have a little x. Go on, celebrate.
+    [condescending, bored] Here, have a little x. Go on, celebrate.
 
 `offer_small_2.mp3`
 
-    [condescending] See, it went up. I told you I was generous.
+    [condescending, bored] See, it went up. I told you I was generous.
 
 `offer_small_3.mp3`
 
-    [condescending] Even this is too much for you.
+    [condescending, bored] Even this is too much for you.
 
 `offer_small_4.mp3`
 
-    [condescending] The multiplier went up. Not bad, for you.
+    [condescending, bored] The multiplier went up. Not bad, for you.
 
 ## offer_mid
 
 `offer_mid_1.mp3`
 
-    [reluctant, grumbling] Fine, a little more. But this is the last one.
+    [reluctant, grumbling] Fine, a little more. But this is the last one. [sighs]
 
 `offer_mid_2.mp3`
 
-    [reluctant, grumbling] That is good money. Take it and go.
+    [reluctant, grumbling] That is good money. Take it and go. [sighs]
 
 `offer_mid_3.mp3`
 
-    [reluctant, grumbling] Are you trying to rob the vault, kid?
+    [reluctant, grumbling] Are you trying to rob the vault, kid? [sighs]
 
 `offer_mid_4.mp3`
 
-    [reluctant, grumbling] I never gave this multiplier to anyone. I am giving it to you.
+    [reluctant, grumbling] I never gave this multiplier to anyone. I am giving it to you. [sighs]
 
 ## offer_big
 
 `offer_big_1.mp3`
 
-    [desperate, panicking] Take it! Take all of it! Just stop!
+    [desperate, panicking, fast] Take it! Take all of it! Just stop!
 
 `offer_big_2.mp3`
 
-    [desperate, panicking] Even I have never seen this many x!
+    [desperate, panicking, fast] Even I have never seen this many x!
 
 `offer_big_3.mp3`
 
-    [desperate, panicking] The boss is going to fire me...
+    [desperate, panicking, fast] The boss is going to fire me...
 
 `offer_big_4.mp3`
 
-    [desperate, panicking] What more do you want? Max win? I told you not to ask!
+    [desperate, panicking, fast] What more do you want? Max win? I told you not to ask!
 
 ## recover
 
 `recover_1.mp3`
 
-    [smug, relieved] Tired? So is the multiplier. It is dropping.
+    [relieved exhale] [smug again] Tired? So is the multiplier. It is dropping.
 
 `recover_2.mp3`
 
-    [smug, relieved] You stopped, so the x are going back.
+    [relieved exhale] [smug again] You stopped, so the x are going back.
 
 `recover_3.mp3`
 
-    [smug, relieved] All better. Grandpas heal fast.
+    [relieved exhale] [smug again] All better. Grandpas heal fast.
 
 `recover_4.mp3`
 
-    [smug, relieved] If you stop, it drops. That is how a slot works, kid.
+    [relieved exhale] [smug again] If you stop, it drops. That is how a slot works, kid.
 
 ## near_death
 
 `near_death_1.mp3`
 
-    [terrified, begging] Stop! If I die, nobody pays you!
+    [terrified, begging, out of breath] Stop! If I die, nobody pays you!
 
 `near_death_2.mp3`
 
-    [terrified, begging] Kid, a dead grandpa cannot throw multipliers!
+    [terrified, begging, out of breath] Kid, a dead grandpa cannot throw multipliers!
 
 `near_death_3.mp3`
 
-    [terrified, begging] Easy! I am the one who opens the vault. If I die, it stays shut!
+    [terrified, begging, out of breath] Easy! I am the one who opens the vault. If I die, it stays shut!
 
 `near_death_4.mp3`
 
-    [terrified, begging] One more hit and we both lose.
+    [terrified, begging, out of breath] One more hit and we both lose.
 
 ## aloof_hit
 
 `aloof_hit_1.mp3`
 
-    [startled, outraged] You hit me from behind? No manners!
+    [startled gasp] [outraged] You hit me from behind? No manners!
 
 `aloof_hit_2.mp3`
 
-    [startled, outraged] I was not paying attention to you. Now I am.
+    [startled gasp] [outraged] I was not paying attention to you. Now I am.
 
 `aloof_hit_3.mp3`
 
-    [startled, outraged] Hey! I was watching the reels!
+    [startled gasp] [outraged] Hey! I was watching the reels!
 
 ## cashout
 
@@ -450,27 +450,27 @@ Save the files to `game/public/audio/en/simsek-dede/` under exactly these names.
 
 `maxwin_1.mp3`
 
-    [defeated, shouting] Fine! Fine! Here is your max win!
+    [defeated, shouting, exhausted] Fine! Fine! Here is your max win!
 
 `maxwin_2.mp3`
 
-    [defeated, shouting] I give up! The vault is yours! All of it!
+    [defeated, shouting, exhausted] I give up! The vault is yours! All of it!
 
 `maxwin_3.mp3`
 
-    [defeated, shouting] Take it, go, and never come back!
+    [defeated, shouting, exhausted] Take it, go, and never come back!
 
 ## death
 
 `death_1.mp3`
 
-    [weak, dying whisper] The house... always... wins.
+    [weak, fading whisper, long pauses] The house... always... wins. [last breath]
 
 `death_2.mp3`
 
-    [weak, dying whisper] A dead... grandpa... pays nothing...
+    [weak, fading whisper, long pauses] A dead... grandpa... pays nothing... [last breath]
 
 `death_3.mp3`
 
-    [weak, dying whisper] I told you... kid...
+    [weak, fading whisper, long pauses] I told you... kid... [last breath]
 
