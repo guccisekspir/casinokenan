@@ -77,6 +77,8 @@ olması (Mixamo / Unreal / Blender tarzı adlandırmalar otomatik tanınır).
 | `src/game.ts` | Sahne, girdi, saldırı akışı, perdeler, ağır çekim |
 | `src/dialogue.ts` | Konuşma yönetmeni: olay → replik, öncelik, tekrar etmeme, ses dosyası / sesli okuma yedeği |
 | `src/lines/<id>.json` | Karakterin replikleri: olay başına alternatifler |
+| `src/landing.ts` | Açılış sayfası: marka, boss kartları (`public/bosses/<id>.jpg`), kural, silahlar |
+| `src/i18n.ts` | Arayüz dili: İngilizce (varsayılan) ve Türkçe; boss adları ve arayüz metinleri |
 | `src/director.ts` | Kamera planları (genel, alt açı, yakın, eğik, tepe, uzak, kopuş, final) ve kesmeler |
 | `src/film.ts` | Renk banyosu: seçici renk, gren, vinyet |
 | `src/fx.ts` | Kan/kıvılcım parçacıkları, kopan parçaların fiziği, arkadaki slot makarası |

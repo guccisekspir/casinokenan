@@ -1,17 +1,8 @@
 import type { CharacterDef } from './characters';
+import { boss, fmt, t, type Key } from './i18n';
 import type { WeaponDef } from './weapons';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const fmt = (n: number) => n.toLocaleString('tr-TR');
-
-const GOAL = 'öldürmeden max win\'i kopar · WASD: yürü';
-const HINT: Record<WeaponDef['kind'], string> = {
-  blunt: `${GOAL} · dokun: vur`,
-  slash: `${GOAL} · basılı tutup sürükle: kes`,
-  shot: `${GOAL} · dokun: ateş et`,
-  saw: `${GOAL} · basılı tut: testere değdiği sürece keser`,
-};
-
 /** Arayüz bir film çerçevesi gibi: sinemaskop şeritleri, altyazı, ara yazılar. */
 export class UI {
   onPick: (def: CharacterDef) => void = () => {};
@@ -31,16 +22,7 @@ export class UI {
     $('btn-cash').onclick = () => this.onCash();
   }
 
-  showMenu(chars: CharacterDef[]) {
-    $('cards').replaceChildren(
-      ...chars.map((c) => {
-        const b = document.createElement('button');
-        b.className = 'card';
-        b.innerHTML = `<b>${c.name}</b><small>${c.slotName}</small><em>${fmt(c.maxWin)}x</em>`;
-        b.onclick = () => this.onPick(c);
-        return b;
-      }),
-    );
+  showMenu() {
     $('menu').hidden = false;
     $('hud').hidden = true;
     $('win').hidden = true;
@@ -58,8 +40,8 @@ export class UI {
   }
 
   setCharacter(def: CharacterDef, placeholder: boolean) {
-    $('ch-name').textContent = def.name;
-    $('ch-slot').textContent = def.slotName + (placeholder ? ' · geçici model' : '');
+    $('ch-name').textContent = boss(def.id, 'name', def.name);
+    $('ch-slot').textContent = boss(def.id, 'slot', def.slotName) + (placeholder ? ` · ${t('hud.placeholder')}` : '');
   }
 
   setAct(label: string) {
@@ -71,11 +53,11 @@ export class UI {
   }
 
   setCoins(n: number) {
-    $('coins').textContent = `${fmt(n)} jeton`;
+    $('coins').textContent = `${fmt(n)} ${t('hud.coins')}`;
   }
 
   setMuted(m: boolean) {
-    $('btn-mute').textContent = m ? 'ses kapalı' : 'ses açık';
+    $('btn-mute').textContent = t(m ? 'hud.soundOff' : 'hud.soundOn');
   }
 
   setWeapons(list: WeaponDef[], owned: Set<string>, current: string, coins: number) {
@@ -84,13 +66,13 @@ export class UI {
         const b = document.createElement('button');
         const has = owned.has(w.id);
         b.className = 'weapon' + (w.id === current ? ' active' : '') + (has ? '' : coins >= w.price ? ' buyable' : ' locked');
-        b.innerHTML = w.name + (has ? '' : `<small>${fmt(w.price)}</small>`);
+        b.innerHTML = t(`w.${w.id}` as Key) + (has ? '' : `<small>${fmt(w.price)}</small>`);
         b.onclick = () => this.onWeapon(w.id);
         return b;
       }),
     );
     const cur = list.find((w) => w.id === current);
-    if (cur) $('hint').textContent = HINT[cur.kind];
+    if (cur) $('hint').textContent = `${t('hint.goal')} · ${t(`hint.${cur.kind}` as Key)}`;
   }
 
   /** Karakterin repliği: film altyazısı. */
@@ -131,7 +113,7 @@ export class UI {
   setOffer(x: number, reward: number, promised?: number) {
     $('offer').hidden = false;
     $('offer-x').innerHTML = promised ? `<s>${fmt(promised)}x</s> ${fmt(x)}x` : `${fmt(x)}x`;
-    $('btn-cash').textContent = `al ve çık · +${fmt(reward)} jeton`;
+    $('btn-cash').textContent = `${t('hud.cash')} · +${fmt(reward)} ${t('hud.coins')}`;
   }
 
   hideOffer() {
@@ -139,16 +121,20 @@ export class UI {
   }
 
   showEnd(outcome: 'maxwin' | 'cashout' | 'death', def: CharacterDef, x: number, reward: number, promised?: number) {
-    const t = {
-      maxwin: { pre: `${def.name} pes etti`, title: 'Max Win', sub: `${fmt(def.maxWin)}x` },
-      cashout: { pre: `${def.name} hâlâ ayakta`, title: `${fmt(x)}x`, sub: promised ? `${fmt(promised)}x yazdı, ${fmt(x)}x ödedi` : 'aldın ve çıktın' },
-      death: { pre: `${def.name} öldü`, title: 'Kasa Kazandı', sub: 'ölü maskot ödeme yapmaz' },
+    const n = boss(def.id, 'name', def.name);
+    const c = {
+      maxwin: { pre: t('end.gaveUp', { n }), title: 'Max Win', sub: `${fmt(def.maxWin)}x` },
+      cashout: {
+        pre: t('end.standing', { n }), title: `${fmt(x)}x`,
+        sub: promised ? t('end.lowSub', { a: fmt(promised), b: fmt(x) }) : t('end.cashSub'),
+      },
+      death: { pre: t('end.dead', { n }), title: t('end.house'), sub: t('end.deadSub') },
     }[outcome];
-    $('win-who').textContent = t.pre;
-    $('win-title').textContent = t.title;
+    $('win-who').textContent = c.pre;
+    $('win-title').textContent = c.title;
     $('win-title').classList.toggle('lost', outcome === 'death');
-    $('win-x').textContent = t.sub;
-    $('win-bonus').textContent = `+${fmt(reward)} jeton`;
+    $('win-x').textContent = c.sub;
+    $('win-bonus').textContent = `+${fmt(reward)} ${t('hud.coins')}`;
     $('win').hidden = false;
   }
 }

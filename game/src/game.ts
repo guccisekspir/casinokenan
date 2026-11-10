@@ -7,6 +7,7 @@ import { Dialogue, type DialogueEvent } from './dialogue';
 import { Director, type Shot } from './director';
 import { Film } from './film';
 import { Gibs, Particles, Reels } from './fx';
+import { boss, t, type Key } from './i18n';
 import type { UI } from './ui';
 import { ViewModel } from './viewmodel';
 import { WEAPONS, type WeaponDef } from './weapons';
@@ -263,7 +264,7 @@ export class Game {
     ch.act('smug');
     this.director.cut('wide');
     this.shotTimer = 10;
-    this.openAct(def.slotName, def.name, 3.2);
+    this.openAct(boss(def.id, 'slot', def.slotName), boss(def.id, 'name', def.name), 3.2);
     this.beatTimer = 99;
     this.introAt = this.blockUntil; // ara yazı açılırken: övünür ve ilk çarpanı gösterir
     this.audio.startMusic();
@@ -305,8 +306,9 @@ export class Game {
   /** Perde ara yazısı: ekran kararır, başlık görünür, tek bir çan vurur. */
   private openAct(top: string, main: string, seconds: number) {
     const A = ACTS[this.act];
-    this.ui.setAct(`${A.no}. perde`);
-    this.ui.card(top, main, `${A.no}. ${A.name} — ${A.sub}`, seconds);
+    const n = this.act + 1;
+    this.ui.setAct(`${A.no}. ${t('hud.act')}`);
+    this.ui.card(top, main, `${A.no}. ${t(`act.${n}` as Key)} — ${t(`act.${n}.sub` as Key)}`, seconds);
     this.audio.toll();
     this.blockUntil = this.now + seconds * 0.7;
     this.beatTimer = seconds * 0.85;
@@ -481,7 +483,7 @@ export class Game {
       if (!drag) this.speak('miss');
       if (tooFar && this.now > this.farHintAt) {
         this.farHintAt = this.now + 4;
-        this.ui.toast('çok uzaksın — yaklaş');
+        this.ui.toast(t('toast.far'));
       }
       return;
     }
@@ -599,7 +601,7 @@ export class Game {
       this.film.flash = 0.25;
       this.shake = 0.14;
       this.blockUntil = this.now + 0.9;
-      this.ui.toast(this.blocksLeft > 0 ? 'set çekti — max kapandı' : 'son seti çekti — demiri bitti');
+      this.ui.toast(t(this.blocksLeft > 0 ? 'toast.block' : 'toast.blockLast'));
       this.showOffer();
     }
 
@@ -620,7 +622,7 @@ export class Game {
     const act = this.pressure >= 70 ? 2 : this.pressure >= 35 ? 1 : 0;
     if (act > this.act) {
       this.act = act;
-      this.openAct(ch.def.name, ACTS[act].name, 2.6);
+      this.openAct(boss(ch.def.id, 'name', ch.def.name), t(`act.${act + 1}` as Key), 2.6);
       ch.act(act === 1 ? (ch.canWalk ? 'stagger' : 'guard') : 'plead');
       this.pendingShot = null;
       this.cutTo(ACTS[act].shots[0]); // yürüyerek oynanıyorsa oyuncunun gözünde kalır

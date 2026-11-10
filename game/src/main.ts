@@ -2,6 +2,8 @@ import './style.css';
 import { Audio } from './audio';
 import { CHARACTERS, type CharacterDef } from './characters';
 import { Game } from './game';
+import { applyStatic, fmt, onLang, t, type Key } from './i18n';
+import { Landing } from './landing';
 import { UI } from './ui';
 import { WEAPONS } from './weapons';
 
@@ -52,13 +54,14 @@ ui.onRetry = () => current && play(current);
 ui.onCash = () => game.cashOut();
 ui.onMenu = () => {
   game.stop();
-  ui.showMenu(CHARACTERS);
+  ui.showMenu();
+  landing.enter();
 };
 ui.onWeapon = (id) => {
   audio.unlock();
   if (!game.selectWeapon(id)) {
     const w = WEAPONS.find((x) => x.id === id)!;
-    ui.toast(`${w.name} için ${(w.price - game.coins).toLocaleString('tr-TR')} jeton daha gerek.`);
+    ui.toast(t('toast.need', { w: t(`w.${w.id}` as Key), n: fmt(w.price - game.coins) }));
   }
 };
 ui.onMute = () => {
@@ -66,7 +69,15 @@ ui.onMute = () => {
   ui.setMuted(audio.muted);
 };
 
-ui.showMenu(CHARACTERS);
+const landing = new Landing(CHARACTERS, WEAPONS, (def) => void play(def));
+applyStatic();
+onLang(() => {
+  refresh();
+  ui.setMuted(audio.muted);
+});
+ui.setMuted(false);
+ui.showMenu();
+landing.enter();
 refresh();
 
 // Konsoldan kurcalamak için (ör. game.coins = 99999).

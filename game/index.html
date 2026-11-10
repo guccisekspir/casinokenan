@@ -1,10 +1,12 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="theme-color" content="#000000" />
     <title>Slot Dayağı</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&display=swap" />
   </head>
   <body>
     <canvas id="scene"></canvas>
@@ -12,7 +14,7 @@
 
     <div id="hud" hidden>
       <div class="bar top">
-        <button id="btn-menu" aria-label="Çık">çık</button>
+        <button id="btn-menu" aria-label="Exit" data-i18n="hud.exit"></button>
         <div class="who"><span id="ch-act"></span><b id="ch-name"></b><small id="ch-slot"></small></div>
         <div class="right"><span id="coins"></span><button id="btn-mute" aria-label="Ses">ses açık</button></div>
         <div class="line"><div id="hp-fill"></div></div>
@@ -29,12 +31,63 @@
 
     <div id="card" hidden><small id="card-top"></small><div id="card-main"></div><small id="card-sub"></small></div>
 
-    <div id="menu" class="overlay">
-      <small class="pre">üç perdelik bir intikam</small>
-      <h1>Slot Dayağı</h1>
-      <p class="tag">Makaralar döndü, yine vermedi.<br />Bu sefer maskot verecek.</p>
-      <div id="cards"></div>
-      <p class="note">Parodidir. Gerçek para yok, bahis yok. Gerçek slotlarda kasa hep kazanır.</p>
+    <div id="menu">
+      <canvas id="lp-fx" aria-hidden="true"></canvas>
+      <div id="lp-spot" aria-hidden="true"></div>
+
+      <header class="lp-nav">
+        <span class="lp-mark">Slot Dayağı</span>
+        <nav>
+          <a href="#bosses" data-i18n="nav.bosses"></a>
+          <a href="#rules" data-i18n="nav.rules"></a>
+          <a href="#arsenal" data-i18n="nav.arsenal"></a>
+          <span class="lp-lang" role="group" aria-label="Language">
+            <button id="lang-en" data-lang="en">EN</button><button id="lang-tr" data-lang="tr">TR</button>
+          </span>
+        </nav>
+      </header>
+
+      <section class="lp-hero">
+        <p class="lp-kicker" data-i18n="hero.kicker"></p>
+        <h1 class="lp-title" id="lp-title" aria-live="off"></h1>
+        <div class="lp-heroRow">
+          <p class="lp-lede" data-i18n="hero.lede"></p>
+          <div class="lp-meter" aria-hidden="true">
+            <small data-i18n="hero.meter"></small>
+            <div class="lp-reel"><div id="lp-reel"></div></div>
+            <small data-i18n="hero.meter2"></small>
+            <div class="lp-paid">2x</div>
+          </div>
+        </div>
+        <a class="lp-cta" href="#bosses"><span data-i18n="hero.cta"></span><i aria-hidden="true">↓</i></a>
+      </section>
+
+      <div class="lp-ticker" aria-hidden="true"><div id="lp-ticker"></div></div>
+
+      <section class="lp-section" id="bosses">
+        <div class="lp-head"><h2 data-i18n="bosses.title"></h2><p data-i18n="bosses.sub"></p></div>
+        <div id="cards"></div>
+      </section>
+
+      <section class="lp-section" id="rules">
+        <div class="lp-head"><h2 data-i18n="rules.title"></h2></div>
+        <p class="lp-big" data-i18n="rules.big"></p>
+        <ol class="lp-acts">
+          <li><b>I</b><h3 data-i18n="rules.1.t"></h3><p data-i18n="rules.1.d"></p></li>
+          <li><b>II</b><h3 data-i18n="rules.2.t"></h3><p data-i18n="rules.2.d"></p></li>
+          <li><b>III</b><h3 data-i18n="rules.3.t"></h3><p data-i18n="rules.3.d"></p></li>
+        </ol>
+      </section>
+
+      <section class="lp-section" id="arsenal">
+        <div class="lp-head"><h2 data-i18n="arsenal.title"></h2><p data-i18n="arsenal.sub"></p></div>
+        <ul id="lp-arsenal"></ul>
+      </section>
+
+      <footer class="lp-foot">
+        <span class="lp-mark">Slot Dayağı</span>
+        <p><span data-i18n="foot.note"></span> <span data-i18n="foot.voice"></span></p>
+      </footer>
     </div>
 
     <div id="win" class="overlay" hidden>
@@ -43,13 +96,13 @@
       <div id="win-x"></div>
       <div id="win-bonus"></div>
       <div class="row">
-        <button id="btn-retry">yeniden</button>
-        <button id="btn-other">başka bir maskot</button>
+        <button id="btn-retry" data-i18n="end.retry"></button>
+        <button id="btn-other" data-i18n="end.other"></button>
       </div>
-      <small class="fin">— son —</small>
+      <small class="fin" data-i18n="end.fin"></small>
     </div>
 
-    <div id="loading" hidden>yükleniyor…</div>
+    <div id="loading" hidden data-i18n="loading"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
