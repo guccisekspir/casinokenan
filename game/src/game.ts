@@ -3,13 +3,30 @@ import type { Audio } from './audio';
 import { ALOOF, NEEDS_LEGS } from './character/acting';
 import { Character } from './character/character';
 import type { CharacterDef } from './characters';
+import { Dialogue, type DialogueEvent } from './dialogue';
 import { Director, type Shot } from './director';
 import { Film } from './film';
 import { Gibs, Particles, Reels } from './fx';
 import type { UI } from './ui';
 import { buildViewModel, WEAPONS, type WeaponDef } from './weapons';
 
-const WIN_BONUS = 500;
+/**
+ * Oyunun kuralı: karakteri ÖLDÜRMEDEN max win'i koparmak.
+ *  - Her vuruş karakteri sıkıştırır (baskı) ve verdiği çarpan basamak basamak yükselir.
+ *  - Her vuruş canını da götürür: kafa çok, gövde orta, uzuvlar az. Can biterse ölür ve
+ *    ölü maskot ödeme yapmaz — kasa kazanır.
+ *  - Oyuncu durursa baskı düşer, çarpan geri iner (karakter yine kibirlenir).
+ *  - Oyuncu istediği an o anki çarpanı alıp çıkabilir.
+ */
+const LADDER = [2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500];
+/** Basamağa göre jeton ödülü (alıp çıkınca). */
+const REWARD = [10, 25, 50, 90, 140, 200, 280, 380, 500, 650];
+const MAX_REWARD = 1500;
+const PRESSURE_MAX = 100;
+const SEVER_PRESSURE = 14;
+const DECAY_DELAY = 2.5; // son vuruştan sonra baskının düşmeye başlaması (sn)
+const DECAY_RATE = 1.6; // baskı / sn
+type Outcome = 'maxwin' | 'cashout' | 'death';
 const _a = new THREE.Vector3();
 const _b = new THREE.Vector3();
 const _c = new THREE.Vector3();
@@ -59,7 +76,16 @@ export class Game {
   private lastFrame = performance.now();
 
   private character: Character | null = null;
-  private state: 'idle' | 'fight' | 'won' = 'idle';
+  private state: 'idle' | 'fight' | 'ended' = 'idle';
+  private outcome: Outcome | null = null;
+  private dialogue: Dialogue | null = null;
+  /** 0..100: karakterin ne kadar sıkıştığı. Çarpanı ve perdeyi bu belirler. */
+  private pressure = 0;
+  private offer = 0;
+  private lastHitAt = 0;
+  private lastSpot = '';
+  private sameSpot = 0;
+  private introAt = 0;
   private act = 0;
   private particles: Particles;
   private gibs: Gibs;
@@ -93,9 +119,8 @@ export class Game {
   private beatTimer = 2;
   private shotTimer = 8;
   private pendingShot: { at: number; shot: Shot | null } | null = null;
-  private lineCooldown = 0;
   private severs = 0;
-  private winAt = 0;
+  private endAt = 0;
 
   constructor(private canvas: HTMLCanvasElement, trailCanvas: HTMLCanvasElement, private ui: UI, private audio: Audio) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -184,19 +209,49 @@ export class Game {
     this.severs = 0;
     this.slowUntil = this.freezeUntil = 0;
     this.pendingShot = null;
-    this.winAt = 0;
+    this.endAt = 0;
+    this.outcome = null;
+    this.pressure = 0;
+    this.offer = 0;
+    this.showOffer();
+
+    this.dialogue?.stop();
+    this.dialogue = new Dialogue(def, def.lines, this.audio);
+    this.dialogue.onSpeak = (text, seconds) => {
+      this.ui.subtitle(text, seconds);
+      ch.talk(seconds);
+      this.reels.spin();
+      this.beatTimer = seconds + 2 + Math.random() * 2.5;
+    };
+
     this.state = 'fight';
     ch.act('smug');
     this.director.cut('wide');
     this.shotTimer = 10;
     this.openAct(def.slotName, def.name, 3.2);
+    this.beatTimer = 99;
+    this.introAt = this.blockUntil; // ara yazı açılırken: övünür ve ilk çarpanı gösterir
     this.audio.startMusic();
   }
 
   stop() {
     this.state = 'idle';
-    window.speechSynthesis?.cancel();
+    this.dialogue?.stop();
     this.ui.subtitle(null);
+  }
+
+  /** Oyuncu o anki çarpanı alıp çıkar. */
+  cashOut() {
+    if (this.state === 'fight' && this.character && this.now >= this.blockUntil) this.finish(this.character, 'cashout');
+  }
+
+  private showOffer() {
+    this.reels.setOffer(`${LADDER[this.offer]}x`);
+    this.ui.setOffer(LADDER[this.offer], REWARD[this.offer]);
+  }
+
+  private speak(event: DialogueEvent, force = false): boolean {
+    return this.dialogue?.trigger(event, force) ?? false;
   }
 
   /** Perde ara yazısı: ekran kararır, başlık görünür, tek bir çan vurur. */
@@ -219,9 +274,12 @@ export class Game {
       this.owned.add(id);
       this.audio.coin();
     }
+    const changed = this.weapon !== w;
     this.weapon = w;
     this.setWeaponModel();
     this.onChange();
+    // Karakter eline ne aldığını görür ve ona göre konuşur.
+    if (changed && this.state === 'fight' && id !== 'fist') this.speak(`weapon_${id}` as DialogueEvent);
     return true;
   }
 
@@ -233,24 +291,16 @@ export class Game {
     this.camera.add(this.vm);
   }
 
-  private say(text: string) {
-    const ch = this.character;
-    if (!ch) return;
-    const dur = 1.6 + text.length * 0.06;
-    this.ui.subtitle(text, dur);
-    this.audio.speak(text, ch.def.voice);
-    ch.talk(dur);
-    this.reels.spin();
-    this.beatTimer = dur + 2 + Math.random() * 2.5;
-  }
-
-  /** Bir "vuruş": karakter yeni bir davranışa geçer ve repliğini söyler. */
+  /** Bir "vuruş": karakter yeni bir davranışa geçer ve oyuncuyu kışkırtır. */
   private beat(ch: Character) {
+    if (!this.speak(`idle_${this.act + 1}` as DialogueEvent, true)) {
+      this.beatTimer = 1.5; // şu an başka bir şey söylüyor: birazdan yeniden dene
+      return;
+    }
     const A = ACTS[this.act];
     const options = A.behaviors.filter((b) => b !== ch.behaviorName && (ch.canWalk || !NEEDS_LEGS.has(b)));
     if (this.act >= 1 && ch.lostArm && Math.random() < 0.35) ch.act('lookStump');
     else if (options.length) ch.act(pick(options));
-    this.say(pick([ch.def.taunts, ch.def.midLines, ch.def.lowLines][this.act]));
   }
 
   private cutTo(shot?: Shot) {
@@ -324,6 +374,7 @@ export class Game {
     }
     if (!hit) {
       this.stroke.clear(); // boşa çıkan kesik: aynı parçaya geri dönüp tekrar kesebilsin
+      if (!drag) this.speak('miss');
       return;
     }
 
@@ -362,15 +413,20 @@ export class Game {
       this.particles.emit(hit.point, back, 12, blood, 3);
     }
 
-    this.coins += res.damage;
     this.shake = Math.min(0.1, this.shake + w.force * 0.004);
     if (res.crit) this.freezeUntil = this.now + 0.07; // kafaya isabet: bir anlık donma
+    this.lastHitAt = this.now;
+    // Baskı: uzuvlara vurmak hem daha çok sıkıştırır hem daha az can götürür. Aynı yere üst üste
+    // vurmak ise gittikçe daha az işe yarar (alışır): oyuncu hedef değiştirmek zorunda.
+    const spot = part ?? 'body';
+    this.sameSpot = spot === this.lastSpot ? this.sameSpot + 1 : 0;
+    this.lastSpot = spot;
+    this.pressure += w.fear * (res.zone === 'limb' ? 1 : 0.6) * Math.max(0.3, Math.pow(0.82, this.sameSpot));
 
     // Karakter seni umursamıyorken vurulduysa: sahnesi bozulur, döner ve tepki verir.
     if (!res.killed && ALOOF.has(ch.behaviorName)) {
       ch.act(this.act === 0 ? 'scold' : 'guard');
-      this.say(pick(ch.def.hitLines));
-      this.lineCooldown = this.now + 2.5;
+      this.speak('aloof_hit', true);
     }
 
     const sev = res.severed;
@@ -397,56 +453,93 @@ export class Game {
         this.particles.emit(sev.joint, dir, 45, blood, 4, 0.9);
         this.drips.push({ parent: sev.stumpParent, local: sev.stumpLocal, until: this.now + 5 });
       }
+      this.pressure += SEVER_PRESSURE;
       if (!res.killed) {
         if (this.act >= 1 && sev.part.includes('arm')) ch.act('lookStump');
-        this.say(pick(ch.def.severLines));
+        this.speak(sev.part.includes('arm') ? 'sever_arm' : 'sever_leg', true);
       }
-    } else if (!res.killed && this.now > this.lineCooldown && Math.random() < 0.25) {
-      this.lineCooldown = this.now + 3;
-      this.say(pick(ch.def.hitLines));
+    } else if (!res.killed) {
+      this.speak(res.zone === 'limb' ? (part!.includes('arm') ? 'hit_arm' : 'hit_leg') : `hit_${res.zone}`);
     }
 
     this.ui.setHp(ch.hp / ch.maxHp);
-    if (res.killed) this.win(ch);
-    else this.checkAct(ch);
-    this.onChange();
+    if (res.killed) return this.finish(ch, 'death');
+    if (ch.hp / ch.maxHp < 0.25) this.speak('near_death');
+    this.updateOffer(ch);
   }
 
-  private checkAct(ch: Character) {
-    const r = ch.hp / ch.maxHp;
-    const act = r > 0.66 ? 0 : r > 0.33 ? 1 : 2;
-    if (act <= this.act) return;
-    this.act = act;
-    this.ui.subtitle(null);
-    window.speechSynthesis?.cancel();
-    this.openAct(ch.def.name, ACTS[act].name, 2.6);
-    ch.act(act === 1 ? (ch.canWalk ? 'stagger' : 'guard') : 'plead');
-    this.pendingShot = null;
-    this.cutTo(ACTS[act].shots[0]);
+  /** Baskıya göre çarpan basamağını, perdeyi ve max win'i günceller. */
+  private updateOffer(ch: Character) {
+    this.pressure = Math.max(0, this.pressure);
+    if (this.pressure >= PRESSURE_MAX) return this.finish(ch, 'maxwin');
+
+    const idx = Math.min(LADDER.length - 1, Math.floor((this.pressure / PRESSURE_MAX) * LADDER.length));
+    if (idx > this.offer) {
+      this.audio.coin();
+      this.film.flash = Math.max(this.film.flash, 0.08);
+      this.speak(idx <= 3 ? 'offer_small' : idx <= 6 ? 'offer_mid' : 'offer_big', true);
+      if (this.act === 0) ch.act('present'); // yeni çarpanı gururla gösterir
+    } else if (idx < this.offer) {
+      this.speak('recover');
+    }
+    if (idx !== this.offer) {
+      this.offer = idx;
+      this.showOffer();
+    }
+
+    const act = this.pressure >= 70 ? 2 : this.pressure >= 35 ? 1 : 0;
+    if (act > this.act) {
+      this.act = act;
+      this.openAct(ch.def.name, ACTS[act].name, 2.6);
+      ch.act(act === 1 ? (ch.canWalk ? 'stagger' : 'guard') : 'plead');
+      this.pendingShot = null;
+      this.cutTo(ACTS[act].shots[0]);
+    }
   }
 
-  private win(ch: Character) {
-    this.state = 'won';
-    this.say(ch.def.deathLine);
-    this.coins += WIN_BONUS;
-    this.shake = 0.2;
-    this.film.flash = 0.35;
-    this.slow(0.2, 3.6); // düşüş ağır çekimde
+  /** Sahnenin sonu: max win, alıp çıkma ya da ölüm. */
+  private finish(ch: Character, outcome: Outcome) {
+    this.state = 'ended';
+    this.outcome = outcome;
+    this.ui.hideOffer();
+    this.onUp();
+    this.speak(outcome, true);
+
+    if (outcome === 'maxwin') {
+      this.coins += MAX_REWARD;
+      ch.act('plead');
+      this.film.flash = 0.35;
+      this.shake = 0.2;
+      this.slow(0.35, 3);
+      window.setTimeout(() => this.audio.win(), 1500);
+      this.endAt = this.now + 4.6;
+    } else if (outcome === 'cashout') {
+      this.coins += REWARD[this.offer];
+      this.audio.coin();
+      ch.act(this.act === 0 ? 'clap' : 'shrug');
+      this.endAt = this.now + 3.4;
+    } else {
+      this.film.flash = 0.3;
+      this.shake = 0.2;
+      this.slow(0.2, 3.6); // düşüş ağır çekimde
+      this.endAt = this.now + 4.8;
+    }
+
     // Kafa koptuysa önce onu izle, sonra kapanış planı.
-    if (this.director.shot === 'impact') this.pendingShot = { at: this.now + 1.3, shot: 'finale' };
+    const shot: Shot = outcome === 'cashout' ? 'close' : 'finale';
+    if (this.director.shot === 'impact') this.pendingShot = { at: this.now + 1.3, shot };
     else {
       this.pendingShot = null;
-      this.director.cut('finale');
+      this.director.cut(shot);
     }
-    window.setTimeout(() => this.audio.win(), 2600);
-    this.winAt = this.now + 4.8;
+    this.onChange();
   }
 
   // ---------------------------------------------------------------- kare
 
   private frame = () => {
     const t = performance.now();
-    const real = Math.max(0, Math.min((t - this.lastFrame) / 1000, 0.05));
+    const real = Math.max(0, Math.min((t - this.lastFrame) / 1000, 0.1));
     this.lastFrame = t;
     this.now += real;
 
@@ -464,10 +557,21 @@ export class Game {
 
     if (ch) {
       ch.update(dt, this.camera.position);
+      this.dialogue?.update(real);
 
       if (this.state === 'fight') {
+        if (this.introAt && this.now >= this.introAt) {
+          this.introAt = 0;
+          ch.act('present');
+          this.speak('intro', true);
+        }
         this.beatTimer -= real;
         if (this.beatTimer <= 0) this.beat(ch);
+        // Oyuncu durunca karakter toparlanır: baskı düşer, çarpan geri iner.
+        if (this.pressure > 0 && this.now - this.lastHitAt > DECAY_DELAY && this.now > this.blockUntil) {
+          this.pressure -= DECAY_RATE * real;
+          this.updateOffer(ch);
+        }
         this.shotTimer -= real;
         if (this.shotTimer <= 0 && !this.down && !this.pendingShot && this.now > this.slowUntil) this.cutTo();
       }
@@ -477,11 +581,12 @@ export class Game {
         if (shot) this.director.cut(shot);
         else this.cutTo();
       }
-      if (this.state === 'won' && this.winAt && this.now >= this.winAt) {
-        this.winAt = 0;
-        this.ui.showWin(ch.def, WIN_BONUS);
+      if (this.state === 'ended' && this.endAt && this.now >= this.endAt && this.outcome) {
+        this.endAt = 0;
+        const reward = this.outcome === 'maxwin' ? MAX_REWARD : this.outcome === 'cashout' ? REWARD[this.offer] : 0;
+        this.ui.showEnd(this.outcome, ch.def, LADDER[this.offer], reward);
       }
-      if (this.state === 'won' && Math.random() < 0.7) {
+      if (this.outcome === 'maxwin' && this.state === 'ended' && Math.random() < 0.7) {
         // Max win: karanlıkta tek renk olarak altın yağar.
         _a.set((Math.random() - 0.5) * 3, 5.5, (Math.random() - 0.5) * 2).add(ch.root.position);
         this.particles.emit(_a, _b.set(0, -0.4, 0), 2, 0xffd23f, 1.2, 0.5);

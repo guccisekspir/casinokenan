@@ -4,10 +4,11 @@ import type { WeaponDef } from './weapons';
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const fmt = (n: number) => n.toLocaleString('tr-TR');
 
+const GOAL = 'öldürmeden max win\'i kopar';
 const HINT: Record<WeaponDef['kind'], string> = {
-  blunt: 'dokun: vur',
-  slash: 'basılı tutup sürükle: kes',
-  shot: 'dokun: ateş et',
+  blunt: `${GOAL} · dokun: vur`,
+  slash: `${GOAL} · basılı tutup sürükle: kes`,
+  shot: `${GOAL} · dokun: ateş et`,
 };
 
 /** Arayüz bir film çerçevesi gibi: sinemaskop şeritleri, altyazı, ara yazılar. */
@@ -17,6 +18,7 @@ export class UI {
   onMute: () => void = () => {};
   onMenu: () => void = () => {};
   onRetry: () => void = () => {};
+  onCash: () => void = () => {};
 
   private subTimer = 0;
 
@@ -25,6 +27,7 @@ export class UI {
     $('btn-mute').onclick = () => this.onMute();
     $('btn-retry').onclick = () => this.onRetry();
     $('btn-other').onclick = () => this.onMenu();
+    $('btn-cash').onclick = () => this.onCash();
   }
 
   showMenu(chars: CharacterDef[]) {
@@ -122,10 +125,28 @@ export class UI {
     $('toasts').replaceChildren(el);
   }
 
-  showWin(def: CharacterDef, bonus: number) {
-    $('win-x').textContent = `${fmt(def.maxWin)}x`;
-    $('win-who').textContent = `${def.name} pes etti`;
-    $('win-bonus').textContent = `+${fmt(bonus)} jeton`;
+  /** Karakterin o an verdiği çarpan + "al ve çık" düğmesi. */
+  setOffer(x: number, reward: number) {
+    $('offer').hidden = false;
+    $('offer-x').textContent = `${fmt(x)}x`;
+    $('btn-cash').textContent = `al ve çık · +${fmt(reward)} jeton`;
+  }
+
+  hideOffer() {
+    $('offer').hidden = true;
+  }
+
+  showEnd(outcome: 'maxwin' | 'cashout' | 'death', def: CharacterDef, x: number, reward: number) {
+    const t = {
+      maxwin: { pre: `${def.name} pes etti`, title: 'Max Win', sub: `${fmt(def.maxWin)}x` },
+      cashout: { pre: `${def.name} hâlâ ayakta`, title: `${fmt(x)}x`, sub: 'aldın ve çıktın' },
+      death: { pre: `${def.name} öldü`, title: 'Kasa Kazandı', sub: 'ölü maskot ödeme yapmaz' },
+    }[outcome];
+    $('win-who').textContent = t.pre;
+    $('win-title').textContent = t.title;
+    $('win-title').classList.toggle('lost', outcome === 'death');
+    $('win-x').textContent = t.sub;
+    $('win-bonus').textContent = `+${fmt(reward)} jeton`;
     $('win').hidden = false;
   }
 }

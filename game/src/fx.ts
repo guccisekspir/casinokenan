@@ -139,6 +139,7 @@ export class Reels {
   private tick = 0;
   private symbols: string[] = ['7'];
   private theme = { bg: '#222', accent: '#fc0' };
+  private offer = '';
 
   constructor() {
     this.canvas.width = 1024;
@@ -156,6 +157,13 @@ export class Reels {
 
   spin() {
     this.spinT = 0.9;
+  }
+
+  /** Karakterin şu an "verdiği" çarpan: ekranın ortasında kocaman yazar. */
+  setOffer(text: string) {
+    if (text === this.offer) return;
+    this.offer = text;
+    if (this.spinT <= 0) this.draw(true);
   }
 
   update(dt: number) {
@@ -192,6 +200,16 @@ export class Reels {
         if (final && y === 1 && (x === 0 || x === 2)) s = scatter;
         c.fillStyle = '#fff';
         c.fillText(s, px + cw / 2, py + ch / 2 + 4);
+      }
+    }
+    if (this.offer) {
+      // Karakter ortada durduğu için çarpan iki yana yazılır.
+      c.font = `${Math.floor(H * 0.2)}px Georgia, 'Times New Roman', serif`;
+      for (const cx of [W * 0.2, W * 0.8]) {
+        c.fillStyle = 'rgba(0,0,0,0.82)';
+        c.fillRect(cx - W * 0.19, H * 0.36, W * 0.38, H * 0.28);
+        c.fillStyle = '#ffcf33';
+        c.fillText(this.offer, cx, H / 2 + 6, W * 0.34);
       }
     }
     this.tex.needsUpdate = true;

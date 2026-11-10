@@ -48,6 +48,7 @@ const play = async (def: CharacterDef) => {
 
 ui.onPick = play;
 ui.onRetry = () => current && play(current);
+ui.onCash = () => game.cashOut();
 ui.onMenu = () => {
   game.stop();
   ui.showMenu(CHARACTERS);

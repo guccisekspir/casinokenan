@@ -7,8 +7,8 @@ import { buildPlaceholder } from './placeholder';
 import { detectRig, PART_CHILDREN, PART_IDS, type PartId, type Rig } from './rig';
 
 const LIMB_HP = 30;
-const HEAD_FINISH_RATIO = 0.3; // kafa ancak can bu oranın altındayken kopar (bitirici vuruş)
-const SEVER_BONUS = 20;
+const HEAD_HP = 45; // kafa da kopar ama koparsa karakter ölür
+const SEVER_BONUS = 10;
 
 interface PartState {
   bone: THREE.Bone;
@@ -35,6 +35,7 @@ export interface SeverResult {
 export interface HitResult {
   damage: number;
   crit: boolean;
+  zone: 'head' | 'body' | 'limb';
   severed: SeverResult | null;
   killed: boolean;
 }
@@ -170,7 +171,7 @@ export class Character {
     this.rig = detectRig(this.bones, cfg.boneMap);
     for (const id of PART_IDS) {
       const bone = this.rig.parts[id];
-      if (bone) this.parts.set(id, { bone, hp: LIMB_HP, severed: false });
+      if (bone) this.parts.set(id, { bone, hp: id === 'head' ? HEAD_HP : LIMB_HP, severed: false });
     }
     for (const b of this.bones) this.rest.set(b, b.quaternion.clone());
 
@@ -362,32 +363,28 @@ export class Character {
   }
 
   hit(h: { point: THREE.Vector3; dir: THREE.Vector3; part: PartId | null; weapon: WeaponDef }): HitResult {
-    const res: HitResult = { damage: 0, crit: false, severed: null, killed: false };
+    const res: HitResult = { damage: 0, crit: false, zone: 'body', severed: null, killed: false };
     if (this.dead) return res;
     const w = h.weapon;
 
-    res.crit = h.part === 'head';
-    res.damage = Math.round(w.damage * (res.crit ? 1.5 : 1));
+    // Hasar bölgeye göre değişir: kafa çok can götürür, uzuvlar az. Oyuncunun derdi
+    // karakteri öldürmeden sıkıştırmak olduğu için nereye vurduğu önemlidir.
+    res.zone = h.part === 'head' ? 'head' : h.part ? 'limb' : 'body';
+    res.crit = res.zone === 'head';
+    res.damage = Math.max(1, Math.round(w.damage * (res.zone === 'head' ? 1.5 : res.zone === 'limb' ? 0.5 : 1)));
 
     // Tepki: vurulan kemik + ataları, kaldıraç koluna göre savrulur.
     const bone = h.part ? this.parts.get(h.part)!.bone : this.rig.spine[this.rig.spine.length - 1] ?? this.rig.hips;
     if (bone) this.impulse(bone, h.point, h.dir, w.force);
     this.knockVel.addScaledVector(h.dir, w.force * 0.12);
 
-    // Uzuv koparma
+    // Uzuv koparma. Kafa da kopar — ama kafası kopan karakter ölür.
     if (h.part && w.sever > 0) {
       const st = this.parts.get(h.part)!;
-      if (h.part === 'head') {
-        if ((this.hp - res.damage) / this.maxHp <= HEAD_FINISH_RATIO) {
-          res.severed = this.sever('head', !!w.cauterize);
-          res.damage = this.hp; // kafa gitti: bitti
-        }
-      } else {
-        st.hp -= w.sever;
-        if (st.hp <= 0) {
-          res.severed = this.sever(h.part, !!w.cauterize);
-          res.damage += SEVER_BONUS;
-        }
+      st.hp -= w.sever;
+      if (st.hp <= 0) {
+        res.severed = this.sever(h.part, !!w.cauterize);
+        res.damage = h.part === 'head' ? this.hp : res.damage + SEVER_BONUS;
       }
     }
 

@@ -126,6 +126,17 @@ export const BEHAVIORS: Record<string, Behavior> = {
     p.spine.z = -0.06;
   },
 
+  /** Arkasındaki ekranı (çarpanı) gururla takdim eder. */
+  present: (t, p) => {
+    hipL(p);
+    p.armR.set(-0.75, 0.35, -0.35); p.foreR.set(-0.6, 0.7, -0.4);
+    p.spine.set(-0.08, -0.25, 0);
+    // Önce ekrana bakar, sonra "gördün mü?" diye seyirciye döner.
+    const toScreen = t % 3 < 1.1;
+    p.look = toScreen ? 0 : 1;
+    p.head.set(-0.15, toScreen ? -1.0 : 0, 0.1);
+  },
+
   // ---------- II. Öfke ----------
   /** Parmak sallayarak azarlar. */
   scold: (t, p) => {

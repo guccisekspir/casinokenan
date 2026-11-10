@@ -3,6 +3,12 @@
 Slotta sinirlenenlerin hıncını slot maskotlarından aldığı web oyunu. Maskot sinir bozucu laflar
 eder; yeterince dövülünce **MAX WIN** verir. Parodidir: gerçek para / bahis yoktur.
 
+**Kural: maskotu öldürmeden max win'i kopar.** Her vuruş onu sıkıştırır ve verdiği çarpan basamak
+basamak yükselir (2x → 5x → … → 2.500x → max win). Ama her vuruş canını da götürür: kafa çok,
+gövde orta, uzuvlar az. Canı biterse ölür ve ölü maskot ödeme yapmaz — kasa kazanır. Durursan
+toparlanır, çarpan geri düşer. Aynı yere üst üste vurmak gittikçe daha az işe yarar. İstediğin an
+o anki çarpanı alıp çıkabilirsin. Ayarlar `src/game.ts` başındaki sabitlerde.
+
 Oyun bir **sanat filmi** gibi kurgulandı: siyah-beyaz görüntüde yalnızca kan, altın ve maskotun
 vurgu rengi renkli; sinemaskop çerçeve, altyazı, perde ara yazıları, kesmelerle değişen kamera
 planları, kopuşlarda ağır çekim. Maskotun oyunculuğu üç perdede değişir:
@@ -50,6 +56,8 @@ olması (Mixamo / Unreal / Blender tarzı adlandırmalar otomatik tanınır).
 | `src/character/acting.ts` | Oyunculuk: davranışlar (pozlar uzuv *yönü* olarak tarif edilir, her rig'de aynı görünür) |
 | `src/character/placeholder.ts` | Geçici karakter (gerçek iskelet + SkinnedMesh üretir) |
 | `src/game.ts` | Sahne, girdi, saldırı akışı, perdeler, ağır çekim |
+| `src/dialogue.ts` | Konuşma yönetmeni: olay → replik, öncelik, tekrar etmeme, ses dosyası / sesli okuma yedeği |
+| `src/lines/<id>.json` | Karakterin replikleri: olay başına alternatifler |
 | `src/director.ts` | Kamera planları (genel, alt açı, yakın, eğik, tepe, uzak, kopuş, final) ve kesmeler |
 | `src/film.ts` | Renk banyosu: seçici renk, gren, vinyet |
 | `src/fx.ts` | Kan/kıvılcım parçacıkları, kopan parçaların fiziği, arkadaki slot makarası |
@@ -66,3 +74,14 @@ kesik yerine kapak konur. Herhangi bir rig'li mesh ile çalışır.
 
 **Yeni davranış**: `acting.ts` içindeki `BEHAVIORS`'a bir fonksiyon ekle, `game.ts`'teki `ACTS`
 listesinde ilgili perdeye adını yaz. **Yeni kamera planı**: `director.ts` içindeki `switch`'e ekle.
+
+## Replikler ve ses dosyaları
+
+Karakter olaylara göre konuşur (açılışta övünme, beklerken kışkırtma, nereye vurulduğu, hangi
+silahı aldığın, uzuv kopması, çarpanın yükselmesi/düşmesi, ölüme yaklaşma, alıp çıkma, max win,
+ölüm). Her olayın birkaç alternatifi vardır; hepsi söylenmeden hiçbiri tekrar etmez.
+
+- Replikleri değiştir / ekle: `src/lines/<karakter>.json` (bir olaya satır eklemek yeterli).
+- Kaydedilecek dosyaların listesi: `npm run voice-list` → `VOICE_LINES.md` ve `voice-lines.csv`.
+- Kayıtlar `public/audio/<karakter>/<olay>_<n>.mp3` olarak konur. Dosyası olmayan replik
+  tarayıcının sesli okumasıyla söylenir; kayıtlar parça parça eklenebilir.

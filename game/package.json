@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "voice-list": "node scripts/voice-list.mjs"
   },
   "dependencies": {
     "three": "^0.187.0"

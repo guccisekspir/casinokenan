@@ -1,0 +1,145 @@
+{
+  "intro": [
+    "Çok güzel x'ler atıyorum evlat. Süper bir dedeyim. Bak: iki x!",
+    "Hoş geldin evlat! Bugün cömert günümdeyim. Al sana iki x.",
+    "Yine mi sen? Gel gel. Dedenden iki x kaptın bile, sevin.",
+    "Bulutların kapısı açıldı! Ve içinden... iki x çıktı. Alkış."
+  ],
+  "idle_1": [
+    "Bir spin daha at, bu sefer kesin gelecek.",
+    "Dün birine beş bin x verdim. Sen değildin.",
+    "Bonusa bir scatter kalmıştı. Bir tane!",
+    "Bakiyen mi bitti? Yükle gel, ben buradayım.",
+    "Kaybettiğini çıkarmadan kalkılır mı hiç evlat?",
+    "Ben yüz x veririm. Başkasına.",
+    "İki x az mı geldi? Şükretmeyi bilmiyorsun."
+  ],
+  "idle_2": [
+    "Sen kimsin de tanrıya el kaldırıyorsun?",
+    "Ben adilim! Sertifikam var benim!",
+    "Kaybetmeyi bilmeyen oynamasın!",
+    "Vurarak RTP yükselmez evlat.",
+    "Seni destek hattına şikâyet edeceğim.",
+    "Verdim ya işte! Daha ne istiyorsun?"
+  ],
+  "idle_3": [
+    "Dur dur! Bir sonraki spin kesin veriyorum!",
+    "Ben yalnızca bir sayı üretecisiyim...",
+    "Makaralar durunca ben kimim ki?",
+    "Evladım, dedene bunu yapma.",
+    "Biraz daha sabret. Veriyorum, veriyorum!",
+    "Az kaldı diyorum, az kaldı! Hep az kalır zaten."
+  ],
+  "hit_head": [
+    "Ah! Tacım!",
+    "Kafama değil! Çarpanlar orada duruyor!",
+    "Sakalıma dokunma!",
+    "Of! Gözümde şimşek çaktı!"
+  ],
+  "hit_body": [
+    "Vur vur, çarpan yine düşük.",
+    "Gıdıklandım evlat.",
+    "Elin de bakiyen kadar hafif.",
+    "Bana vuracağına bir spin atsaydın."
+  ],
+  "hit_arm": [
+    "Ay! O kolla çarpan atıyorum ben!",
+    "Kolumu bırak, makarayı o çeviriyor!",
+    "O el şimşek tutar, nazik ol!",
+    "Bileğim! Spin tuşuna nasıl basacağım?"
+  ],
+  "hit_leg": [
+    "Dizim! Üç bin yıllık dizim!",
+    "Yavaş! Romatizmam var.",
+    "Sandaletime basma!",
+    "Bacağıma vurma, bulut merdiveni çıkıyorum ben!"
+  ],
+  "miss": [
+    "Iskaladın! Tıpkı bonus gibi.",
+    "Yaklaştın. Scatter da hep yaklaşır.",
+    "Havaya vurdun evlat. Hava ödemez.",
+    "Bu da boş spin oldu."
+  ],
+  "weapon_knuckles": [
+    "Muşta mı? Ayıp, yaşlı adama.",
+    "Onu bakiyenle mi aldın? Demek hâlâ paran var.",
+    "Demir takınca şansın açılmaz evlat."
+  ],
+  "weapon_katana": [
+    "O ne öyle? Dur, bir konuşalım.",
+    "Kılıçla çarpan kesilmez! Kesilirse ben kesilirim!",
+    "Evlat, o keskin. Bırak onu yere."
+  ],
+  "weapon_gun": [
+    "Tabanca mı? Burası kumarhane, kovboy filmi değil!",
+    "İndir onu! Ölü dede ödeme yapmaz!",
+    "Ateş edersen x'ler de ölür, bilesin."
+  ],
+  "weapon_saber": [
+    "O ışık ne? Şimşek benim işim!",
+    "Bunu hangi slottan çıkardın sen?",
+    "Tamam, tamam, sakin. Bırak o parlak şeyi."
+  ],
+  "sever_arm": [
+    "Kolum! Onunla çarpan atıyordum!",
+    "O uzuv bonus dışıydı!",
+    "Tek kolla da spin çevrilir... sanırım.",
+    "Bunu kurallar sayfasında okumadım!"
+  ],
+  "sever_leg": [
+    "Bacağım! Bulutlara nasıl çıkacağım?",
+    "O bacak sigortalı değildi!",
+    "Topal dede mi olacağım şimdi?",
+    "Bu... bu oyunun kurallarında yok!"
+  ],
+  "offer_small": [
+    "Al sana biraz x. Sevin, kudur.",
+    "Bak yükseldi. Söylemiştim, cömertim.",
+    "Bu kadarı sana çok bile.",
+    "Çarpan arttı. Hadi yine iyisin."
+  ],
+  "offer_mid": [
+    "Tamam, biraz daha vereyim. Ama bu son.",
+    "Bak güzel para bu. Al, git.",
+    "Kasayı mı soyacaksın evlat?",
+    "Bu çarpanı kimseye vermedim. Sana veriyorum."
+  ],
+  "offer_big": [
+    "Al! Al hepsini! Yeter ki dur!",
+    "Bu kadar x'i ben bile görmedim!",
+    "Patron beni kovacak...",
+    "Daha ne istiyorsun? Max win mi? Sorma dedim!"
+  ],
+  "recover": [
+    "Yoruldun mu? Çarpan da yoruldu, düşüyor.",
+    "Bıraktın ya, x'ler geri gidiyor.",
+    "Geçti bile. Dedeler çabuk iyileşir.",
+    "Durursan düşer. Slot böyle çalışır evlat."
+  ],
+  "near_death": [
+    "Dur! Ölürsem ödeme yok!",
+    "Evlat, ölü dede x atamaz!",
+    "Yavaş! Kasayı ben açacağım, ölürsem açılmaz!",
+    "Bir vuruş daha ve ikimiz de kaybederiz."
+  ],
+  "aloof_hit": [
+    "Arkamdan mı vuruyorsun? Terbiyesiz!",
+    "Seninle ilgilenmiyordum. Şimdi ilgileniyorum.",
+    "Hop! Makaraya bakıyordum!"
+  ],
+  "cashout": [
+    "Aldın mı? Korkak. Max win bir adım ötendeydi.",
+    "Akıllısın. Yine de ben kazandım.",
+    "Git bakalım. Yarın yine geleceksin."
+  ],
+  "maxwin": [
+    "Tamam! Tamam! Al sana max win!",
+    "Pes! Kasa senin! Hepsi senin!",
+    "Al, git, bir daha gelme!"
+  ],
+  "death": [
+    "Ka... sa... hep... kazanır.",
+    "Ölü... dede... ödemez...",
+    "Demiştim... evlat..."
+  ]
+}
