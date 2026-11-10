@@ -11,6 +11,8 @@ export class UI {
   onMenu: () => void = () => {};
   onRetry: () => void = () => {};
   onCash: () => void = () => {};
+  /** Bir tur bitti ve bitiş kartı gösterildi. */
+  onEnd: () => void = () => {};
 
   private subTimer = 0;
 
@@ -136,5 +138,6 @@ export class UI {
     $('win-x').textContent = c.sub;
     $('win-bonus').textContent = `+${fmt(reward)} ${t('hud.coins')}`;
     $('win').hidden = false;
+    this.onEnd();
   }
 }

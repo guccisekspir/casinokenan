@@ -1,6 +1,7 @@
 import './style.css';
 import { Audio } from './audio';
 import { CHARACTERS, type CharacterDef } from './characters';
+import { DONATE, hidePopup, initDonate, renderBanner, roundEnded } from './donate';
 import { Game } from './game';
 import { applyStatic, fmt, onLang, t, type Key } from './i18n';
 import { Landing } from './landing';
@@ -40,6 +41,7 @@ game.onChange = refresh;
 
 let current: CharacterDef | null = null;
 const play = async (def: CharacterDef) => {
+  hidePopup();
   current = def;
   audio.unlock();
   ui.loading(true);
@@ -54,7 +56,9 @@ ui.onRetry = () => current && play(current);
 ui.onCash = () => game.cashOut();
 ui.onMenu = () => {
   game.stop();
+  hidePopup();
   ui.showMenu();
+  renderBanner();
   landing.enter();
 };
 ui.onWeapon = (id) => {
@@ -75,6 +79,9 @@ onLang(() => {
   refresh();
   ui.setMuted(audio.muted);
 });
+initDonate();
+renderBanner();
+ui.onEnd = roundEnded;
 ui.setMuted(false);
 ui.showMenu();
 landing.enter();
@@ -112,3 +119,5 @@ refresh();
   });
   for (const type of ['pointerup', 'pointercancel'] as const) stick.addEventListener(type, () => set(null));
 }
+
+(window as unknown as { donate: typeof DONATE }).donate = DONATE;

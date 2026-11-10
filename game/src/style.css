@@ -302,3 +302,27 @@ button:hover { opacity: 1; }
   #menu *, #menu *::before, #menu *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   #menu { scroll-behavior: auto; }
 }
+
+/* ---------- Bağış: ana sayfanın tepesindeki alan ve tur sonu penceresi ---------- */
+#lp-donate { position: relative; padding: clamp(18px, 3vh, 34px) var(--gut) clamp(16px, 3vh, 30px); background: #ece6d6; color: #050505; }
+#lp-donate h2, .dn-box h2 { margin: 0 0 14px; font-family: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif; font-weight: 900; text-transform: uppercase; line-height: 0.9; text-wrap: balance; }
+#lp-donate h2 { font-size: clamp(34px, 6.4vw, 96px); }
+.dn-kicker, .dn-sub { margin: 0 0 6px; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: clamp(15px, 1.5vw, 20px); opacity: 0.7; }
+.dn-list { list-style: none; margin: 0 0 14px; padding: 0; border-top: 1px solid currentColor; }
+.dn-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 9px 0; border-bottom: 1px solid #00000026; }
+.dn-box .dn-list li { border-bottom-color: #ece6d626; }
+.dn-coin { flex: 0 0 9.5em; font-family: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif; font-weight: 800; font-size: 20px; letter-spacing: 0.06em; text-transform: uppercase; }
+.dn-coin small { margin-left: 8px; font-size: 12px; letter-spacing: 0.1em; opacity: 0.6; }
+.dn-addr { flex: 1 1 16ch; min-width: 0; font: 14px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
+#menu .dn-copy, .dn-copy { flex: none; padding: 7px 14px; font-family: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; font-variant: normal; opacity: 1; background: #050505; color: #ece6d6; }
+.dn-box .dn-copy { background: #ece6d6; color: #050505; }
+.dn-bar { height: 14px; border: 1px solid currentColor; }
+.dn-bar i { display: block; height: 100%; min-width: 2px; background: var(--blood); }
+.dn-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 20px; margin: 6px 0 0; font-family: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+
+#donate { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px; background: #000000c7; animation: fadein 0.3s ease-out; overflow-y: auto; }
+.dn-box { width: min(620px, 100%); padding: clamp(20px, 4vw, 38px); background: #0a0a0a; color: #ece6d6; border: 1px solid #ece6d640; animation: dn-in 0.45s cubic-bezier(0.2, 1.2, 0.3, 1); }
+.dn-box h2 { font-size: clamp(34px, 7vw, 64px); }
+@keyframes dn-in { from { transform: translateY(26px) scale(0.96); opacity: 0; } }
+#donate-close { display: block; margin: 18px auto 0; padding: 6px 4px; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 16px; text-transform: none; font-variant: normal; letter-spacing: 0; opacity: 0.6; border-bottom: 1px solid currentColor; }
+#donate-close:hover, #donate-close:focus-visible { opacity: 1; }
