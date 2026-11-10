@@ -58,6 +58,8 @@ const _e = new THREE.Euler();
 const _q4 = new THREE.Quaternion();
 const _m = new THREE.Matrix4();
 const _pole = new THREE.Vector3();
+const _elbow = new THREE.Vector3();
+const _hand = new THREE.Vector3();
 const _rootInv = new THREE.Quaternion();
 const _v2 = new THREE.Vector2();
 const _v3 = new THREE.Vector3();
@@ -101,6 +103,16 @@ export class Character {
   /** Model ölçeği (2.25 birim boya göre 1). */
   private unit = 1;
   private armLen = { upper: 0.3, fore: 0.3 };
+  /**
+   * Kolların içinden geçemeyeceği hacimler (karakter uzayında elipsoitler): gövde modelin kendi
+   * mesh'inden ölçülür, kafa her karede kafa kemiğini izler.
+   */
+  private torso = { c: new THREE.Vector3(0, 1.2, 0), r: new THREE.Vector3(0.25, 0.4, 0.2) };
+  private skull = { c: new THREE.Vector3(0, 1.9, 0), r: new THREE.Vector3(0.2, 0.22, 0.2) };
+  private armDirs: Record<Side, { on: boolean; upper: THREE.Vector3; fore: THREE.Vector3 }> = {
+    L: { on: false, upper: new THREE.Vector3(), fore: new THREE.Vector3() },
+    R: { on: false, upper: new THREE.Vector3(), fore: new THREE.Vector3() },
+  };
 
   // Duruş ve yaralanma tepkileri
   posture: Posture = 'stand';
@@ -291,6 +303,8 @@ export class Character {
       this.armLen.fore = (hand ? wp(foreB).distanceTo(wp(hand)) : this.armLen.upper) + 0.07 * this.unit;
     }
 
+    this.measureBody(cfg.height ?? 2.25);
+
     for (const m of this.meshes) {
       m.computeBoundingSphere();
       m.boundingSphere!.radius *= 3; // savrulma + sahnede yürüme payı
@@ -357,6 +371,60 @@ export class Character {
       if (masked) continue; // maske esnemez: yüz yalnızca konuşma vurgusu (kafa hareketi) için var
       for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) installFace(m, this.face.uniforms);
       mesh.customDepthMaterial = faceDepthMaterial(this.face.uniforms);
+    }
+  }
+
+  /**
+   * Gövde hacmini modelden ölçer: hiçbir uzva ya da kafaya ait olmayan (omurga, kalça, köprücük
+   * ağırlıklı) köşelerin, kalça ile omuz arasındaki kısmı. Pelerin, etek gibi uçuşan parçalar
+   * hacmi şişirmesin diye uç değerler atılır. Dinlenme pozunda, kök orijindeyken çağrılır.
+   */
+  private measureBody(height: number) {
+    const u = height / 2.25;
+    const hipsY = this.hips?.getWorldPosition(new THREE.Vector3()).y ?? 0.95 * u;
+    const armL = this.rig.parts.armL?.getWorldPosition(new THREE.Vector3());
+    const armR = this.rig.parts.armR?.getWorldPosition(new THREE.Vector3());
+    const shoulderY = armL?.y ?? armR?.y ?? 1.45 * u;
+    const halfShoulder = armL && armR ? Math.abs(armL.x - armR.x) / 2 : 0.3 * u;
+    const xs: number[] = [], zs: number[] = [];
+    for (const mesh of this.meshes) {
+      const c = this.skinCache(mesh);
+      for (let i = 0; i < c.dom.length; i++) {
+        if (this.partOfBone.get(mesh.skeleton.bones[c.dom[i]]) !== null) continue;
+        const y = c.pos[i * 3 + 1];
+        if (y < hipsY - 0.05 * u || y > shoulderY) continue;
+        xs.push(c.pos[i * 3]);
+        zs.push(c.pos[i * 3 + 2]);
+      }
+    }
+    const pad = 0.06 * u; // kolun kendi kalınlığı
+    const range = (a: number[], lo: number, hi: number) => {
+      a.sort((p, q) => p - q);
+      return [a[Math.floor(a.length * lo)], a[Math.min(a.length - 1, Math.floor(a.length * hi))]];
+    };
+    if (xs.length > 50) {
+      const [x0, x1] = range(xs, 0.04, 0.96), [z0, z1] = range(zs, 0.1, 0.92);
+      this.torso.c.set((x0 + x1) / 2, (hipsY + shoulderY) / 2, (z0 + z1) / 2);
+      // Omuz hizasında kollar gövdeye bağlandığı için genişlik omuz ekleminin içinde kalmalı.
+      this.torso.r.set(Math.min((x1 - x0) / 2, halfShoulder * 0.95) + pad, (shoulderY - hipsY) / 2 + 0.12 * u, (z1 - z0) / 2 + pad);
+    } else {
+      this.torso.c.set(0, (hipsY + shoulderY) / 2, 0);
+      this.torso.r.set(halfShoulder * 0.9 + pad, (shoulderY - hipsY) / 2 + 0.12 * u, halfShoulder * 0.7 + pad);
+    }
+    const H = 0.135 * height;
+    this.skull.r.set(0.62 * H + pad, 0.72 * H + pad, 0.66 * H + pad);
+  }
+
+  /** Bir noktayı gövdenin ve kafanın dışına iter (öne ve kendi tarafına doğru kayarak). */
+  private pushOut(p: THREE.Vector3, sgn: number) {
+    for (const vol of [this.torso, this.skull]) {
+      const q = _v3.copy(p).sub(vol.c).divide(vol.r);
+      const d = q.length();
+      if (d >= 1) continue;
+      q.x += sgn * 0.5 * (1 - d);
+      q.z += 0.8 * (1 - d);
+      q.normalize();
+      p.copy(q.multiply(vol.r).add(vol.c));
     }
   }
 
@@ -1244,6 +1312,35 @@ export class Character {
       o.w = ik.w;
     }
 
+    // Kollar: poz ve ters kinematikten gelen yönler birleştirilir, sonra dirsek ve el gövdenin
+    // ve kafanın dışında tutulur. Böylece el bedenin öbür tarafına giderken içinden geçmez,
+    // yüzeyin çevresinden dolanır. Hangi poz, hangi model olursa olsun aynı kural geçerlidir.
+    if (hb) this.skull.c.copy(this.root.worldToLocal(hb.getWorldPosition(_v))).setY(this.skull.c.y + this.headOffset);
+    for (const side of ['L', 'R'] as const) {
+      const out = this.armDirs[side];
+      const arm = this.rig.parts[`arm${side}`];
+      out.on = !!arm && this.armOk(side);
+      if (!out.on) continue;
+      const sgn = side === 'L' ? 1 : -1, ik = this.ikDirs[side];
+      out.upper.copy(p[`arm${side}`]).normalize();
+      out.fore.copy(p[`fore${side}`]).normalize();
+      if (ik.w > 0) {
+        out.upper.lerp(ik.upper, ik.w).normalize();
+        out.fore.lerp(ik.fore, ik.w).normalize();
+      }
+      const shoulder = this.root.worldToLocal(arm!.getWorldPosition(_pole));
+      const elbow = _elbow.copy(shoulder).addScaledVector(out.upper, this.armLen.upper);
+      this.pushOut(elbow, sgn);
+      out.upper.copy(elbow).sub(shoulder).normalize();
+      elbow.copy(shoulder).addScaledVector(out.upper, this.armLen.upper);
+      // Ön kol: önce ortası, sonra ucu (el) denenir; ikisi de dışarıda kalmalı.
+      for (const f of [0.55, 1]) {
+        const pt = _hand.copy(elbow).addScaledVector(out.fore, this.armLen.fore * f);
+        this.pushOut(pt, sgn);
+        out.fore.copy(pt).sub(elbow).normalize();
+      }
+    }
+
     // Uzuvlar: hedef yöne çevir. Yürürken bacak yönleri adım döngüsüyle karışır.
     const w = this.posture === 'stand' ? this.walkAmp * (1 - p.kneel) : 0;
     for (const l of this.limbs) {
@@ -1257,8 +1354,8 @@ export class Character {
         dir.lerp(_v3.set(dir.x, -Math.cos(a), Math.sin(a)), w);
       }
       if (!leg && !shin) {
-        const ik = this.ikDirs[l.key.endsWith('L') ? 'L' : 'R'];
-        if (ik.w > 0) dir.lerp(l.key.startsWith('arm') ? ik.upper : ik.fore, ik.w);
+        const a = this.armDirs[l.key.endsWith('L') ? 'L' : 'R'];
+        if (a.on) dir.copy(l.key.startsWith('arm') ? a.upper : a.fore);
       }
       const P = l.bone.parent!.getWorldQuaternion(_q2);
       const Wrest = _q4.copy(P).multiply(this.rest.get(l.bone)!);
