@@ -150,21 +150,30 @@ export class Character {
     let clips: THREE.AnimationClip[] = [];
 
     const url = def.model?.url ?? `models/${def.id}.glb`;
-    try {
-      const gltf = await new GLTFLoader().loadAsync(url);
+    const accept = (gltf: { scene: THREE.Object3D; animations: THREE.AnimationClip[] }) => {
       let hasSkin = false;
       gltf.scene.traverse((o) => {
         if ((o as THREE.SkinnedMesh).isSkinnedMesh) hasSkin = true;
       });
-      if (hasSkin) {
-        model = gltf.scene;
-        clips = gltf.animations;
-        c.usingPlaceholder = false;
-      } else {
+      if (!hasSkin) {
         console.warn(`[character] ${url} içinde rig (SkinnedMesh) yok; Tripo'da rigleyip öyle dışa aktarın. Geçici model kullanılıyor.`);
+        return;
       }
+      model = gltf.scene;
+      clips = gltf.animations;
+      c.usingPlaceholder = false;
+    };
+    try {
+      accept(await new GLTFLoader().loadAsync(url));
     } catch {
-      // Model henüz eklenmemiş: geçici karakterle devam.
+      // .glb sunamayan barındırmalar için: aynı model base64 olarak JSON içinde (`<url>.json`, {"glb": "..."}).
+      try {
+        const packed = (await (await fetch(`${url}.json`)).json()) as { glb: string };
+        const bytes = Uint8Array.from(atob(packed.glb), (ch) => ch.charCodeAt(0));
+        accept(await new GLTFLoader().parseAsync(bytes.buffer, ''));
+      } catch {
+        // Model henüz eklenmemiş: geçici karakterle devam.
+      }
     }
     if (!model) model = buildPlaceholder(def.look);
 
