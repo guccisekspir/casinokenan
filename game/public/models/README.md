@@ -4,5 +4,6 @@ Tripo'dan indirilen rig'li GLB dosyaları buraya, karakter id'siyle konur:
 - asansorcu.glb    (Asansörcü)
 - demirci.glb      (Demirci)
 - haydut.glb       (Haydut)
+- balikci.glb      (Balıkçı Dede)
 
 Ayrıntı: ../../README.md ("Tripo modelini ekleme").

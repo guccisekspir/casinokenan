@@ -19,7 +19,7 @@ export type DialogueEvent =
   | 'weapon_knuckles' | 'weapon_katana' | 'weapon_gun' | 'weapon_saber' | 'weapon_saw'
   | 'sever_arm' | 'sever_leg'
   | 'offer_small' | 'offer_mid' | 'offer_big'
-  | 'recover' | 'near_death' | 'aloof_hit' | 'block'
+  | 'recover' | 'near_death' | 'aloof_hit' | 'block' | 'stall'
   | 'cashout' | 'maxwin' | 'death';
 
 interface Rule {
@@ -56,6 +56,7 @@ export const EVENT_INFO: Record<DialogueEvent, Rule & { when: string }> = {
   near_death: { pri: 7, cooldown: 10, when: 'Canı çok azaldı: "ölürsem ödeme yok" uyarısı.' },
   aloof_hit: { pri: 6, cooldown: 5, when: 'Oyuncuyu umursamazken (sırtı dönük, volta) vuruldu.' },
   block: { pri: 9, when: 'Yalnızca set çeken maskot: oyuncu tam max alacakken önüne yeni bir parmaklık çeker.' },
+  stall: { pri: 9, when: 'Yalnızca oyalayan maskot: ikinci perdeye geçecek gibi yapar, geçmez.' },
   cashout: { pri: 10, when: 'Oyuncu teklifi alıp çıktı: alay eder.' },
   maxwin: { pri: 10, when: 'Pes etti, max win veriyor.' },
   death: { pri: 10, when: 'Öldü (oyuncu kaybetti): son sözleri.' },

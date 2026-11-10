@@ -34,6 +34,8 @@ const IDLE_TO_CINEMA = 9;
 const SEVER_PRESSURE = 14;
 /** Set çekildiğinde baskının düştüğü değer. */
 const BLOCK_PRESSURE = 58;
+/** Oyalayan maskot ikinci perdeden geri döndüğünde baskının düştüğü değer. */
+const STALL_PRESSURE = 20;
 const DECAY_DELAY = 2.5; // son vuruştan sonra baskının düşmeye başlaması (sn)
 const DECAY_RATE = 1.6; // baskı / sn
 type Outcome = 'maxwin' | 'cashout' | 'death';
@@ -138,6 +140,8 @@ export class Game {
   private kick = 0;
   /** Set çeken maskotun kalan set sayısı. */
   private blocksLeft = 0;
+  /** Oyalayan maskotun kalan oyalama sayısı. */
+  private stallsLeft = 0;
   private ptrX = 0;
   private ptrY = 0;
   /** Testere şu an ete değiyor mu (ses, titreşim ve el modeli için). */
@@ -239,7 +243,7 @@ export class Game {
     const ch = await Character.create(def);
     this.character = ch;
     this.scene.add(ch.root);
-    this.reels.setTheme(def.symbols, def.theme, def.reelBadge);
+    this.reels.setTheme(def.symbols, def.theme, def.reelBadge, def.reelMode);
     this.rim.color.set(def.theme.accent);
     this.ui.setCharacter(def, ch.usingPlaceholder);
     this.ui.setHp(1);
@@ -257,6 +261,7 @@ export class Game {
     this.pressure = 0;
     this.offer = 0;
     this.blocksLeft = def.tease?.blocks ?? 0;
+    this.stallsLeft = def.stall?.times ?? 0;
     this.showOffer();
 
     this.dialogue?.stop();
@@ -293,16 +298,18 @@ export class Game {
     // Set çeken maskot: ekranda hep MAX yazar, önünde kalan setler kadar parmaklık durur.
     if (this.character?.def.tease) this.reels.setOffer('MAX', this.blocksLeft + (this.outcome === 'maxwin' ? 0 : 1));
     else this.reels.setOffer(`${LADDER[this.offer]}x`);
-    this.ui.setOffer(this.paidX(), this.paidReward(), this.character?.def.lowball ? LADDER[this.offer] : undefined);
+    this.ui.setOffer(this.paidX(), this.paidReward(), this.paidX() !== LADDER[this.offer] ? LADDER[this.offer] : undefined);
   }
 
   /** Gerçekten ödenen çarpan ve jeton: eksik ödeyen maskotta yazılanın küçük bir kesri. */
   private paidX(): number {
+    if (this.character?.def.noPayFinal && this.act === 2) return 0; // son perdede hiç ödemez
     const pay = this.character?.def.lowball?.pay ?? 1;
     return Math.max(1, Math.round(LADDER[this.offer] * pay));
   }
 
   private paidReward(): number {
+    if (this.character?.def.noPayFinal && this.act === 2) return 0;
     const pay = this.character?.def.lowball?.pay ?? 1;
     return Math.max(1, Math.round(REWARD[this.offer] * pay));
   }
@@ -654,13 +661,27 @@ export class Game {
       this.showOffer();
     }
 
-    const act = this.pressure >= 70 ? 2 : this.pressure >= 35 ? 1 : 0;
+    let act = this.pressure >= 70 ? 2 : this.pressure >= 35 ? 1 : 0;
+    if (act > this.act && this.act === 0 && this.stallsLeft > 0) {
+      // Oyalayan maskot: ikinci perdenin ara yazısı çıkar gibi olur, sonra geri döner.
+      this.stallsLeft--;
+      this.pressure = STALL_PRESSURE;
+      act = 0;
+      this.onUp();
+      this.ui.card(boss(ch.def.id, 'name', ch.def.name), 'II?', t('stall.sub'), 1.7);
+      this.audio.toll();
+      this.blockUntil = this.now + 1.1;
+      this.speak('stall', true);
+      ch.act('shrug');
+      this.showOffer();
+    }
     if (act > this.act) {
       this.act = act;
       this.openAct(boss(ch.def.id, 'name', ch.def.name), t(`act.${act + 1}` as Key), 2.6);
       ch.act(act === 1 ? (ch.canWalk ? 'stagger' : 'guard') : 'plead');
       this.pendingShot = null;
       this.cutTo(ACTS[act].shots[0]); // yürüyerek oynanıyorsa oyuncunun gözünde kalır
+      this.showOffer();
     }
   }
 
@@ -766,7 +787,7 @@ export class Game {
       if (this.state === 'ended' && this.endAt && this.now >= this.endAt && this.outcome) {
         this.endAt = 0;
         const reward = this.outcome === 'maxwin' ? MAX_REWARD : this.outcome === 'cashout' ? this.paidReward() : 0;
-        this.ui.showEnd(this.outcome, ch.def, this.paidX(), reward, ch.def.lowball ? LADDER[this.offer] : undefined);
+        this.ui.showEnd(this.outcome, ch.def, this.paidX(), reward, this.paidX() !== LADDER[this.offer] ? LADDER[this.offer] : undefined);
       }
       if (this.outcome === 'maxwin' && this.state === 'ended' && Math.random() < 0.7) {
         // Max win: karanlıkta tek renk olarak altın yağar.

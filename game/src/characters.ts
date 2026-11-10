@@ -3,6 +3,7 @@ import type { PlaceholderLook } from './character/placeholder';
 import type { PartId } from './character/rig';
 import type { Lines } from './dialogue';
 import asansorcu from './lines/asansorcu.json';
+import balikci from './lines/balikci.json';
 import demirci from './lines/demirci.json';
 import haydut from './lines/haydut.json';
 import dede from './lines/simsek-dede.json';
@@ -32,6 +33,15 @@ export interface CharacterDef {
    * tane kalır ve hiçbiri aynı hatta olmaz.
    */
   reelBadge?: string;
+  /** İkinci perdeye geçecek gibi yapıp geri dönen maskot: `times` kez oyalar, sonra geçer. */
+  stall?: { times: number };
+  /** Son perdede alıp çıkana hiçbir şey ödemez (0x). Max win'i yine öder. */
+  noPayFinal?: boolean;
+  /**
+   * Makara düzeni. 'fish': ya göl değerli balıklarla doludur ve balıkçı yoktur, ya da balıkçı
+   * gelmiştir ama ortada tek bir 2x'lik balık vardır.
+   */
+  reelMode?: 'fish';
   /** Sesli okuma yedeği için (kayıt dosyası yoksa). */
   voice: { pitch: number; rate: number };
   /** Kan/sıvı rengi (prenses şeker şurubu akıtır vs.). */
@@ -143,5 +153,24 @@ export const CHARACTERS: CharacterDef[] = [
     symbols: ['🤠', '🔫', '💰', '🐎', '⭐', '🥃', 'A', 'K'],
     theme: { bg: '#2e1f10', accent: '#d9a441' },
     lines: haydut,
+  },
+  {
+    id: 'balikci',
+    name: 'Balıkçı Dede',
+    slotName: 'Tembel Göl',
+    emoji: '🎣',
+    maxWin: 8000,
+    hp: 250,
+    voice: { pitch: 0.55, rate: 0.9 },
+    bloodColor: 0xc8102e,
+    // İkinci perdeye geçecek gibi yapıp iki kez geri döner; son perdeye geçer ama orada hiç ödemez.
+    // Makarada: göl balık doluyken balıkçı yoktur, tek bir 2x'lik balık varken gelir.
+    stall: { times: 2 },
+    noPayFinal: true,
+    reelMode: 'fish',
+    look: { skin: 0xd9a37c, top: 0x3a6a4a, bottom: 0x4a3a2a, hair: 0xd8d8d8, beard: 0xe8e8e8 },
+    symbols: ['🎣', '🐟', '🪱', '🛶', '🪣', '🐸', 'A', 'K'],
+    theme: { bg: '#0e2a3a', accent: '#7ad0e0' },
+    lines: balikci,
   },
 ];

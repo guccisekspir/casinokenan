@@ -20,7 +20,7 @@ const en = {
   'hero.meter2': 'what it paid',
   'ticker': 'One more spin, it will land this time · You were one scatter away · The house always wins · Top up and come back · I paid five thousand x yesterday. Not to you · Bonus buy pays this time. Promise. Maybe',
   'bosses.title': 'The bosses',
-  'bosses.sub': 'Four mascots. Four ways of not paying.',
+  'bosses.sub': 'Five mascots. Five ways of not paying.',
   'boss.maxwin': 'max win',
   'boss.play': 'Beat him',
   'boss.trick': 'His trick',
@@ -63,6 +63,7 @@ const en = {
   'toast.block': 'he dropped a gate — max is shut',
   'toast.blockLast': 'last gate — he is out of iron',
   'toast.need': '{w} needs {n} more coins.',
+  'stall.sub': 'almost. not yet.',
   'act.1': 'Hubris', 'act.1.sub': 'the house always wins',
   'act.2': 'Rage', 'act.2.sub': 'sore losers should not play',
   'act.3': 'Mercy', 'act.3.sub': 'when the reels stop',
@@ -89,6 +90,8 @@ const en = {
   'b.demirci.trick': 'Puts MAX on the screen, then drops a gate in front of it. Twice.',
   'b.haydut.name': 'The Outlaw', 'b.haydut.slot': 'Duel Town',
   'b.haydut.trick': 'Promises five VS. Gives three, none on a line. Shows 100x, pays 5x.',
+  'b.balikci.name': 'The Old Angler', 'b.balikci.slot': 'The Lazy Lake',
+  'b.balikci.trick': 'Fakes the next stage, twice. Reaches the last one and pays nothing. Shows up only for the 2x fish.',
 };
 
 const tr: Record<keyof typeof en, string> = {
@@ -106,7 +109,7 @@ const tr: Record<keyof typeof en, string> = {
   'hero.meter2': 'ödediği',
   'ticker': 'Bir spin daha at, bu sefer kesin gelecek · Bonusa bir scatter kalmıştı · Kasa hep kazanır · Yükle gel, bekliyorum · Dün birine beş bin x verdim. Sen değildin · Bonus satın al, bu sefer öder. Söz. Belki',
   'bosses.title': 'Bosslar',
-  'bosses.sub': 'Dört maskot. Ödememenin dört yolu.',
+  'bosses.sub': 'Beş maskot. Ödememenin beş yolu.',
   'boss.maxwin': 'max win',
   'boss.play': 'Döv',
   'boss.trick': 'Numarası',
@@ -147,6 +150,7 @@ const tr: Record<keyof typeof en, string> = {
   'toast.block': 'set çekti — max kapandı',
   'toast.blockLast': 'son seti çekti — demiri bitti',
   'toast.need': '{w} için {n} jeton daha gerek.',
+  'stall.sub': 'az kaldı. geçmedi.',
   'act.1': 'Kibir', 'act.1.sub': 'kasa hep kazanır',
   'act.2': 'Öfke', 'act.2.sub': 'kaybetmeyi bilmeyen oynamasın',
   'act.3': 'Yakarış', 'act.3.sub': 'makaralar durunca',
@@ -172,6 +176,8 @@ const tr: Record<keyof typeof en, string> = {
   'b.demirci.trick': 'MAX\'ı ekrana koyar, sonra önüne set çeker. İki kez.',
   'b.haydut.name': 'Haydut', 'b.haydut.slot': 'Düello Kasabası',
   'b.haydut.trick': 'Beş VS vaat eder. Üç verir, hiçbiri hat tutmaz. 100x yazar, 5x öder.',
+  'b.balikci.name': 'Balıkçı Dede', 'b.balikci.slot': 'Tembel Göl',
+  'b.balikci.trick': 'Sonraki aşamaya geçecek gibi yapar, iki kez. Son aşamaya geçer, hiç ödemez. Yalnızca 2x\'lik balığa gelir.',
 };
 
 export type Key = keyof typeof en;

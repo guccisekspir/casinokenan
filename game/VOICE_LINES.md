@@ -1,6 +1,6 @@
 # Ses dosyaları
 
-Toplam **396** replik, kaydı olan: **0**.
+Toplam **498** replik, kaydı olan: **0**.
 
 Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değiştirmek için
 `src/lines/<karakter>.json` dosyalarını düzenleyip komutu yeniden çalıştırın.
@@ -286,6 +286,294 @@ Pes etti, max win veriyor.
 | `death_1.mp3` | Asansör... hep... iner... | — |
 | `death_2.mp3` | Ölü... asansörcü... ödemez... | — |
 | `death_3.mp3` | Kapılar... kapanıyor... | — |
+
+## Balıkçı Dede — 102 replik
+
+Klasör: `public/audio/balikci/`
+
+### intro
+
+Sahne açılışı. Övünür ve ilk çarpanı (2x) gösterir.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `intro_1.mp3` | Otur evlat, olta hazır. Göl balık dolu bugün. Şimdilik al şu iki x'i, yem parası. | — |
+| `intro_2.mp3` | Hoş geldin. Bugün büyük balık günü, hissediyorum. Önce ufak bir iki x. | — |
+| `intro_3.mp3` | Yine mi sen? Güzel. Kovayı getirdin mi? İki x'le başlayalım. | — |
+| `intro_4.mp3` | Sabırlı ol evlat. Balıkçılık sabır işidir. İki x de sabır ister. | — |
+
+### idle_1
+
+I. perde (Kibir): oyuncu beklerken kışkırtma.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_1_1.mp3` | Bak göl balık dolu! Ben mi? Ben şimdi gelemem, işim var. | — |
+| `idle_1_2.mp3` | Bir sürü balık çıktı. Toplayacak balıkçı yok. Ne yazık. | — |
+| `idle_1_3.mp3` | İkinci aşamaya az kaldı. Bir balıkçı daha gelse... gelmedi. | — |
+| `idle_1_4.mp3` | İki x'lik balık çıkınca hemen gelirim, merak etme. | — |
+| `idle_1_5.mp3` | Dört balıkçı lazımdı. Üç geldi. Dördüncü ben olacaktım, üşendim. | — |
+| `idle_1_6.mp3` | Sabır evlat. Ben kırk yıldır aynı balığı bekliyorum. | — |
+| `idle_1_7.mp3` | Yem bitti mi? Yükle gel. | — |
+
+### idle_2
+
+II. perde (Öfke): azar, inkâr.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_2_1.mp3` | Balıkçıya el kalkmaz! Oltam kırılır! | — |
+| `idle_2_2.mp3` | Ben ne yapayım, balık vurmadı! | — |
+| `idle_2_3.mp3` | Aşama atlattım ya işte! Daha ne istiyorsun? | — |
+| `idle_2_4.mp3` | Seni göl müdürlüğüne şikâyet edeceğim. | — |
+| `idle_2_5.mp3` | Vurarak balık tutulmaz evlat. | — |
+| `idle_2_6.mp3` | Geldim ya! İki x'lik balığa geldim ama geldim! | — |
+
+### idle_3
+
+III. perde (Yakarış): yalvarma, pazarlık.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_3_1.mp3` | Dur! Son aşamadayız, bak! Ödeme mi? O ayrı konu. | — |
+| `idle_3_2.mp3` | Buraya kadar getirdim seni. Gerisi nasip. | — |
+| `idle_3_3.mp3` | Ben de yalnızca yemim aslında... oltayı başkası tutuyor. | — |
+| `idle_3_4.mp3` | Tamam, tamam! Kovayı sana vereyim! Boş ama! | — |
+| `idle_3_5.mp3` | Son aşama dediysem, ödeyeceğim demedim. | — |
+| `idle_3_6.mp3` | Kırk yıl bekledim, şimdi de dayak yiyorum. | — |
+
+### hit_head
+
+Kafasına vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_head_1.mp3` | Şapkam! İçinde iğnelerim var! | — |
+| `hit_head_2.mp3` | Kafama vurma, balıkların yerini orada tutuyorum! | — |
+| `hit_head_3.mp3` | Sakalım! Kırk yılda uzattım! | — |
+| `hit_head_4.mp3` | Gözlüğüm! Şamandırayı göremem! | — |
+
+### hit_body
+
+Gövdesine vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_body_1.mp3` | Yeleğimin cebinde yem var, ezme! | — |
+| `hit_body_2.mp3` | Göbeğime vurdun. Balık yedim az önce. | — |
+| `hit_body_3.mp3` | Dalga bile daha sert vurur. | — |
+| `hit_body_4.mp3` | Vur vur, balıkçı yine gelmez. | — |
+
+### hit_arm
+
+Koluna / eline vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_arm_1.mp3` | Olta kolum o! | — |
+| `hit_arm_2.mp3` | O elle makara çeviriyorum! | — |
+| `hit_arm_3.mp3` | Bileğim! Savuramam artık! | — |
+| `hit_arm_4.mp3` | Kolumu bırak, misinayı o tutuyor. | — |
+
+### hit_leg
+
+Bacağına / ayağına vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_leg_1.mp3` | Çizmem! Su alır şimdi! | — |
+| `hit_leg_2.mp3` | Dizim! Zaten nemden ağrıyordu! | — |
+| `hit_leg_3.mp3` | Bacağıma vurma, tekne sallanıyor! | — |
+| `hit_leg_4.mp3` | Topal balıkçı kıyıda kalır. | — |
+
+### miss
+
+Oyuncu ıskaladı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `miss_1.mp3` | Iskaladın. Balık kaçtı. | — |
+| `miss_2.mp3` | Olta boş geldi. | — |
+| `miss_3.mp3` | Yaklaştı ama vurmadı. Tanıdık mı? | — |
+| `miss_4.mp3` | Suya vurdun evlat. | — |
+
+### weapon_knuckles
+
+Oyuncu muştayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_knuckles_1.mp3` | Muşta mı? Onunla balık mı tutacaksın? | — |
+| `weapon_knuckles_2.mp3` | Demir yumruk. Kurşun ağırlık niyetine kullanırdım. | — |
+| `weapon_knuckles_3.mp3` | Onu göle atsan dibe gider, senin bakiyen gibi. | — |
+
+### weapon_katana
+
+Oyuncu katanayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_katana_1.mp3` | O bıçak fileto için fazla uzun. | — |
+| `weapon_katana_2.mp3` | Balık mı temizleyeceğiz? Yoksa beni mi? | — |
+| `weapon_katana_3.mp3` | Bırak onu, misinayı kesersin. | — |
+
+### weapon_gun
+
+Oyuncu tabancayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_gun_1.mp3` | Tabancayla balık tutulmaz! Denedim. | — |
+| `weapon_gun_2.mp3` | İndir onu! Ölü balıkçı hiç gelmez! | — |
+| `weapon_gun_3.mp3` | Ateş etme, balıklar ürker! | — |
+
+### weapon_saber
+
+Oyuncu ışın kılıcını eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_saber_1.mp3` | O ışık ne? Gece balığına mı çıkıyoruz? | — |
+| `weapon_saber_2.mp3` | Onunla göl kaynar, balık haşlanır. | — |
+| `weapon_saber_3.mp3` | Tamam, sakin. O şey oltamı eritir. | — |
+
+### weapon_saw
+
+Oyuncu testereyi çalıştırdı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_saw_1.mp3` | Testere mi? Buz balıkçılığı mı yapacağız? | — |
+| `weapon_saw_2.mp3` | Kapat şunu, balıklar kaçıyor! | — |
+| `weapon_saw_3.mp3` | Onunla tekne yaparlar. Ya da tabut. | — |
+
+### sever_arm
+
+Kolu / ön kolu koptu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `sever_arm_1.mp3` | Kolum! Oltayı kim savuracak? | — |
+| `sever_arm_2.mp3` | Tek kolla da gelmem, merak etme. | — |
+| `sever_arm_3.mp3` | O kol kırk yıllık makara koluydu! | — |
+| `sever_arm_4.mp3` | Bunu balıkçılar derneğine yazacağım! | — |
+
+### sever_leg
+
+Bacağı / baldırı koptu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `sever_leg_1.mp3` | Bacağım! Çizmesi yeniydi! | — |
+| `sever_leg_2.mp3` | Tekneye nasıl bineceğim? | — |
+| `sever_leg_3.mp3` | Balıklar bile acıdı halime. | — |
+| `sever_leg_4.mp3` | Bu oltada yoktu evlat! | — |
+
+### offer_small
+
+Çarpan yükseldi (5x – 25x): hâlâ alaycı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_small_1.mp3` | Bak bir balık vurdu. Küçük ama balık. | — |
+| `offer_small_2.mp3` | Çarpan arttı. Balıkçı yine yok, kusura bakma. | — |
+| `offer_small_3.mp3` | Bu hamsi. Levrek arkada, görürsün. | — |
+| `offer_small_4.mp3` | Azıcık yükseldi. Sabır. | — |
+
+### offer_mid
+
+Çarpan yükseldi (50x – 250x): gönülsüz.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_mid_1.mp3` | Göl doldu taştı! Ben mi? Geliyorum, geliyorum. Gelmedim. | — |
+| `offer_mid_2.mp3` | Güzel balıklar bunlar. Toplayan olsa. | — |
+| `offer_mid_3.mp3` | Kovayı mı dolduracaksın? Kova delik. | — |
+| `offer_mid_4.mp3` | Bu kadarını gösteririm. Toplamak ayrı iş. | — |
+
+### offer_big
+
+Çarpan yükseldi (500x ve üstü): çaresiz.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_big_1.mp3` | Son aşama! Bak neler var! Dokunmak yok! | — |
+| `offer_big_2.mp3` | Bu kadar balığı ben bile görmedim. Ödemesini de görmeyeceksin. | — |
+| `offer_big_3.mp3` | Patron beni göle atacak... | — |
+| `offer_big_4.mp3` | Daha ne istiyorsun? Ödeme mi? Güldürme evlat! | — |
+
+### recover
+
+Oyuncu durdu, çarpan geri düştü: yine kibirlenir.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `recover_1.mp3` | Durdun. Balıklar dağıldı bak. | — |
+| `recover_2.mp3` | Bıraktın ya, misinayı topluyorum. | — |
+| `recover_3.mp3` | Geçti. Balıkçı milleti dayanıklıdır. | — |
+| `recover_4.mp3` | Durursan kaçar. Balık da, çarpan da. | — |
+
+### near_death
+
+Canı çok azaldı: "ölürsem ödeme yok" uyarısı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `near_death_1.mp3` | Dur! Ölürsem balıkları kim toplayacak? Ben de toplamıyordum gerçi! | — |
+| `near_death_2.mp3` | Ölü balıkçı hiç gelmez evlat! | — |
+| `near_death_3.mp3` | Yavaş! Teknenin anahtarı bende! | — |
+| `near_death_4.mp3` | Bir vuruş daha ve göl sahipsiz kalır. | — |
+
+### aloof_hit
+
+Oyuncuyu umursamazken (sırtı dönük, volta) vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `aloof_hit_1.mp3` | Arkadan mı? Şamandırama bakıyordum! | — |
+| `aloof_hit_2.mp3` | Seni duymuyordum. Balık sessizlik ister. | — |
+| `aloof_hit_3.mp3` | Hop! Oltam titredi sandım! | — |
+
+### stall
+
+Yalnızca oyalayan maskot: ikinci perdeye geçecek gibi yapar, geçmez.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `stall_1.mp3` | İkinci aşamaya geçiyoruz! ...Şaka şaka. Bir balıkçı eksik. | — |
+| `stall_2.mp3` | Hah, geçtik! Dur, geçmedik. Bir tane daha lazımmış. | — |
+| `stall_3.mp3` | Tam geçiyordum, misinam dolandı. Baştan. | — |
+| `stall_4.mp3` | Az kaldı dedim ya. Hâlâ az kaldı. | — |
+
+### cashout
+
+Oyuncu teklifi alıp çıktı: alay eder.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `cashout_1.mp3` | Aldın mı? Kovana bak. Boş, değil mi? Heh. | — |
+| `cashout_2.mp3` | Akıllısın. Yine de balıklar bende kaldı. | — |
+| `cashout_3.mp3` | Güle güle. Yarın yine yem atarsın. | — |
+
+### maxwin
+
+Pes etti, max win veriyor.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `maxwin_1.mp3` | Tamam! Tamam! Bütün balıkçılar geldi! Topla hepsini! | — |
+| `maxwin_2.mp3` | Pes! Göl senin! Tekne de senin! | — |
+| `maxwin_3.mp3` | Al, git, bir daha oltama dokunma! | — |
+
+### death
+
+Öldü (oyuncu kaybetti): son sözleri.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `death_1.mp3` | Balık... vurmadı... | — |
+| `death_2.mp3` | Ölü... balıkçı... gelmez... | — |
+| `death_3.mp3` | Az... kalmıştı... | — |
 
 ## Demirci — 102 replik
 

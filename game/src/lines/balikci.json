@@ -1,0 +1,156 @@
+{
+  "intro": [
+    "Otur evlat, olta hazır. Göl balık dolu bugün. Şimdilik al şu iki x'i, yem parası.",
+    "Hoş geldin. Bugün büyük balık günü, hissediyorum. Önce ufak bir iki x.",
+    "Yine mi sen? Güzel. Kovayı getirdin mi? İki x'le başlayalım.",
+    "Sabırlı ol evlat. Balıkçılık sabır işidir. İki x de sabır ister."
+  ],
+  "idle_1": [
+    "Bak göl balık dolu! Ben mi? Ben şimdi gelemem, işim var.",
+    "Bir sürü balık çıktı. Toplayacak balıkçı yok. Ne yazık.",
+    "İkinci aşamaya az kaldı. Bir balıkçı daha gelse... gelmedi.",
+    "İki x'lik balık çıkınca hemen gelirim, merak etme.",
+    "Dört balıkçı lazımdı. Üç geldi. Dördüncü ben olacaktım, üşendim.",
+    "Sabır evlat. Ben kırk yıldır aynı balığı bekliyorum.",
+    "Yem bitti mi? Yükle gel."
+  ],
+  "idle_2": [
+    "Balıkçıya el kalkmaz! Oltam kırılır!",
+    "Ben ne yapayım, balık vurmadı!",
+    "Aşama atlattım ya işte! Daha ne istiyorsun?",
+    "Seni göl müdürlüğüne şikâyet edeceğim.",
+    "Vurarak balık tutulmaz evlat.",
+    "Geldim ya! İki x'lik balığa geldim ama geldim!"
+  ],
+  "idle_3": [
+    "Dur! Son aşamadayız, bak! Ödeme mi? O ayrı konu.",
+    "Buraya kadar getirdim seni. Gerisi nasip.",
+    "Ben de yalnızca yemim aslında... oltayı başkası tutuyor.",
+    "Tamam, tamam! Kovayı sana vereyim! Boş ama!",
+    "Son aşama dediysem, ödeyeceğim demedim.",
+    "Kırk yıl bekledim, şimdi de dayak yiyorum."
+  ],
+  "stall": [
+    "İkinci aşamaya geçiyoruz! ...Şaka şaka. Bir balıkçı eksik.",
+    "Hah, geçtik! Dur, geçmedik. Bir tane daha lazımmış.",
+    "Tam geçiyordum, misinam dolandı. Baştan.",
+    "Az kaldı dedim ya. Hâlâ az kaldı."
+  ],
+  "hit_head": [
+    "Şapkam! İçinde iğnelerim var!",
+    "Kafama vurma, balıkların yerini orada tutuyorum!",
+    "Sakalım! Kırk yılda uzattım!",
+    "Gözlüğüm! Şamandırayı göremem!"
+  ],
+  "hit_body": [
+    "Yeleğimin cebinde yem var, ezme!",
+    "Göbeğime vurdun. Balık yedim az önce.",
+    "Dalga bile daha sert vurur.",
+    "Vur vur, balıkçı yine gelmez."
+  ],
+  "hit_arm": [
+    "Olta kolum o!",
+    "O elle makara çeviriyorum!",
+    "Bileğim! Savuramam artık!",
+    "Kolumu bırak, misinayı o tutuyor."
+  ],
+  "hit_leg": [
+    "Çizmem! Su alır şimdi!",
+    "Dizim! Zaten nemden ağrıyordu!",
+    "Bacağıma vurma, tekne sallanıyor!",
+    "Topal balıkçı kıyıda kalır."
+  ],
+  "miss": [
+    "Iskaladın. Balık kaçtı.",
+    "Olta boş geldi.",
+    "Yaklaştı ama vurmadı. Tanıdık mı?",
+    "Suya vurdun evlat."
+  ],
+  "weapon_knuckles": [
+    "Muşta mı? Onunla balık mı tutacaksın?",
+    "Demir yumruk. Kurşun ağırlık niyetine kullanırdım.",
+    "Onu göle atsan dibe gider, senin bakiyen gibi."
+  ],
+  "weapon_katana": [
+    "O bıçak fileto için fazla uzun.",
+    "Balık mı temizleyeceğiz? Yoksa beni mi?",
+    "Bırak onu, misinayı kesersin."
+  ],
+  "weapon_gun": [
+    "Tabancayla balık tutulmaz! Denedim.",
+    "İndir onu! Ölü balıkçı hiç gelmez!",
+    "Ateş etme, balıklar ürker!"
+  ],
+  "weapon_saber": [
+    "O ışık ne? Gece balığına mı çıkıyoruz?",
+    "Onunla göl kaynar, balık haşlanır.",
+    "Tamam, sakin. O şey oltamı eritir."
+  ],
+  "weapon_saw": [
+    "Testere mi? Buz balıkçılığı mı yapacağız?",
+    "Kapat şunu, balıklar kaçıyor!",
+    "Onunla tekne yaparlar. Ya da tabut."
+  ],
+  "sever_arm": [
+    "Kolum! Oltayı kim savuracak?",
+    "Tek kolla da gelmem, merak etme.",
+    "O kol kırk yıllık makara koluydu!",
+    "Bunu balıkçılar derneğine yazacağım!"
+  ],
+  "sever_leg": [
+    "Bacağım! Çizmesi yeniydi!",
+    "Tekneye nasıl bineceğim?",
+    "Balıklar bile acıdı halime.",
+    "Bu oltada yoktu evlat!"
+  ],
+  "offer_small": [
+    "Bak bir balık vurdu. Küçük ama balık.",
+    "Çarpan arttı. Balıkçı yine yok, kusura bakma.",
+    "Bu hamsi. Levrek arkada, görürsün.",
+    "Azıcık yükseldi. Sabır."
+  ],
+  "offer_mid": [
+    "Göl doldu taştı! Ben mi? Geliyorum, geliyorum. Gelmedim.",
+    "Güzel balıklar bunlar. Toplayan olsa.",
+    "Kovayı mı dolduracaksın? Kova delik.",
+    "Bu kadarını gösteririm. Toplamak ayrı iş."
+  ],
+  "offer_big": [
+    "Son aşama! Bak neler var! Dokunmak yok!",
+    "Bu kadar balığı ben bile görmedim. Ödemesini de görmeyeceksin.",
+    "Patron beni göle atacak...",
+    "Daha ne istiyorsun? Ödeme mi? Güldürme evlat!"
+  ],
+  "recover": [
+    "Durdun. Balıklar dağıldı bak.",
+    "Bıraktın ya, misinayı topluyorum.",
+    "Geçti. Balıkçı milleti dayanıklıdır.",
+    "Durursan kaçar. Balık da, çarpan da."
+  ],
+  "near_death": [
+    "Dur! Ölürsem balıkları kim toplayacak? Ben de toplamıyordum gerçi!",
+    "Ölü balıkçı hiç gelmez evlat!",
+    "Yavaş! Teknenin anahtarı bende!",
+    "Bir vuruş daha ve göl sahipsiz kalır."
+  ],
+  "aloof_hit": [
+    "Arkadan mı? Şamandırama bakıyordum!",
+    "Seni duymuyordum. Balık sessizlik ister.",
+    "Hop! Oltam titredi sandım!"
+  ],
+  "cashout": [
+    "Aldın mı? Kovana bak. Boş, değil mi? Heh.",
+    "Akıllısın. Yine de balıklar bende kaldı.",
+    "Güle güle. Yarın yine yem atarsın."
+  ],
+  "maxwin": [
+    "Tamam! Tamam! Bütün balıkçılar geldi! Topla hepsini!",
+    "Pes! Göl senin! Tekne de senin!",
+    "Al, git, bir daha oltama dokunma!"
+  ],
+  "death": [
+    "Balık... vurmadı...",
+    "Ölü... balıkçı... gelmez...",
+    "Az... kalmıştı..."
+  ]
+}

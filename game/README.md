@@ -17,6 +17,10 @@ seferde verir. `characters.ts` içinde `tease: { blocks: n }` ile her maskota ve
 durunca üç tane kalır ve hiçbiri hat tutmaz. Ekrana yazdığı çarpanın yirmide birini öder
 (100x yazar, 5x öder); max win'i ise tam öder. `characters.ts` içinde `lowball` ve `reelBadge`.
 
+**Oyalayan maskot (Balıkçı Dede):** ikinci perdeye geçecek gibi yapıp iki kez geri döner; son
+perdeye geçer ama orada alıp çıkana hiçbir şey ödemez. Makarada göl değerli balıklarla doluyken
+balıkçı yoktur, tek bir 2x'lik balık varken gelir. `characters.ts`: `stall`, `noPayFinal`, `reelMode`.
+
 **Yürüme:** WASD / ok tuşları (dokunmatik ekranda sol alttaki çubuk). Oyuncu sahnede dolaşır,
 bakışı maskota kilitlidir; yumruk ve kılıç ancak yakından isabet eder. Bir süre durursan kamera
 yeniden yönetmene geçer, ilk tuşta sana döner.

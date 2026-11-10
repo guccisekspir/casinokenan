@@ -171,6 +171,7 @@ export class Reels {
   private offer = '';
   private bars = 0;
   private badge = '';
+  private mode = '';
 
   constructor() {
     this.canvas.width = 1024;
@@ -180,8 +181,9 @@ export class Reels {
     this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 4), new THREE.MeshBasicMaterial({ map: this.tex }));
   }
 
-  setTheme(symbols: string[], theme: { bg: string; accent: string }, badge = '') {
+  setTheme(symbols: string[], theme: { bg: string; accent: string }, badge = '', mode = '') {
     this.badge = badge;
+    this.mode = mode;
     this.symbols = symbols;
     this.theme = theme;
     this.draw(true);
@@ -225,13 +227,40 @@ export class Reels {
     c.font = `${Math.floor(ch * 0.6)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
     // "Az kalsın": son durumda hep iki scatter, üçüncüsü bir sıra yukarıda kalmış.
     const scatter = this.symbols[0];
+    // Balık düzeni: ya göl değerli balıklarla dolu ve balıkçı yok, ya da balıkçı gelmiş ama
+    // ortada tek bir 2x'lik balık var.
+    const fish = this.mode === 'fish';
+    const lonely = fish && final && Math.random() < 0.4;
+    const lonelyAt = Math.random() < 0.5 ? 0 : 4;
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         const px = 40 + x * cw, py = 40 + y * ch;
         c.fillStyle = 'rgba(0,0,0,0.35)';
         c.fillRect(px + 6, py + 6, cw - 12, ch - 12);
         let s = this.symbols[1 + Math.floor(Math.random() * (this.symbols.length - 1))];
-        if (final && y === 1 && (x === 0 || x === 2)) s = scatter;
+        if (final && y === 1 && (x === 0 || x === 2) && !fish) s = scatter;
+        if (fish) {
+          const filler = this.symbols[2 + Math.floor(Math.random() * (this.symbols.length - 2))];
+          let value = '';
+          if (!final) s = Math.random() < 0.5 ? this.symbols[1] : Math.random() < 0.3 ? scatter : filler;
+          else if (lonely) {
+            // Balıkçı geldi (üst ve alt sırada); toplayacağı tek balık 2x.
+            s = x === lonelyAt && y === 2 ? this.symbols[1] : (x === 1 || x === 3) && y !== 1 ? scatter : filler;
+            if (x === lonelyAt && y === 2) value = '2x';
+          } else {
+            s = (x + y) % 2 === 0 || y === 2 ? this.symbols[1] : filler;
+            if (s === this.symbols[1]) value = `${[10, 25, 50, 100, 250][Math.floor(Math.random() * 5)]}x`;
+          }
+          c.fillStyle = '#fff';
+          c.fillText(s, px + cw / 2, py + ch / 2 + (value ? -8 : 4));
+          if (value) {
+            c.fillStyle = '#ffcf33';
+            c.font = `bold ${Math.floor(ch * 0.26)}px Georgia, 'Times New Roman', serif`;
+            c.fillText(value, px + cw / 2, py + ch * 0.82);
+            c.font = `${Math.floor(ch * 0.6)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+          }
+          continue;
+        }
         // Vaat edilen sembol: dönerken beş sütunda da geçer; durunca üç tane kalır, zikzak dizilir
         // (alt-üst-alt) ve hiçbir hatta yan yana gelmez.
         const badge = this.badge && (final ? x % 2 === 0 && y === (x === 2 ? 0 : 2) : Math.random() < 0.3);
