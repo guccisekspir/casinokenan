@@ -127,9 +127,10 @@ export class UI {
   }
 
   /** Karakterin o an verdiği çarpan + "al ve çık" düğmesi. */
-  setOffer(x: number, reward: number) {
+  /** @param promised eksik ödeyen maskotta: ekrana yazdığı (ödemediği) çarpan */
+  setOffer(x: number, reward: number, promised?: number) {
     $('offer').hidden = false;
-    $('offer-x').textContent = `${fmt(x)}x`;
+    $('offer-x').innerHTML = promised ? `<s>${fmt(promised)}x</s> ${fmt(x)}x` : `${fmt(x)}x`;
     $('btn-cash').textContent = `al ve çık · +${fmt(reward)} jeton`;
   }
 
@@ -137,10 +138,10 @@ export class UI {
     $('offer').hidden = true;
   }
 
-  showEnd(outcome: 'maxwin' | 'cashout' | 'death', def: CharacterDef, x: number, reward: number) {
+  showEnd(outcome: 'maxwin' | 'cashout' | 'death', def: CharacterDef, x: number, reward: number, promised?: number) {
     const t = {
       maxwin: { pre: `${def.name} pes etti`, title: 'Max Win', sub: `${fmt(def.maxWin)}x` },
-      cashout: { pre: `${def.name} hâlâ ayakta`, title: `${fmt(x)}x`, sub: 'aldın ve çıktın' },
+      cashout: { pre: `${def.name} hâlâ ayakta`, title: `${fmt(x)}x`, sub: promised ? `${fmt(promised)}x yazdı, ${fmt(x)}x ödedi` : 'aldın ve çıktın' },
       death: { pre: `${def.name} öldü`, title: 'Kasa Kazandı', sub: 'ölü maskot ödeme yapmaz' },
     }[outcome];
     $('win-who').textContent = t.pre;

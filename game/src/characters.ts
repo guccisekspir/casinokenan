@@ -4,6 +4,7 @@ import type { PartId } from './character/rig';
 import type { Lines } from './dialogue';
 import asansorcu from './lines/asansorcu.json';
 import demirci from './lines/demirci.json';
+import haydut from './lines/haydut.json';
 import dede from './lines/simsek-dede.json';
 
 export interface CharacterDef {
@@ -21,6 +22,16 @@ export interface CharacterDef {
    * Oyuncu tam alacakken `blocks` kez set çeker (baskı geri düşer); ancak ondan sonra verir.
    */
   tease?: { blocks: number };
+  /**
+   * Eksik ödeyen maskot: ekrana yazdığı çarpanın yalnızca `pay` kadarını öder (0.05 = yirmide biri).
+   * Max win'i ise tam öder.
+   */
+  lowball?: { pay: number };
+  /**
+   * Makarada vaat edilen özel sembol (ör. "VS"). Dönerken beş sütunda da görünür, durunca üç
+   * tane kalır ve hiçbiri aynı hatta olmaz.
+   */
+  reelBadge?: string;
   /** Sesli okuma yedeği için (kayıt dosyası yoksa). */
   voice: { pitch: number; rate: number };
   /** Kan/sıvı rengi (prenses şeker şurubu akıtır vs.). */
@@ -113,5 +124,24 @@ export const CHARACTERS: CharacterDef[] = [
     symbols: ['⚒️', '🔥', '🛡️', '⚔️', '🪙', '⛓️', 'A', 'K'],
     theme: { bg: '#2a1a0d', accent: '#ff9a2a' },
     lines: demirci,
+  },
+  {
+    id: 'haydut',
+    name: 'Haydut',
+    slotName: 'Düello Kasabası',
+    emoji: '🤠',
+    maxWin: 12500,
+    hp: 230,
+    voice: { pitch: 0.75, rate: 0.9 },
+    bloodColor: 0xc8102e,
+    // Beş VS vaat eder, üç tane verir ve hiçbiri hat tutmaz. Yazdığı çarpanın yirmide birini öder.
+    lowball: { pay: 0.05 },
+    reelBadge: 'VS',
+    // Ağzı bandanalı: mimik uygulanmaz. Kafa hacmi şapkanın geniş kenarını da kapsar.
+    model: { mask: true, head: { center: [0, 0.12, 0.02], radii: [0.36, 0.3, 0.36] } },
+    look: { skin: 0xd9a37c, top: 0x6a4a2a, bottom: 0x3a2a1a, hair: 0x2a1a0a, beard: 0x2a1a0a },
+    symbols: ['🤠', '🔫', '💰', '🐎', '⭐', '🥃', 'A', 'K'],
+    theme: { bg: '#2e1f10', accent: '#d9a441' },
+    lines: haydut,
   },
 ];

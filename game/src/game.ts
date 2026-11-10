@@ -231,7 +231,7 @@ export class Game {
     const ch = await Character.create(def);
     this.character = ch;
     this.scene.add(ch.root);
-    this.reels.setTheme(def.symbols, def.theme);
+    this.reels.setTheme(def.symbols, def.theme, def.reelBadge);
     this.rim.color.set(def.theme.accent);
     this.ui.setCharacter(def, ch.usingPlaceholder);
     this.ui.setHp(1);
@@ -284,7 +284,18 @@ export class Game {
     // Set çeken maskot: ekranda hep MAX yazar, önünde kalan setler kadar parmaklık durur.
     if (this.character?.def.tease) this.reels.setOffer('MAX', this.blocksLeft + (this.outcome === 'maxwin' ? 0 : 1));
     else this.reels.setOffer(`${LADDER[this.offer]}x`);
-    this.ui.setOffer(LADDER[this.offer], REWARD[this.offer]);
+    this.ui.setOffer(this.paidX(), this.paidReward(), this.character?.def.lowball ? LADDER[this.offer] : undefined);
+  }
+
+  /** Gerçekten ödenen çarpan ve jeton: eksik ödeyen maskotta yazılanın küçük bir kesri. */
+  private paidX(): number {
+    const pay = this.character?.def.lowball?.pay ?? 1;
+    return Math.max(1, Math.round(LADDER[this.offer] * pay));
+  }
+
+  private paidReward(): number {
+    const pay = this.character?.def.lowball?.pay ?? 1;
+    return Math.max(1, Math.round(REWARD[this.offer] * pay));
   }
 
   private speak(event: DialogueEvent, force = false): boolean {
@@ -634,7 +645,7 @@ export class Game {
       window.setTimeout(() => this.audio.win(), 1500);
       this.endAt = this.now + 4.6;
     } else if (outcome === 'cashout') {
-      this.coins += REWARD[this.offer];
+      this.coins += this.paidReward();
       this.audio.coin();
       ch.act(this.act === 0 ? 'clap' : 'shrug');
       this.endAt = this.now + 3.4;
@@ -712,8 +723,8 @@ export class Game {
       }
       if (this.state === 'ended' && this.endAt && this.now >= this.endAt && this.outcome) {
         this.endAt = 0;
-        const reward = this.outcome === 'maxwin' ? MAX_REWARD : this.outcome === 'cashout' ? REWARD[this.offer] : 0;
-        this.ui.showEnd(this.outcome, ch.def, LADDER[this.offer], reward);
+        const reward = this.outcome === 'maxwin' ? MAX_REWARD : this.outcome === 'cashout' ? this.paidReward() : 0;
+        this.ui.showEnd(this.outcome, ch.def, this.paidX(), reward, ch.def.lowball ? LADDER[this.offer] : undefined);
       }
       if (this.outcome === 'maxwin' && this.state === 'ended' && Math.random() < 0.7) {
         // Max win: karanlıkta tek renk olarak altın yağar.

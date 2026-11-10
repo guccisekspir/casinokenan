@@ -13,6 +13,10 @@ o anki çarpanı alıp çıkabilirsin. Ayarlar `src/game.ts` başındaki sabitle
 Oyuncu tam alacakken iki kez set çeker (baskı geri düşer, bir parmaklık daha iner); ancak üçüncü
 seferde verir. `characters.ts` içinde `tease: { blocks: n }` ile her maskota verilebilir.
 
+**Eksik ödeyen maskot (Haydut):** beş VS vaat eder; makara dönerken beş sütunda da VS geçer ama
+durunca üç tane kalır ve hiçbiri hat tutmaz. Ekrana yazdığı çarpanın yirmide birini öder
+(100x yazar, 5x öder); max win'i ise tam öder. `characters.ts` içinde `lowball` ve `reelBadge`.
+
 **Yürüme:** WASD / ok tuşları (dokunmatik ekranda sol alttaki çubuk). Oyuncu sahnede dolaşır,
 bakışı maskota kilitlidir; yumruk ve kılıç ancak yakından isabet eder. Bir süre durursan kamera
 yeniden yönetmene geçer, ilk tuşta sana döner.

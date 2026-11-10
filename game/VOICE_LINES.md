@@ -1,6 +1,6 @@
 # Ses dosyaları
 
-Toplam **298** replik, kaydı olan: **0**.
+Toplam **396** replik, kaydı olan: **0**.
 
 Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değiştirmek için
 `src/lines/<karakter>.json` dosyalarını düzenleyip komutu yeniden çalıştırın.
@@ -574,6 +574,283 @@ Pes etti, max win veriyor.
 | `death_1.mp3` | Max... içeride... kaldı... | — |
 | `death_2.mp3` | Ölü... demirci... açamaz... | — |
 | `death_3.mp3` | Kilit... sağlamdı... | — |
+
+## Haydut — 98 replik
+
+Klasör: `public/audio/haydut/`
+
+### intro
+
+Sahne açılışı. Övünür ve ilk çarpanı (2x) gösterir.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `intro_1.mp3` | Hoş geldin evlat. Bu elde beş VS geliyor, söz. Şimdilik al şu iki x'i. | — |
+| `intro_2.mp3` | Kasabaya hoş geldin. Beş VS'yi senin için ayırdım. Önce ufak bir iki x. | — |
+| `intro_3.mp3` | Yine mi sen? Güzel. Bugün beş VS günü. Şerefim üzerine. Şerefim yok gerçi. | — |
+| `intro_4.mp3` | Otur. Beş VS yolda. Atla geliyor, at yavaş. | — |
+
+### idle_1
+
+I. perde (Kibir): oyuncu beklerken kışkırtma.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_1_1.mp3` | Beş VS geliyor diyorum. Üç geldi. Hiçbiri yan yana değil. | — |
+| `idle_1_2.mp3` | Bak üç VS! Hat tutmadı ama. Ne şanssızlık. | — |
+| `idle_1_3.mp3` | Yüz x'e aldın, beş x verdim. Kasabanın vergisi ağır. | — |
+| `idle_1_4.mp3` | Bir sonraki elde beş VS. Geçen elde de öyle demiştim. | — |
+| `idle_1_5.mp3` | Düşük ödedim, yine düşük ödeyeceğim. İstikrar önemli. | — |
+| `idle_1_6.mp3` | VS'ler var, hat yok. Hat var, VS yok. Böyle bir dünya. | — |
+| `idle_1_7.mp3` | Düelloyu hep ben kazanırım. Tabancayı ben dolduruyorum. | — |
+
+### idle_2
+
+II. perde (Öfke): azar, inkâr.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_2_1.mp3` | Ödedim ya! Beş x de paradır! | — |
+| `idle_2_2.mp3` | Yumrukla hat mı tutturacaksın? | — |
+| `idle_2_3.mp3` | Ben hile yapmam! Yalnızca hiç vermem! | — |
+| `idle_2_4.mp3` | Şerife şikâyet et. Şerif benim. | — |
+| `idle_2_5.mp3` | Üç VS verdim, nankör! Bağlanmadıysa benim suçum mu? Evet. | — |
+| `idle_2_6.mp3` | Kasabadan kovarım seni! | — |
+
+### idle_3
+
+III. perde (Yakarış): yalvarma, pazarlık.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_3_1.mp3` | Dur! Bu sefer beşi de geliyor! Yemin ederim! | — |
+| `idle_3_2.mp3` | Tamam, dördüncü VS'yi vereyim. Beşinciyi konuşuruz. | — |
+| `idle_3_3.mp3` | Ben de küçük bir haydudum aslında... büyük kasa başkasının. | — |
+| `idle_3_4.mp3` | Vurma! Hat çizerim, elimle çizerim! | — |
+| `idle_3_5.mp3` | Bütün eksik ödediklerimi geri veririm! Taksitle! | — |
+| `idle_3_6.mp3` | Düello istemiyorum artık. Barışalım mı? | — |
+
+### hit_head
+
+Kafasına vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_head_1.mp3` | Şapkam! Ona dokunulmaz! | — |
+| `hit_head_2.mp3` | Kafama değil, kurşun izim var orada! | — |
+| `hit_head_3.mp3` | Bıyığımı bozdun! | — |
+| `hit_head_4.mp3` | Gözüm karardı. VS mi gördüm? | — |
+
+### hit_body
+
+Gövdesine vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_body_1.mp3` | Yeleğime vurdun. Altında saat var, kırma. | — |
+| `hit_body_2.mp3` | Bu da beş x'lik bir yumruk oldu. | — |
+| `hit_body_3.mp3` | Salonda daha sertini yedim. | — |
+| `hit_body_4.mp3` | Vur vur, ödeme yine düşük. | — |
+
+### hit_arm
+
+Koluna / eline vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_arm_1.mp3` | Silah kolum o! | — |
+| `hit_arm_2.mp3` | O elle kart dağıtıyorum! | — |
+| `hit_arm_3.mp3` | Bileğim! Çekişim yavaşlar! | — |
+| `hit_arm_4.mp3` | Kolumu bırak, makarayı o çeviriyor. | — |
+
+### hit_leg
+
+Bacağına / ayağına vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_leg_1.mp3` | Çizmem! Mahmuzu eğdin! | — |
+| `hit_leg_2.mp3` | Dizim! Ata nasıl bineceğim? | — |
+| `hit_leg_3.mp3` | Bacağıma vurma, kaçmam lazım birazdan. | — |
+| `hit_leg_4.mp3` | Topal haydut mu olur? | — |
+
+### miss
+
+Oyuncu ıskaladı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `miss_1.mp3` | Iskaladın. Hat tutmadı. | — |
+| `miss_2.mp3` | Boşa çektin. Düelloyu kaybettin. | — |
+| `miss_3.mp3` | Yaklaştı ama bağlanmadı. Tanıdık geldi mi? | — |
+| `miss_4.mp3` | Havaya ateş. Kasabada yasak. | — |
+
+### weapon_knuckles
+
+Oyuncu muştayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_knuckles_1.mp3` | Muşta mı? Salon kavgası mı bu? | — |
+| `weapon_knuckles_2.mp3` | Demir yumruk. Ödemeyi yükseltmez. | — |
+| `weapon_knuckles_3.mp3` | Onu rehine verseydin beş x ederdi. | — |
+
+### weapon_katana
+
+Oyuncu katanayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_katana_1.mp3` | O kılıç bu kasabanın değil, yabancı. | — |
+| `weapon_katana_2.mp3` | Kılıçla düelloya mı geldin? Cesursun. | — |
+| `weapon_katana_3.mp3` | Kes bakalım. Hat yine tutmaz. | — |
+
+### weapon_gun
+
+Oyuncu tabancayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_gun_1.mp3` | Hah! Sonunda düello! Dur, benimki boş. | — |
+| `weapon_gun_2.mp3` | Tabanca mı çektin? Onu ben satmıştım sana, bozuk. | — |
+| `weapon_gun_3.mp3` | İndir onu! Ölü haydut hiç ödemez! | — |
+
+### weapon_saber
+
+Oyuncu ışın kılıcını eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_saber_1.mp3` | O ne? Fener mi? Gece soygununa mı gidiyoruz? | — |
+| `weapon_saber_2.mp3` | Bu kasabada öyle silah yok. Ruhsatı var mı? | — |
+| `weapon_saber_3.mp3` | Tamam, sakin. O şey şapkamı yakar. | — |
+
+### weapon_saw
+
+Oyuncu testereyi çalıştırdı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_saw_1.mp3` | Testere mi? Marangoz musun, cellat mı? | — |
+| `weapon_saw_2.mp3` | Kapat şunu, atlar ürküyor! | — |
+| `weapon_saw_3.mp3` | Onunla tabut yaparlar. Bana mı ölçü alıyorsun? | — |
+
+### sever_arm
+
+Kolu / ön kolu koptu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `sever_arm_1.mp3` | Kolum! Tabancayı neyle çekeceğim? | — |
+| `sever_arm_2.mp3` | O kolun başına ödül vardı! | — |
+| `sever_arm_3.mp3` | Tek kolla da eksik öderim, merak etme. | — |
+| `sever_arm_4.mp3` | Bunu ilan tahtasına yazdıracağım! | — |
+
+### sever_leg
+
+Bacağı / baldırı koptu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `sever_leg_1.mp3` | Bacağım! Çizmesi yeniydi! | — |
+| `sever_leg_2.mp3` | Nasıl kaçacağım şimdi? | — |
+| `sever_leg_3.mp3` | At bile acıdı halime. | — |
+| `sever_leg_4.mp3` | Bu düello kurallarında yoktu! | — |
+
+### offer_small
+
+Çarpan yükseldi (5x – 25x): hâlâ alaycı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_small_1.mp3` | Çarpan arttı. Kâğıt üstünde. Eline geçen başka. | — |
+| `offer_small_2.mp3` | Büyük yazdım, küçük ödüyorum. Alış. | — |
+| `offer_small_3.mp3` | Bak yükseldi. Yirmide birini alırsın. | — |
+| `offer_small_4.mp3` | Söz büyük, kese küçük. | — |
+
+### offer_mid
+
+Çarpan yükseldi (50x – 250x): gönülsüz.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_mid_1.mp3` | Yüz x yazıyor. Beş x veririm. Pazarlık yok. | — |
+| `offer_mid_2.mp3` | Güzel rakam, değil mi? Bakması bedava. | — |
+| `offer_mid_3.mp3` | Kasayı mı soyacaksın? Onu ben yaparım. | — |
+| `offer_mid_4.mp3` | Bu kadarını yazarım. Ödemek ayrı iş. | — |
+
+### offer_big
+
+Çarpan yükseldi (500x ve üstü): çaresiz.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_big_1.mp3` | Bin x yazdım! Elli veririm! Yeter ki dur! | — |
+| `offer_big_2.mp3` | Bu kadar büyük yalanı ben bile söylemedim! | — |
+| `offer_big_3.mp3` | Patron beni asar bu rakama... | — |
+| `offer_big_4.mp3` | Daha ne istiyorsun? Tam ödeme mi? Güldürme! | — |
+
+### recover
+
+Oyuncu durdu, çarpan geri düştü: yine kibirlenir.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `recover_1.mp3` | Durdun. Rakam da düştü, ödeme de. | — |
+| `recover_2.mp3` | Bıraktın ya, sözümü geri alıyorum. | — |
+| `recover_3.mp3` | Geçti. Haydutlar çabuk toparlanır. | — |
+| `recover_4.mp3` | Durursan düşer. Düşük ödeme daha da düşer. | — |
+
+### near_death
+
+Canı çok azaldı: "ölürsem ödeme yok" uyarısı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `near_death_1.mp3` | Dur! Ölürsem beş x'i de alamazsın! | — |
+| `near_death_2.mp3` | Ölü haydut ödeme yapmaz! Diri de pek yapmıyor ama! | — |
+| `near_death_3.mp3` | Yavaş! Kasanın şifresi bende! | — |
+| `near_death_4.mp3` | Bir vuruş daha ve ödülümü başkası alır. | — |
+
+### aloof_hit
+
+Oyuncuyu umursamazken (sırtı dönük, volta) vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `aloof_hit_1.mp3` | Arkadan mı? Bu kasabada bile ayıp sayılır! | — |
+| `aloof_hit_2.mp3` | Seni görmüyordum. Şimdi görüyorum, afişini astıracağım. | — |
+| `aloof_hit_3.mp3` | Hop! Makaraya bakıyordum! | — |
+
+### cashout
+
+Oyuncu teklifi alıp çıktı: alay eder.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `cashout_1.mp3` | Aldın mı? Saysana. Eksik, değil mi? Heh. | — |
+| `cashout_2.mp3` | Akıllısın. Yirmide birine razı oldun. | — |
+| `cashout_3.mp3` | Güle güle. Yarın yine eksik öderim. | — |
+
+### maxwin
+
+Pes etti, max win veriyor.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `maxwin_1.mp3` | Tamam! Tamam! Beş VS! Hepsi hatta! Al! | — |
+| `maxwin_2.mp3` | Pes! Kasa senin! Tam ödeme, kuruşu kuruşuna! | — |
+| `maxwin_3.mp3` | Al, git, kasabama bir daha ayak basma! | — |
+
+### death
+
+Öldü (oyuncu kaybetti): son sözleri.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `death_1.mp3` | Beş... VS... geliyordu... | — |
+| `death_2.mp3` | Ölü... haydut... ödemez... | — |
+| `death_3.mp3` | Hat... tutmadı... | — |
 
 ## Şimşek Dede — 98 replik
 

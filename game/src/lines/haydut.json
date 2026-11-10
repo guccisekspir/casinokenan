@@ -1,0 +1,150 @@
+{
+  "intro": [
+    "Hoş geldin evlat. Bu elde beş VS geliyor, söz. Şimdilik al şu iki x'i.",
+    "Kasabaya hoş geldin. Beş VS'yi senin için ayırdım. Önce ufak bir iki x.",
+    "Yine mi sen? Güzel. Bugün beş VS günü. Şerefim üzerine. Şerefim yok gerçi.",
+    "Otur. Beş VS yolda. Atla geliyor, at yavaş."
+  ],
+  "idle_1": [
+    "Beş VS geliyor diyorum. Üç geldi. Hiçbiri yan yana değil.",
+    "Bak üç VS! Hat tutmadı ama. Ne şanssızlık.",
+    "Yüz x'e aldın, beş x verdim. Kasabanın vergisi ağır.",
+    "Bir sonraki elde beş VS. Geçen elde de öyle demiştim.",
+    "Düşük ödedim, yine düşük ödeyeceğim. İstikrar önemli.",
+    "VS'ler var, hat yok. Hat var, VS yok. Böyle bir dünya.",
+    "Düelloyu hep ben kazanırım. Tabancayı ben dolduruyorum."
+  ],
+  "idle_2": [
+    "Ödedim ya! Beş x de paradır!",
+    "Yumrukla hat mı tutturacaksın?",
+    "Ben hile yapmam! Yalnızca hiç vermem!",
+    "Şerife şikâyet et. Şerif benim.",
+    "Üç VS verdim, nankör! Bağlanmadıysa benim suçum mu? Evet.",
+    "Kasabadan kovarım seni!"
+  ],
+  "idle_3": [
+    "Dur! Bu sefer beşi de geliyor! Yemin ederim!",
+    "Tamam, dördüncü VS'yi vereyim. Beşinciyi konuşuruz.",
+    "Ben de küçük bir haydudum aslında... büyük kasa başkasının.",
+    "Vurma! Hat çizerim, elimle çizerim!",
+    "Bütün eksik ödediklerimi geri veririm! Taksitle!",
+    "Düello istemiyorum artık. Barışalım mı?"
+  ],
+  "hit_head": [
+    "Şapkam! Ona dokunulmaz!",
+    "Kafama değil, kurşun izim var orada!",
+    "Bıyığımı bozdun!",
+    "Gözüm karardı. VS mi gördüm?"
+  ],
+  "hit_body": [
+    "Yeleğime vurdun. Altında saat var, kırma.",
+    "Bu da beş x'lik bir yumruk oldu.",
+    "Salonda daha sertini yedim.",
+    "Vur vur, ödeme yine düşük."
+  ],
+  "hit_arm": [
+    "Silah kolum o!",
+    "O elle kart dağıtıyorum!",
+    "Bileğim! Çekişim yavaşlar!",
+    "Kolumu bırak, makarayı o çeviriyor."
+  ],
+  "hit_leg": [
+    "Çizmem! Mahmuzu eğdin!",
+    "Dizim! Ata nasıl bineceğim?",
+    "Bacağıma vurma, kaçmam lazım birazdan.",
+    "Topal haydut mu olur?"
+  ],
+  "miss": [
+    "Iskaladın. Hat tutmadı.",
+    "Boşa çektin. Düelloyu kaybettin.",
+    "Yaklaştı ama bağlanmadı. Tanıdık geldi mi?",
+    "Havaya ateş. Kasabada yasak."
+  ],
+  "weapon_knuckles": [
+    "Muşta mı? Salon kavgası mı bu?",
+    "Demir yumruk. Ödemeyi yükseltmez.",
+    "Onu rehine verseydin beş x ederdi."
+  ],
+  "weapon_katana": [
+    "O kılıç bu kasabanın değil, yabancı.",
+    "Kılıçla düelloya mı geldin? Cesursun.",
+    "Kes bakalım. Hat yine tutmaz."
+  ],
+  "weapon_gun": [
+    "Hah! Sonunda düello! Dur, benimki boş.",
+    "Tabanca mı çektin? Onu ben satmıştım sana, bozuk.",
+    "İndir onu! Ölü haydut hiç ödemez!"
+  ],
+  "weapon_saber": [
+    "O ne? Fener mi? Gece soygununa mı gidiyoruz?",
+    "Bu kasabada öyle silah yok. Ruhsatı var mı?",
+    "Tamam, sakin. O şey şapkamı yakar."
+  ],
+  "weapon_saw": [
+    "Testere mi? Marangoz musun, cellat mı?",
+    "Kapat şunu, atlar ürküyor!",
+    "Onunla tabut yaparlar. Bana mı ölçü alıyorsun?"
+  ],
+  "sever_arm": [
+    "Kolum! Tabancayı neyle çekeceğim?",
+    "O kolun başına ödül vardı!",
+    "Tek kolla da eksik öderim, merak etme.",
+    "Bunu ilan tahtasına yazdıracağım!"
+  ],
+  "sever_leg": [
+    "Bacağım! Çizmesi yeniydi!",
+    "Nasıl kaçacağım şimdi?",
+    "At bile acıdı halime.",
+    "Bu düello kurallarında yoktu!"
+  ],
+  "offer_small": [
+    "Çarpan arttı. Kâğıt üstünde. Eline geçen başka.",
+    "Büyük yazdım, küçük ödüyorum. Alış.",
+    "Bak yükseldi. Yirmide birini alırsın.",
+    "Söz büyük, kese küçük."
+  ],
+  "offer_mid": [
+    "Yüz x yazıyor. Beş x veririm. Pazarlık yok.",
+    "Güzel rakam, değil mi? Bakması bedava.",
+    "Kasayı mı soyacaksın? Onu ben yaparım.",
+    "Bu kadarını yazarım. Ödemek ayrı iş."
+  ],
+  "offer_big": [
+    "Bin x yazdım! Elli veririm! Yeter ki dur!",
+    "Bu kadar büyük yalanı ben bile söylemedim!",
+    "Patron beni asar bu rakama...",
+    "Daha ne istiyorsun? Tam ödeme mi? Güldürme!"
+  ],
+  "recover": [
+    "Durdun. Rakam da düştü, ödeme de.",
+    "Bıraktın ya, sözümü geri alıyorum.",
+    "Geçti. Haydutlar çabuk toparlanır.",
+    "Durursan düşer. Düşük ödeme daha da düşer."
+  ],
+  "near_death": [
+    "Dur! Ölürsem beş x'i de alamazsın!",
+    "Ölü haydut ödeme yapmaz! Diri de pek yapmıyor ama!",
+    "Yavaş! Kasanın şifresi bende!",
+    "Bir vuruş daha ve ödülümü başkası alır."
+  ],
+  "aloof_hit": [
+    "Arkadan mı? Bu kasabada bile ayıp sayılır!",
+    "Seni görmüyordum. Şimdi görüyorum, afişini astıracağım.",
+    "Hop! Makaraya bakıyordum!"
+  ],
+  "cashout": [
+    "Aldın mı? Saysana. Eksik, değil mi? Heh.",
+    "Akıllısın. Yirmide birine razı oldun.",
+    "Güle güle. Yarın yine eksik öderim."
+  ],
+  "maxwin": [
+    "Tamam! Tamam! Beş VS! Hepsi hatta! Al!",
+    "Pes! Kasa senin! Tam ödeme, kuruşu kuruşuna!",
+    "Al, git, kasabama bir daha ayak basma!"
+  ],
+  "death": [
+    "Beş... VS... geliyordu...",
+    "Ölü... haydut... ödemez...",
+    "Hat... tutmadı..."
+  ]
+}

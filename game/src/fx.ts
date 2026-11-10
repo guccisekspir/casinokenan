@@ -128,6 +128,7 @@ export class Reels {
   private theme = { bg: '#222', accent: '#fc0' };
   private offer = '';
   private bars = 0;
+  private badge = '';
 
   constructor() {
     this.canvas.width = 1024;
@@ -137,7 +138,8 @@ export class Reels {
     this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 4), new THREE.MeshBasicMaterial({ map: this.tex }));
   }
 
-  setTheme(symbols: string[], theme: { bg: string; accent: string }) {
+  setTheme(symbols: string[], theme: { bg: string; accent: string }, badge = '') {
+    this.badge = badge;
     this.symbols = symbols;
     this.theme = theme;
     this.draw(true);
@@ -188,6 +190,23 @@ export class Reels {
         c.fillRect(px + 6, py + 6, cw - 12, ch - 12);
         let s = this.symbols[1 + Math.floor(Math.random() * (this.symbols.length - 1))];
         if (final && y === 1 && (x === 0 || x === 2)) s = scatter;
+        // Vaat edilen sembol: dönerken beş sütunda da geçer; durunca üç tane kalır, zikzak dizilir
+        // (alt-üst-alt) ve hiçbir hatta yan yana gelmez.
+        const badge = this.badge && (final ? x % 2 === 0 && y === (x === 2 ? 0 : 2) : Math.random() < 0.3);
+        if (badge) {
+          c.fillStyle = '#b3122b';
+          c.beginPath();
+          c.arc(px + cw / 2, py + ch / 2, ch * 0.36, 0, Math.PI * 2);
+          c.fill();
+          c.strokeStyle = '#ffcf33';
+          c.lineWidth = 8;
+          c.stroke();
+          c.fillStyle = '#ffcf33';
+          c.font = `bold ${Math.floor(ch * 0.34)}px Georgia, 'Times New Roman', serif`;
+          c.fillText(this.badge, px + cw / 2, py + ch / 2 + 4);
+          c.font = `${Math.floor(ch * 0.6)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+          continue;
+        }
         c.fillStyle = '#fff';
         c.fillText(s, px + cw / 2, py + ch / 2 + 4);
       }

@@ -55,6 +55,7 @@ button:hover { opacity: 1; }
   display: flex; flex-direction: column; align-items: flex-end; gap: 0; text-shadow: 0 0 10px #000, 0 1px 2px #000;
 }
 #offer-x { font-size: clamp(26px, 4.5vw, 44px); color: var(--gold); letter-spacing: 0.04em; line-height: 1; }
+#offer-x s { font-size: 0.55em; opacity: 0.55; margin-right: 0.3em; text-decoration-color: var(--blood); }
 #btn-cash { font-size: 12px; border-bottom: 1px solid #ffffff44; padding: 4px 0 2px; opacity: 0.75; }
 .maxwin.lost { color: #e8e4da; text-shadow: none; font-size: clamp(40px, 9vw, 96px); }
 
