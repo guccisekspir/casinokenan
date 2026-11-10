@@ -149,6 +149,11 @@ export class Audio {
     this.noise(0.35, 'lowpass', 1400, 150, 0.7);
     this.tone('sine', 90, 40, 0.3, 0.5);
   }
+  /** Bedenin ya da kopan bir uzvun yere düşmesi. */
+  thud(heavy = false) {
+    this.tone('sine', heavy ? 95 : 130, 38, heavy ? 0.3 : 0.16, heavy ? 0.8 : 0.35);
+    this.noise(heavy ? 0.14 : 0.07, 'lowpass', heavy ? 700 : 1100, 120, heavy ? 0.5 : 0.25);
+  }
   coin(delay = 0) {
     this.tone('triangle', 1318, 1318, 0.08, 0.14, delay);
     this.tone('triangle', 1976, 1976, 0.22, 0.14, delay + 0.07);

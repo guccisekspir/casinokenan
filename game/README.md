@@ -54,6 +54,7 @@ olması (Mixamo / Unreal / Blender tarzı adlandırmalar otomatik tanınır).
 | `src/character/rig.ts` | Kemik adlarından vücut parçalarını bulur |
 | `src/character/character.ts` | Model yükleme, isabet → parça, yaylı vuruş tepkisi, **uzuv koparma** |
 | `src/character/acting.ts` | Oyunculuk: davranışlar (pozlar uzuv *yönü* olarak tarif edilir, her rig'de aynı görünür) |
+| `src/character/ragdoll.ts` | Konum tabanlı fizik: kopan uzuvlar ve ölü beden eklemlerinden bükülür, yere serilir |
 | `src/character/placeholder.ts` | Geçici karakter (gerçek iskelet + SkinnedMesh üretir) |
 | `src/game.ts` | Sahne, girdi, saldırı akışı, perdeler, ağır çekim |
 | `src/dialogue.ts` | Konuşma yönetmeni: olay → replik, öncelik, tekrar etmeme, ses dosyası / sesli okuma yedeği |
@@ -65,6 +66,12 @@ olması (Mixamo / Unreal / Blender tarzı adlandırmalar otomatik tanınır).
 **Uzuv koparma** (`Character.sever`): kopan kemiğin alt ağacına ağırlıklı üçgenler o anki pozda
 "pişirilip" bağımsız bir parçaya dönüşür, kemik sıfıra ölçeklenerek gövdedeki uzuv yok edilir,
 kesik yerine kapak konur. Herhangi bir rig'li mesh ile çalışır.
+
+**Yaralı beden** (`Character.compose`, `onSever`): oyunculuk pozunun üstüne bedenin gerçek durumu
+biner. Tek bacak kalınca kollarını açıp seker, sonra yere iner; iki tarafta da uyluk varsa diz üstü,
+yoksa oturur ve sağlam kolunu yere dayar (kol ters kinematiği). Uzuv kopunca irkilir, yarasına bakar,
+sağlam eliyle güdüğü tutar, titrer, hızlı nefes alır; canı azaldıkça omuzları düşer. Kan nabızla atar.
+Kopan parça kendi iskeletiyle ayrı bir ragdoll'dur; ölüm de aynı fizikle bir yığılmadır.
 
 **Yeni silah**: `WEAPONS` listesine satır ekle. Davranış `kind` ile gelir —
 `blunt` (tıkla-vur), `slash` (sürükle-kes), `shot` (tıkla-ateş). `sever > 0` ise uzuv koparır,

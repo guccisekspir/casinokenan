@@ -193,7 +193,7 @@ export const BEHAVIORS: Record<string, Behavior> = {
   },
 };
 
-/** Yürümeyi gerektiren davranışlar: bacak kaybedince oynanmaz. */
-export const NEEDS_LEGS = new Set(['turnAway', 'pace', 'stagger', 'retreat']);
+/** Ayakta olmayı gerektiren davranışlar: bacak kaybedince oynanmaz. ('retreat' yerde sürünerek de oynanır.) */
+export const NEEDS_LEGS = new Set(['turnAway', 'pace', 'stagger']);
 /** Seyirciye aldırmadığı davranışlar: vurulunca bozulur, karakter tepki verir. */
 export const ALOOF = new Set(['turnAway', 'pace', 'nails']);

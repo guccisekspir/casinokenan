@@ -56,12 +56,14 @@ export class Director {
 
     // Özne takibi yumuşak; kesmede anında.
     const k = this.snap ? 1 : 1 - Math.exp(-3.5 * dt);
-    this.body.lerp(_t.set(body.x, 1.1, body.z), k);
+    // Kadraj merkezi bedenin gerçek yüksekliğini izler: karakter yere inince kamera da iner.
+    this.body.lerp(_t.set(body.x, THREE.MathUtils.clamp(body.y * 1.05, 0.25, 1.1), body.z), k);
     this.head.lerp(head, k);
     if (this.focus) this.focusPos.lerp(this.focus.position, this.snap ? 1 : 1 - Math.exp(-10 * dt));
     this.snap = false;
 
     const b = this.body, h = this.head;
+    const by = b.y; // ayakta ~1.1
     const tall = cam.aspect < 0.8 ? 1.45 : 1; // dikey ekranda geri çekil
     const pos = cam.position, look = _t;
     let fov = 38, roll = 0, shake = 0.012;
@@ -69,7 +71,7 @@ export class Director {
     switch (this.shot) {
       case 'wide':
         pos.set(b.x * 0.3, 1.2, b.z + (6.1 - 0.7 * ease(t / 12)) * tall);
-        look.set(b.x * 0.6, 1.25, b.z);
+        look.set(b.x * 0.6, by + 0.15, b.z);
         shake = 0;
         break;
       case 'low':
@@ -85,7 +87,7 @@ export class Director {
         break;
       case 'dutch':
         pos.set(b.x - s * 2.3, 1.7, b.z + 3.7 * tall);
-        look.set(b.x, 1.35, b.z);
+        look.set(b.x, by + 0.25, b.z);
         roll = 0.22 * s;
         fov = 40;
         shake = 0.02;
@@ -93,19 +95,19 @@ export class Director {
       case 'orbit': {
         const a = s * (0.55 + 0.1 * t);
         pos.set(b.x + Math.sin(a) * 4.9 * tall, 1.75, b.z + Math.cos(a) * 4.9 * tall);
-        look.set(b.x, 1.2, b.z);
+        look.set(b.x, by + 0.1, b.z);
         fov = 36;
         break;
       }
       case 'top':
         pos.set(b.x + s * 0.6, 7.4 * tall, b.z + 3.1);
-        look.set(b.x, 1.0, b.z);
+        look.set(b.x, by * 0.9, b.z);
         roll = 0.012 * t * s;
         fov = 34;
         break;
       case 'far':
         pos.set(b.x + s * 1.6, 0.55, b.z + (8.6 - 0.05 * t) * tall);
-        look.set(b.x, 1.25, b.z);
+        look.set(b.x, by + 0.15, b.z);
         fov = 30;
         shake = 0.006;
         break;
@@ -123,7 +125,7 @@ export class Director {
       }
       case 'finale':
         pos.set(b.x + s * 0.4, 1.0 + 0.55 * t, b.z + (3.6 + 0.65 * t) * tall);
-        look.set(b.x, 0.5, b.z);
+        look.set(b.x, by * 0.45, b.z);
         fov = 36;
         shake = 0.004;
         break;

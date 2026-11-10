@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { CharacterDef } from '../characters';
 import type { WeaponDef } from '../weapons';
-import { BEHAVIORS, blendPose, newPose, resetPose, type Behavior, type LimbKey } from './acting';
+import { BEHAVIORS, blendPose, newPose, resetPose, type Behavior, type LimbKey, type Pose } from './acting';
 import { buildPlaceholder } from './placeholder';
+import { Ragdoll } from './ragdoll';
 import { detectRig, PART_CHILDREN, PART_IDS, type PartId, type Rig } from './rig';
 
 const LIMB_HP = 30;
@@ -23,14 +24,22 @@ interface Spring {
 
 export interface SeverResult {
   part: PartId;
-  /** Kopan parçanın o anki pozda "pişirilmiş" statik kopyası (dünya uzayında). */
+  /** Kopan parça: kendi iskeleti olan, eklemlerinden bükülen bir uzuv (dünya uzayında). */
   gib: THREE.Group | null;
+  /** Parçanın fiziği. */
+  ragdoll: Ragdoll | null;
+  /** Parçanın kök kemiği (kesik ucu): kamera takibi ve kan izi için. */
+  gibRoot: THREE.Object3D | null;
   joint: THREE.Vector3;
   radius: number;
   /** Güdükte kan damlatmak için: kesik noktasının bağlı olduğu kemik + yerel konum. */
   stumpParent: THREE.Object3D;
   stumpLocal: THREE.Vector3;
 }
+
+/** Bedenin duruşu: hangi bacakların kaldığına göre belirlenir. */
+export type Posture = 'stand' | 'hop' | 'kneel' | 'sit';
+type Side = 'L' | 'R';
 
 export interface HitResult {
   damage: number;
@@ -47,6 +56,7 @@ const _q3 = new THREE.Quaternion();
 const _e = new THREE.Euler();
 const _q4 = new THREE.Quaternion();
 const _m = new THREE.Matrix4();
+const _pole = new THREE.Vector3();
 const _rootInv = new THREE.Quaternion();
 const _v2 = new THREE.Vector2();
 const _v3 = new THREE.Vector3();
@@ -80,8 +90,35 @@ export class Character {
   private knock = new THREE.Vector3();
   private knockVel = new THREE.Vector3();
   private drop = 0;
-  private dropTarget = 0;
-  private deadT = 0;
+  private dropVel = 0;
+  private ragdoll: Ragdoll | null = null;
+  private hips: THREE.Bone | null = null;
+  /** Model ölçeği (2.25 birim boya göre 1). */
+  private unit = 1;
+  private armLen = { upper: 0.3, fore: 0.3 };
+
+  // Duruş ve yaralanma tepkileri
+  posture: Posture = 'stand';
+  private hopUntil = 0;
+  private fallT = 9;
+  private thud = false;
+  private airborne = false;
+  /** 1 -> 0: uzuv koptuktan sonraki şok. */
+  private shock = 0;
+  private shockT = 9;
+  private woundSide = 0;
+  private woundIsLeg = false;
+  private woundBone: THREE.Bone | null = null;
+  private clutch: { arm: Side; parent: THREE.Object3D; local: THREE.Vector3; until: number } | null = null;
+  private ik: Record<Side, { w: number; want: number; target: THREE.Vector3 }> = {
+    L: { w: 0, want: 0, target: new THREE.Vector3() },
+    R: { w: 0, want: 0, target: new THREE.Vector3() },
+  };
+  private breath = 0;
+  private ikDirs: Record<Side, { w: number; upper: THREE.Vector3; fore: THREE.Vector3 }> = {
+    L: { w: 0, upper: new THREE.Vector3(), fore: new THREE.Vector3() },
+    R: { w: 0, upper: new THREE.Vector3(), fore: new THREE.Vector3() },
+  };
   private legLen = { thigh: 0.4, shin: 0.4 };
   private headOffset = 0.2;
 
@@ -219,6 +256,16 @@ export class Character {
     limb('armR', 'armR', 'forearmR'); limb('foreR', 'forearmR');
     limb('legL', 'legL', 'shinL'); limb('shinL', 'shinL');
     limb('legR', 'legR', 'shinR'); limb('shinR', 'shinR');
+
+    this.unit = (cfg.height ?? 2.25) / 2.25;
+    this.hips = this.rig.hips;
+    const armB = this.rig.parts.armL ?? this.rig.parts.armR, foreB = this.rig.parts.forearmL ?? this.rig.parts.forearmR;
+    if (armB && foreB) {
+      const wp = (o: THREE.Object3D) => o.getWorldPosition(new THREE.Vector3());
+      const hand = foreB.children.find((c) => (c as THREE.Bone).isBone);
+      this.armLen.upper = wp(armB).distanceTo(wp(foreB));
+      this.armLen.fore = (hand ? wp(foreB).distanceTo(wp(hand)) : this.armLen.upper) + 0.07 * this.unit;
+    }
 
     for (const m of this.meshes) {
       m.computeBoundingSphere();
@@ -390,10 +437,12 @@ export class Character {
 
     res.damage = Math.min(res.damage, this.hp);
     this.hp -= res.damage;
+    // Tek bacak üstünde sekerken darbe alırsa dengesini hemen kaybeder.
+    if (this.posture === 'hop') this.hopUntil = Math.min(this.hopUntil, this.time + 0.12);
     if (this.hp <= 0) {
       this.dead = true;
       res.killed = true;
-      this.knockVel.addScaledVector(h.dir, 2);
+      this.collapse(h.point, h.dir, w.force);
     }
     return res;
   }
@@ -422,8 +471,10 @@ export class Character {
 
   /**
    * Uzvu koparır. Herhangi bir rig'li mesh ile çalışır:
-   *  1) Kopan kemik alt ağacına ağırlıklı üçgenler o anki pozda pişirilip bağımsız bir parça olur.
-   *  2) Kemik ~0'a ölçeklenir; gövdedeki uzuv ekleme doğru büzülüp kaybolur.
+   *  1) Kopan kemik alt ağacı klonlanır ve o alt ağaca ağırlıklı üçgenler, kendi iskeleti olan
+   *     ayrı bir SkinnedMesh olur. Köşe verisi kopyalanmaz (aynı tamponlar, yeni indeks).
+   *     Parça bir ragdoll'dur: dirsekten / dizden bükülür, yere gevşekçe serilir.
+   *  2) Bedendeki kemik ~0'a ölçeklenir; uzuv ekleme doğru büzülüp kaybolur.
    *  3) Kesik yerine (güdük + kopan parça) kapak eklenir.
    */
   sever(part: PartId, cauterize: boolean): SeverResult | null {
@@ -436,57 +487,6 @@ export class Character {
 
     this.root.updateMatrixWorld(true);
     const joint = bone.getWorldPosition(new THREE.Vector3());
-    const gib = new THREE.Group();
-    const boundary: THREE.Vector3[] = [];
-    const all: THREE.Vector3[] = [];
-
-    for (const mesh of this.meshes) {
-      mesh.skeleton.update();
-      const g = mesh.geometry;
-      const P = g.attributes.position, UV = g.attributes.uv, COL = g.attributes.color;
-      const idx = g.index;
-      const inSub = new Int8Array(P.count).fill(-1);
-      const isIn = (v: number) => {
-        if (inSub[v] < 0) inSub[v] = sub.has(mesh.skeleton.bones[this.dominantBone(mesh, v)]) ? 1 : 0;
-        return inSub[v] === 1;
-      };
-      const baked = new Map<number, THREE.Vector3>();
-      const bake = (v: number) => {
-        let p = baked.get(v);
-        if (!p) {
-          p = mesh.getVertexPosition(v, new THREE.Vector3()).applyMatrix4(mesh.matrixWorld);
-          baked.set(v, p);
-        }
-        return p;
-      };
-
-      const pos: number[] = [], uv: number[] = [], col: number[] = [];
-      const tris = (idx ? idx.count : P.count) / 3;
-      for (let t = 0; t < tris; t++) {
-        const vs = [0, 1, 2].map((k) => (idx ? idx.getX(t * 3 + k) : t * 3 + k));
-        const ins = vs.map(isIn);
-        const n = +ins[0] + +ins[1] + +ins[2];
-        if (n === 0) continue;
-        if (n < 3) vs.forEach((v, k) => ins[k] && boundary.push(bake(v)));
-        if (n < 2) continue;
-        for (const v of vs) {
-          const p = bake(v);
-          pos.push(p.x, p.y, p.z);
-          all.push(p);
-          if (UV) uv.push(UV.getX(v), UV.getY(v));
-          if (COL) col.push(COL.getX(v), COL.getY(v), COL.getZ(v));
-        }
-      }
-      if (!pos.length) continue;
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-      if (UV) geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
-      if (COL) geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-      geo.computeVertexNormals();
-      const piece = new THREE.Mesh(geo, mesh.material);
-      piece.castShadow = true;
-      gib.add(piece);
-    }
 
     // Uzvun ekseni (eklemden dışarı): kesit bu eksene dik bir disk olur.
     const kid = bone.children.find((o) => (o as THREE.Bone).isBone);
@@ -495,6 +495,76 @@ export class Character {
       : joint.clone().sub(parent.getWorldPosition(new THREE.Vector3()));
     if (axis.lengthSq() < 1e-8) axis.set(0, 1, 0);
     axis.normalize();
+
+    // --- Kopan parçanın iskeleti: alt ağacın klonu + alt ağaç dışındaki kemikler için "hayalet"ler.
+    // Hayaletler, kesik kenarındaki köşelerin (kısmen gövde kemiklerine bağlı) biçimini korur.
+    const gib = new THREE.Group();
+    const cloneRoot = bone.clone(true) as THREE.Bone;
+    const cloneOf = new Map<THREE.Object3D, THREE.Object3D>();
+    const pair = (a: THREE.Object3D, b: THREE.Object3D) => {
+      cloneOf.set(a, b);
+      a.children.forEach((c, i) => pair(c, b.children[i]));
+    };
+    pair(bone, cloneRoot);
+    bone.matrixWorld.decompose(cloneRoot.position, cloneRoot.quaternion, cloneRoot.scale);
+    gib.add(cloneRoot);
+    cloneRoot.updateMatrixWorld(true);
+    const rootInv = new THREE.Matrix4().copy(cloneRoot.matrixWorld).invert();
+    // Zincir: kökten uca tek çocuklu yol (el / ayak ucunda biter). Hayaletlerden önce çıkarılır.
+    const chain: THREE.Bone[] = [cloneRoot];
+    for (;;) {
+      const next = chain[chain.length - 1].children.filter((c) => (c as THREE.Bone).isBone && c.scale.x > 0.01);
+      if (next.length !== 1) break;
+      chain.push(next[0] as THREE.Bone);
+    }
+    const ghosts = new Map<THREE.Bone, THREE.Bone>();
+    const ghost = (b: THREE.Bone) => {
+      let g = ghosts.get(b);
+      if (!g) {
+        g = new THREE.Bone();
+        _m.multiplyMatrices(rootInv, b.matrixWorld).decompose(g.position, g.quaternion, g.scale);
+        cloneRoot.add(g);
+        ghosts.set(b, g);
+      }
+      return g;
+    };
+
+    const boundary: THREE.Vector3[] = [];
+    const all: THREE.Vector3[] = [];
+    for (const mesh of this.meshes) {
+      const c = this.skinCache(mesh); // o anki pozdaki dünya konumları (kesit ölçümü için)
+      const at = (v: number) => new THREE.Vector3(c.pos[v * 3], c.pos[v * 3 + 1], c.pos[v * 3 + 2]);
+      const inSub = new Int8Array(c.dom.length).fill(-1);
+      const isIn = (v: number) => {
+        if (inSub[v] < 0) inSub[v] = sub.has(mesh.skeleton.bones[c.dom[v]]) ? 1 : 0;
+        return inSub[v] === 1;
+      };
+      const tris: number[] = [];
+      for (let t = 0; t < c.index.length; t += 3) {
+        const v0 = c.index[t], v1 = c.index[t + 1], v2 = c.index[t + 2];
+        const i0 = isIn(v0), i1 = isIn(v1), i2 = isIn(v2);
+        const n = +i0 + +i1 + +i2;
+        if (n === 0) continue;
+        if (n < 3) {
+          if (i0) boundary.push(at(v0));
+          if (i1) boundary.push(at(v1));
+          if (i2) boundary.push(at(v2));
+        }
+        if (n < 2) continue;
+        tris.push(v0, v1, v2);
+        all.push(at(v0));
+      }
+      if (!tris.length) continue;
+      const geo = new THREE.BufferGeometry();
+      for (const name in mesh.geometry.attributes) geo.setAttribute(name, mesh.geometry.attributes[name]);
+      geo.setIndex(tris);
+      const piece = new THREE.SkinnedMesh(geo, mesh.material);
+      piece.frustumCulled = false;
+      piece.castShadow = true;
+      const bones = mesh.skeleton.bones.map((b) => (cloneOf.get(b) as THREE.Bone | undefined) ?? ghost(b));
+      piece.bind(new THREE.Skeleton(bones, mesh.skeleton.boneInverses.map((m) => m.clone())), mesh.bindMatrix);
+      gib.add(piece);
+    }
 
     // Kesit yarıçapı: sınırdaki köşelerin eksene dik uzaklığı (alt çeyrek: pelerin, omuzluk gibi
     // uzağa yayılan parçalar yarıçapı şişirmesin). Sınır yoksa ekleme en yakın köşeler.
@@ -525,31 +595,26 @@ export class Character {
     };
     // Yassı disk: yerel Z ekseni uzuv eksenine çevrilir.
     const capGeo = new THREE.SphereGeometry(1, 14, 8).scale(1, 1, 0.3);
-    const zAxis = new THREE.Vector3(0, 0, 1);
+    const capQ = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), axis);
+    const cap = (holder: THREE.Object3D, local: THREE.Vector3) => {
+      const m = new THREE.Mesh(capGeo, capMat());
+      m.position.copy(local);
+      m.scale.setScalar(radius / holder.getWorldScale(_v).x);
+      m.quaternion.copy(holder.getWorldQuaternion(new THREE.Quaternion()).invert()).multiply(capQ);
+      holder.add(m);
+    };
+    cap(parent, bone.position); // güdük: ebeveyn kemiğe, kopan kemiğin yerine
 
-    // Güdük kapağı: ebeveyn kemiğe, kopan kemiğin yerine.
-    const stump = new THREE.Mesh(capGeo, capMat());
-    stump.position.copy(bone.position);
-    stump.scale.setScalar(radius / parent.getWorldScale(_v).x);
-    stump.quaternion
-      .copy(parent.getWorldQuaternion(new THREE.Quaternion()).invert())
-      .multiply(new THREE.Quaternion().setFromUnitVectors(zAxis, axis));
-    parent.add(stump);
-
-    let outGib: THREE.Group | null = null;
-    if (gib.children.length) {
-      // Parçayı kendi ağırlık merkezine taşı ki düzgün dönsün.
-      const c = new THREE.Vector3();
-      all.forEach((p) => c.add(p));
-      c.divideScalar(all.length);
-      gib.children.forEach((m) => (m as THREE.Mesh).geometry.translate(-c.x, -c.y, -c.z));
-      const cap = new THREE.Mesh(capGeo, capMat());
-      cap.position.copy(joint).sub(c);
-      cap.scale.setScalar(radius);
-      cap.quaternion.setFromUnitVectors(zAxis, axis);
-      gib.add(cap);
-      gib.position.copy(c);
-      outGib = gib;
+    let ragdoll: Ragdoll | null = null;
+    const hasGib = gib.children.length > 1;
+    if (hasGib) {
+      cap(cloneRoot, new THREE.Vector3());
+      // Tek kemikli parça (kafa): eksen boyunca sanal bir uç verilir ki yuvarlanabilsin.
+      const tips = new Map<THREE.Bone, THREE.Vector3>();
+      const end = chain[chain.length - 1];
+      if (chain.length === 1) tips.set(end, joint.clone().addScaledVector(axis, Math.max(0.22 * this.unit, radius * 2.4)));
+      const r = Math.max(0.05, radius * (part === 'head' ? 1.4 : 0.9));
+      ragdoll = new Ragdoll(cloneRoot, { joints: new Set(chain), tips, radius: () => r });
     }
 
     bone.scale.setScalar(1e-4);
@@ -557,19 +622,113 @@ export class Character {
     st.severed = true;
     const child = PART_CHILDREN[part];
     if (child && this.parts.has(child)) this.parts.get(child)!.severed = true;
-    this.updateLegDrop();
+    this.onSever(part, parent, bone);
 
-    return { part, gib: outGib, joint, radius, stumpParent: parent, stumpLocal: bone.position.clone() };
+    return {
+      part, joint, radius, ragdoll,
+      gib: hasGib ? gib : null,
+      gibRoot: hasGib ? cloneRoot : null,
+      stumpParent: parent,
+      stumpLocal: bone.position.clone(),
+    };
   }
 
-  private updateLegDrop() {
-    const lost = (side: 'L' | 'R') => {
-      if (this.parts.get(`leg${side}`)?.severed) return this.legLen.thigh + this.legLen.shin;
-      if (this.parts.get(`shin${side}`)?.severed) return this.legLen.shin;
-      return 0;
-    };
-    // Gövde, kalan en uzun bacağın (ya da güdüğün) üstünde durur.
-    this.dropTarget = Math.max(0, Math.min(lost('L'), lost('R')) - 0.05);
+  // ---------------------------------------------------------------- duruş ve yaralanma
+
+  private legState(side: Side): 'full' | 'thigh' | 'none' {
+    if (this.parts.get(`leg${side}`)?.severed) return 'none';
+    return this.parts.get(`shin${side}`)?.severed ? 'thigh' : 'full';
+  }
+
+  private armOk(side: Side): boolean {
+    return !this.parts.get(`arm${side}`)?.severed && !this.parts.get(`forearm${side}`)?.severed;
+  }
+
+  /** İki bacak da sağlam değilken bedenin yerdeki duruşu. */
+  private downPosture(): Posture {
+    return this.legState('L') !== 'none' && this.legState('R') !== 'none' ? 'kneel' : 'sit';
+  }
+
+  /** Bir uzuv koptuğunda: şok, yarayı tutma refleksi ve duruşun yeniden hesaplanması. */
+  private onSever(part: PartId, stumpParent: THREE.Object3D, bone: THREE.Bone) {
+    const side: Side = part.endsWith('L') ? 'L' : 'R';
+    const isArm = part.includes('arm');
+    this.shock = 1;
+    this.shockT = 0;
+    this.woundSide = part === 'head' ? 0 : side === 'L' ? 1 : -1;
+    this.woundIsLeg = !isArm && part !== 'head';
+    this.woundBone = (stumpParent as THREE.Bone).isBone ? (stumpParent as THREE.Bone) : null;
+
+    // Sağlam el yaraya gider.
+    const other: Side = side === 'L' ? 'R' : 'L';
+    const hand: Side | null = isArm ? (this.armOk(other) ? other : null) : this.armOk(side) ? side : this.armOk(other) ? other : null;
+    this.clutch = hand && part !== 'head'
+      ? { arm: hand, parent: stumpParent, local: bone.position.clone(), until: this.time + (isArm ? 3.2 : 2.6) }
+      : null;
+
+    if (!isArm && part !== 'head') {
+      const l = this.legState('L'), r = this.legState('R');
+      if (this.posture === 'stand' && (l === 'full' || r === 'full')) {
+        // Tek bacak kaldı: bir süre sekerek dengede durmaya çalışır, sonra yere iner.
+        this.posture = 'hop';
+        this.hopUntil = this.time + 1.3 + Math.random() * 1.1;
+      } else {
+        this.goDown();
+      }
+    }
+  }
+
+  private goDown() {
+    const next = this.downPosture();
+    if (next === this.posture) return;
+    this.posture = next;
+    this.fallT = 0;
+    this.airborne = true;
+  }
+
+  /** Ölüm: beden kendini bırakır. Bundan sonra kemikleri fizik yönetir. */
+  private collapse(point: THREE.Vector3, dir: THREE.Vector3, force: number) {
+    const hips = this.hips;
+    if (!hips) return;
+    this.root.updateMatrixWorld(true);
+    const u = this.unit;
+    const joints = new Set<THREE.Bone>([hips]);
+    const chest = this.rig.spine[this.rig.spine.length - 1];
+    if (chest && chest !== hips) joints.add(chest);
+    const tips = new Map<THREE.Bone, THREE.Vector3>();
+    this.parts.forEach((st, id) => {
+      joints.add(st.bone);
+      // El ve ayak: ön kolun / baldırın ilk kemik çocuğu.
+      if (id.startsWith('forearm') || id.startsWith('shin')) {
+        const end = st.bone.children.find((c) => (c as THREE.Bone).isBone) as THREE.Bone | undefined;
+        if (end) joints.add(end);
+      }
+    });
+    const head = this.parts.get('head');
+    if (head && !head.severed) {
+      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(head.bone.getWorldQuaternion(new THREE.Quaternion()));
+      tips.set(head.bone, head.bone.getWorldPosition(new THREE.Vector3()).addScaledVector(up, this.headOffset * 2));
+    }
+    const severed = new Set(this.severedBones);
+    const big = new Set<THREE.Bone | null>([hips, chest ?? null, head?.bone ?? null]);
+    this.ragdoll = new Ragdoll(hips, {
+      joints,
+      tips,
+      cut: (b) => severed.has(b),
+      radius: (b, isRoot) => (isRoot ? 0.16 : b && big.has(b) ? 0.15 : 0.065) * u,
+      invMass: (b, isRoot) => (isRoot ? 0.3 : b && big.has(b) ? 0.5 : 1),
+    });
+    // Başlangıç hızı: o anki savrulma + ölümcül darbenin itmesi.
+    this.ragdoll.launch(_v.copy(this.knockVel).addScaledVector(dir, 0.6));
+    this.ragdoll.impulse(point, _v3.copy(dir).multiplyScalar(1.5 + force * 0.22), 0.8 * u);
+    this.springs.clear();
+  }
+
+  /** Bu karede beden yere çarptıysa true (bir kez). Ses ve sarsıntı için. */
+  consumeThud(): boolean {
+    const t = this.thud;
+    this.thud = false;
+    return t;
   }
 
   // ---------------------------------------------------------------- kare güncellemesi
@@ -587,7 +746,7 @@ export class Character {
       out.y += this.headOffset;
       return out;
     }
-    return this.root.getWorldPosition(out).setY(this.root.position.y + 1.6);
+    return this.bodyPosition(out).setY(out.y + 0.6 * this.unit);
   }
 
   private touch(b: THREE.Bone) {
@@ -605,8 +764,14 @@ export class Character {
     this.behT = 0;
   }
 
+  /** Ayakta ve iki bacağı üstünde mi (yürüyebilir mi). */
   get canWalk(): boolean {
-    return !(['legL', 'legR', 'shinL', 'shinR'] as PartId[]).some((p) => this.parts.get(p)?.severed);
+    return this.posture === 'stand';
+  }
+
+  /** Bedenin merkezi (kalça): kamera takibi için. Ragdoll'da kök yerinde kalır, kalça hareket eder. */
+  bodyPosition(out: THREE.Vector3): THREE.Vector3 {
+    return this.hips ? this.hips.getWorldPosition(out) : this.root.getWorldPosition(out);
   }
 
   get lostArm(): boolean {
@@ -618,70 +783,93 @@ export class Character {
     this.time += dt;
     const t = this.time;
 
+    // Ölü beden: kemikleri fizik yönetir.
+    if (this.ragdoll) {
+      this.ragdoll.step(dt);
+      this.ragdoll.apply();
+      if (this.ragdoll.impact > 1.6) this.thud = true;
+      for (const b of this.severedBones) b.scale.setScalar(1e-4);
+      this.fadeCauterized(dt);
+      return;
+    }
+
     // Geçen karede eklenen yay/konuşma ofsetlerini geri al.
     for (const [b, q] of this.saved) b.quaternion.copy(q);
     this.saved.length = 0;
     this.savedSet.clear();
 
-    if (this.mixer && !this.dead) this.mixer.update(dt);
+    if (this.mixer) this.mixer.update(dt);
 
-    // Kök: sahnede yürüme + geri savrulma + çökme + nakavt
+    // --- Durum: şok söner, tek bacakta sekme süresi dolunca beden yere iner.
+    this.shock = Math.max(0, this.shock - dt / 3.2);
+    this.shockT += dt;
+    this.fallT += dt;
+    if (this.posture === 'hop' && t > this.hopUntil) this.goDown();
+    const weak = 1 - this.hp / this.maxHp;
+    const stress = Math.max(this.shock, weak * 0.8);
+    this.breath += dt * (1.6 + 2.4 * stress); // korku ve kan kaybı: hızlı, derin nefes
+
+    // --- Oyunculuk hedefi + duruşun, yaranın ve güçsüzlüğün poza etkisi
+    this.behT += dt;
+    resetPose(this.target);
+    this.behavior(this.behT, this.target, {
+      lostArmL: !this.armOk('L'),
+      lostArmR: !this.armOk('R'),
+    });
+    this.ik.L.want = this.ik.R.want = 0;
+    this.compose(this.target, t, weak);
+    blendPose(this.pose, this.target, 1 - Math.exp(-(7 - 3 * weak) * dt));
+
+    // --- Kök: yer değiştirme. Ayaktayken yürür; yerdeyken ancak koluyla sürünebilir.
     this.knockVel.addScaledVector(this.knock, -60 * dt).multiplyScalar(Math.exp(-7 * dt));
     this.knock.addScaledVector(this.knockVel, dt);
-    this.drop += (this.dropTarget - this.drop) * Math.min(1, dt * 10);
-
-    if (!this.dead) {
-      this.behT += dt;
-      resetPose(this.target);
-      this.behavior(this.behT, this.target, {
-        lostArmL: !!(this.parts.get('armL')?.severed || this.parts.get('forearmL')?.severed),
-        lostArmR: !!(this.parts.get('armR')?.severed || this.parts.get('forearmR')?.severed),
-      });
-      if (!this.canWalk) this.target.x = this.target.z = 0;
-      blendPose(this.pose, this.target, 1 - Math.exp(-7 * dt));
-
-      // Hedefe kaymak yok: sınırlı hızla yürür, bacaklar hıza göre adım atar.
-      const to = _v2.set(this.target.x, this.target.z).sub(this.stand);
-      const dist = to.length();
-      const step = Math.min(dist, 0.75 * dt);
-      let speed = 0;
-      if (dist > 1e-4) {
-        this.stand.addScaledVector(to, step / dist);
-        speed = step / Math.max(dt, 1e-4);
-        // İleri mi geri mi yürüyor? (baktığı yöne göre)
-        const fwd = Math.sin(this.pose.yaw) * to.x + Math.cos(this.pose.yaw) * to.y;
-        this.walkPhase += (fwd >= 0 ? 1 : -1) * speed * 5.2 * dt;
-      }
-      this.walkAmp += (Math.min(1, speed / 0.5) - this.walkAmp) * Math.min(1, dt * 8);
+    const grounded = this.posture === 'kneel' || this.posture === 'sit';
+    const maxSpeed = this.posture === 'stand' ? 0.75 : grounded && (this.armOk('L') || this.armOk('R')) ? 0.2 : 0;
+    const to = _v2.set(this.target.x, this.target.z).sub(this.stand);
+    const dist = to.length();
+    const step = Math.min(dist, maxSpeed * dt);
+    let speed = 0;
+    if (dist > 1e-4 && step > 0) {
+      this.stand.addScaledVector(to, step / dist);
+      speed = step / Math.max(dt, 1e-4);
+      // İleri mi geri mi? (baktığı yöne göre)
+      const fwd = Math.sin(this.pose.yaw) * to.x + Math.cos(this.pose.yaw) * to.y;
+      this.walkPhase += (fwd >= 0 ? 1 : -1) * speed * (grounded ? 14 : 5.2) * dt;
     }
+    this.walkAmp += (Math.min(1, speed / (grounded ? 0.15 : 0.5)) - this.walkAmp) * Math.min(1, dt * 8);
 
-    let lift = 0;
-    if (this.dead) {
-      this.deadT += dt;
-      const k = bounceOut(Math.min(this.deadT / 0.9, 1));
-      this.root.rotation.x = -k * Math.PI * 0.5;
-      lift = k * 0.22;
-      this.knock.z -= dt * 0.6 * (1 - k);
+    // --- Kök: yükseklik. Bacağını yitiren beden yere yay gibi değil, ağırlığıyla iner ve hafif seker.
+    const knee = this.legLen.shin * 0.92;
+    const seat = this.legLen.thigh + this.legLen.shin - 0.2 * this.unit;
+    const postureDrop = this.posture === 'sit' ? seat : this.posture === 'kneel' ? knee : 0;
+    const dropTarget = Math.max(postureDrop, this.pose.kneel * knee);
+    this.dropVel += ((dropTarget - this.drop) * 110 - this.dropVel * 13) * dt;
+    this.drop += this.dropVel * dt;
+    if (this.airborne && dropTarget - this.drop < 0.04) {
+      this.airborne = false;
+      this.thud = true; // yere çarptı
+      this.spineJolt(4);
     }
-    const kneelDrop = this.pose.kneel * this.legLen.shin * 0.92;
-    const bob = Math.abs(Math.sin(this.walkPhase)) * 0.03 * this.walkAmp;
-    this.root.position.set(
-      this.stand.x + this.knock.x,
-      lift + bob - Math.max(this.drop, kneelDrop),
-      this.stand.y + this.knock.z,
-    );
+    const hop = this.posture === 'hop' ? Math.abs(Math.sin(t * 7.5)) * 0.07 * this.unit : 0;
+    const bob = Math.abs(Math.sin(this.walkPhase)) * (grounded ? 0.025 : 0.03) * this.walkAmp;
+    this.root.position.set(this.stand.x + this.knock.x, hop + bob - this.drop, this.stand.y + this.knock.z);
     this.root.rotation.y = this.pose.yaw;
 
-    if (!this.dead) this.applyPose(t, lookAt);
+    this.applyPose(t, dt, lookAt);
 
     // Konuşma: kafa sallama
     const head = this.parts.get('head');
-    if (this.talkT > 0 && head && !this.dead) {
+    if (this.talkT > 0 && head && !head.severed) {
       this.talkT -= dt;
       this.touch(head.bone);
       head.bone.quaternion.multiply(
         _q.setFromEuler(_e.set(Math.sin(t * 22) * 0.06, Math.sin(t * 9) * 0.08, Math.sin(t * 13) * 0.05)),
       );
+    }
+
+    // Şoktayken güdük kendi kendine seğirir.
+    if (this.woundBone && this.shock > 0.2 && Math.random() < 9 * dt) {
+      this.spring(this.woundBone).vel.add(_v.randomDirection().multiplyScalar(5 * this.shock));
     }
 
     // Vuruş yayları
@@ -703,19 +891,124 @@ export class Character {
 
     // Animasyon ölçek izleri kopmuş uzvu geri getirmesin.
     for (const b of this.severedBones) b.scale.setScalar(1e-4);
+    this.fadeCauterized(dt);
+  }
 
+  private fadeCauterized(dt: number) {
     for (const c of this.cauterized) {
       c.t += dt;
       c.mat.emissiveIntensity = 0.25 + 2.75 * Math.exp(-c.t * 0.8);
     }
   }
 
-  /** Pozu iskelete uygular: gövde/kafa eğimi + uzuvları hedef yöne çevirme. */
-  private applyPose(t: number, lookAt?: THREE.Vector3) {
+  /** Yere çarpınca gövde öne doğru sarsılır. */
+  private spineJolt(force: number) {
+    const top = this.rig.spine[this.rig.spine.length - 1];
+    if (top) this.spring(top).vel.add(_v.set(force, 0, 0).applyQuaternion(this.root.quaternion));
+  }
+
+  /**
+   * Oyunculuk pozunun üstüne bedenin gerçek durumunu bindirir. Davranış "ne yapmak istediğini"
+   * söyler; burası "bu bedenle ne yapabildiğini" belirler:
+   *  - güçsüzlük: omuzlar düşer, baş öne eğilir
+   *  - şok: önce irkilip başını geri atar, sonra yarasına bakar, yaralı tarafa büzülür, titrer
+   *  - tek bacak: kollarını açıp sekerek denge arar
+   *  - diz üstü / oturur: bacaklar yere göre dizilir, sağlam kol yere dayanır
+   *  - yarayı tutma: sağlam el güdüğe gider (ters kinematik)
+   */
+  private compose(p: Pose, t: number, weak: number) {
+    const okL = this.armOk('L'), okR = this.armOk('R');
+    const floor = (side: number, x: number, z: number) =>
+      _v.set(side * x, 0, z).multiplyScalar(this.unit).applyQuaternion(this.root.quaternion)
+        .add(_v3.set(this.root.position.x, 0.05 * this.unit, this.root.position.z));
+    const reach = (side: Side, target: THREE.Vector3) => {
+      this.ik[side].want = 1;
+      this.ik[side].target.copy(target);
+    };
+
+    p.spine.x += 0.22 * weak * weak;
+    p.head.x += 0.15 * weak * weak;
+
+    if (this.shock > 0) {
+      p.tremble = Math.max(p.tremble, this.shock);
+      p.spine.z -= this.woundSide * 0.18 * this.shock; // yaralı tarafa büzül
+      if (this.shockT < 0.45) {
+        p.look = 0;
+        p.head.x = -0.5;
+        p.spine.x -= 0.2;
+      } else if (this.shockT < 2.3) {
+        p.look = 0;
+        p.head.y = this.woundSide * (this.woundIsLeg ? 0.4 : 0.9);
+        p.head.x = this.woundIsLeg ? 0.7 : 0.45;
+        if (this.woundIsLeg) p.spine.x += 0.3;
+      }
+    }
+
+    if (this.posture === 'hop') {
+      const full: Side = this.legState('L') === 'full' ? 'L' : 'R';
+      const sgn = full === 'L' ? 1 : -1;
+      p.x = this.stand.x;
+      p.z = this.stand.y;
+      p.kneel = 0;
+      // Kollar denge için açılır ve çırpınır.
+      p.armL.set(0.95, 0.15 + 0.25 * Math.sin(t * 9), 0.1 * Math.sin(t * 7));
+      p.foreL.set(0.9, 0.3 * Math.sin(t * 11), 0.3);
+      p.armR.set(-0.95, 0.15 + 0.25 * Math.sin(t * 9 + 2), 0.1 * Math.sin(t * 7 + 1));
+      p.foreR.set(-0.9, 0.3 * Math.sin(t * 11 + 2), 0.3);
+      p.spine.z += 0.2 * Math.sin(t * 5) - sgn * 0.1; // ağırlık sağlam bacağın üstünde
+      p.spine.x += 0.15;
+      p.tremble = Math.max(p.tremble, 0.5);
+      // Kalan bacak dik; kopan tarafın güdüğü havada sallanır.
+      const lost = full === 'L' ? 'R' : 'L';
+      p[`leg${full}`].set(-sgn * 0.08, -1, 0);
+      p[`shin${full}`].set(0, -1, -0.12 - 0.1 * Math.abs(Math.sin(t * 7.5)));
+      p[`leg${lost}`].set(-sgn * 0.15, -0.8, 0.55 * Math.sin(t * 6));
+    } else if (this.posture === 'kneel') {
+      p.kneel = 1;
+      p.legL.set(0.1, -1, 0.15); p.legR.set(-0.1, -1, 0.15);
+      p.shinL.set(0.02, -0.15, -1); p.shinR.set(-0.02, -0.15, -1);
+    } else if (this.posture === 'sit') {
+      p.kneel = 0;
+      // Kalan bacak(lar) yerde öne uzanır.
+      p.legL.set(0.2, -0.12, 1); p.legR.set(-0.2, -0.12, 1);
+      p.shinL.set(0.06, -0.1, 1); p.shinR.set(-0.06, -0.1, 1);
+      // Bir kol yere dayanır; iki kol da varsa sol dayanır, sağ konuşmaya devam eder.
+      const brace: Side | null = okL ? 'L' : okR ? 'R' : null;
+      if (brace) {
+        const sgn = brace === 'L' ? 1 : -1;
+        const drag = 0.22 * Math.sin(this.walkPhase) * this.walkAmp; // sürünürken uzan-çek
+        reach(brace, floor(sgn, 0.44, -0.3 + drag));
+        p.spine.x = p.spine.x * 0.5 - 0.2;
+        p.spine.z -= sgn * 0.08;
+      } else {
+        p.spine.x += 0.45; // dayanacak kol yok: öne yığılır
+        p.spine.z += 0.12 * Math.sin(t * 0.9);
+      }
+    }
+
+    // Yere inerken iki el de düşüşü karşılamak için öne uzanır.
+    if (this.fallT < 0.6 && this.posture !== 'hop' && this.posture !== 'stand') {
+      const k = 1 - this.fallT / 0.6;
+      if (okL) reach('L', floor(1, 0.3, 0.5));
+      if (okR) reach('R', floor(-1, 0.3, 0.5));
+      p.spine.x += 0.55 * k;
+      p.look = Math.min(p.look, 1 - k);
+    }
+
+    // Yarayı tutma: düşüş bittikten sonra sağlam el güdüğe gider.
+    const c = this.clutch;
+    if (c && t < c.until && this.armOk(c.arm) && this.fallT > 0.6 && this.posture !== 'hop') {
+      reach(c.arm, c.parent.localToWorld(_v.copy(c.local)));
+    }
+  }
+
+  /** Pozu iskelete uygular: gövde/kafa eğimi, kol ters kinematiği, uzuvları hedef yöne çevirme. */
+  private applyPose(t: number, dt: number, lookAt?: THREE.Vector3) {
     const p = this.pose;
     const rootQ = this.root.quaternion;
     const rootInv = _rootInv.copy(rootQ).invert();
-    const breath = Math.sin(t * 1.6) * 0.02;
+    const stress = Math.max(this.shock, (1 - this.hp / this.maxHp) * 0.8);
+    const breath = Math.sin(this.breath) * (0.02 + 0.035 * stress);
     const shake = p.tremble * 0.035;
 
     // Eğim: karakter uzayındaki dönüşü dünya üzerinden kemiğe taşı.
@@ -755,16 +1048,49 @@ export class Character {
       );
     }
 
-    // Yürüme: bacak yönlerini adım döngüsüyle karıştır.
-    const w = this.walkAmp * (1 - p.kneel);
+    // Kol ters kinematiği: el belirli bir noktaya (zemin, yara) gidecekse dirseği çöz.
+    for (const side of ['L', 'R'] as const) {
+      const ik = this.ik[side];
+      ik.w += (ik.want - ik.w) * Math.min(1, dt * 9);
+      const arm = this.rig.parts[`arm${side}`];
+      if (ik.w < 0.01 || !arm || !this.armOk(side)) {
+        this.ikDirs[side].w = 0;
+        continue;
+      }
+      const sgn = side === 'L' ? 1 : -1;
+      const shoulder = arm.getWorldPosition(_v3);
+      const toT = _v.copy(ik.target).sub(shoulder);
+      const L1 = this.armLen.upper, L2 = this.armLen.fore;
+      const d = THREE.MathUtils.clamp(toT.length(), Math.abs(L1 - L2) + 1e-3, L1 + L2 - 1e-3);
+      toT.normalize();
+      const along = (L1 * L1 - L2 * L2 + d * d) / (2 * d);
+      const out = Math.sqrt(Math.max(0, L1 * L1 - along * along));
+      // Dirsek dışa-aşağı-arkaya bakar.
+      const pole = _pole.set(sgn * 0.6, -0.55, -0.55).applyQuaternion(rootQ);
+      pole.addScaledVector(toT, -pole.dot(toT)).normalize();
+      const o = this.ikDirs[side];
+      o.upper.copy(toT).multiplyScalar(along).addScaledVector(pole, out); // omuz -> dirsek
+      o.fore.copy(toT).multiplyScalar(d).sub(o.upper); // dirsek -> el
+      o.upper.normalize().applyQuaternion(rootInv);
+      o.fore.normalize().applyQuaternion(rootInv);
+      o.w = ik.w;
+    }
+
+    // Uzuvlar: hedef yöne çevir. Yürürken bacak yönleri adım döngüsüyle karışır.
+    const w = this.posture === 'stand' ? this.walkAmp * (1 - p.kneel) : 0;
     for (const l of this.limbs) {
       if (this.parts.get(l.part)!.severed) continue;
-      const dir = _v.copy(p[l.key]);
-      if (w > 0.01 && (l.key.startsWith('leg') || l.key.startsWith('shin'))) {
+      const dir = _v.copy(p[l.key]).normalize();
+      const leg = l.key.startsWith('leg'), shin = l.key.startsWith('shin');
+      if (w > 0.01 && (leg || shin)) {
         const ph = this.walkPhase + (l.key.endsWith('R') ? Math.PI : 0);
         let a = 0.5 * Math.sin(ph);
-        if (l.key.startsWith('shin')) a -= 0.75 * Math.max(0, Math.sin(ph + 1.9)); // diz kırma
+        if (shin) a -= 0.75 * Math.max(0, Math.sin(ph + 1.9)); // diz kırma
         dir.lerp(_v3.set(dir.x, -Math.cos(a), Math.sin(a)), w);
+      }
+      if (!leg && !shin) {
+        const ik = this.ikDirs[l.key.endsWith('L') ? 'L' : 'R'];
+        if (ik.w > 0) dir.lerp(l.key.startsWith('arm') ? ik.upper : ik.fore, ik.w);
       }
       const P = l.bone.parent!.getWorldQuaternion(_q2);
       const Wrest = _q4.copy(P).multiply(this.rest.get(l.bone)!);
@@ -780,12 +1106,4 @@ export class Character {
     this.root.removeFromParent();
     for (const m of this.meshes) m.geometry.dispose();
   }
-}
-
-function bounceOut(x: number): number {
-  const n = 7.5625, d = 2.75;
-  if (x < 1 / d) return n * x * x;
-  if (x < 2 / d) return n * (x -= 1.5 / d) * x + 0.75;
-  if (x < 2.5 / d) return n * (x -= 2.25 / d) * x + 0.9375;
-  return n * (x -= 2.625 / d) * x + 0.984375;
 }

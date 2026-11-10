@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { Ragdoll } from './character/ragdoll';
 
 const GRAVITY = 9.8;
 
@@ -79,42 +80,28 @@ export class Particles {
 
 interface Gib {
   obj: THREE.Object3D;
-  vel: THREE.Vector3;
-  ang: THREE.Vector3;
-  radius: number;
-  age: number;
+  ragdoll: Ragdoll;
 }
 
-/** Kopan uzuvlar: basit balistik + zemin sekmesi. */
+/** Kopan uzuvlar: her biri kendi ragdoll'uyla düşer, bükülür, yere serilir. */
 export class Gibs {
   private list: Gib[] = [];
+  /** Bu karede bir parça yere sertçe çarptı mı (ses için). */
+  impact = 0;
   constructor(private scene: THREE.Scene) {}
 
-  add(obj: THREE.Object3D, vel: THREE.Vector3, radius: number) {
+  add(obj: THREE.Object3D, ragdoll: Ragdoll) {
     this.scene.add(obj);
-    this.list.push({
-      obj, vel, radius, age: 0,
-      ang: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(14),
-    });
+    this.list.push({ obj, ragdoll });
     if (this.list.length > 14) this.remove(this.list.shift()!);
   }
 
   update(dt: number) {
+    this.impact = 0;
     for (const g of this.list) {
-      g.age += dt;
-      g.vel.y -= GRAVITY * dt;
-      g.obj.position.addScaledVector(g.vel, dt);
-      g.obj.rotateOnWorldAxis(_axis.copy(g.ang).normalize(), g.ang.length() * dt);
-      const floor = g.radius;
-      if (g.obj.position.y < floor) {
-        g.obj.position.y = floor;
-        if (g.vel.y < 0) g.vel.y *= -0.35;
-        const f = Math.exp(-6 * dt);
-        g.vel.x *= f;
-        g.vel.z *= f;
-        g.ang.multiplyScalar(Math.exp(-5 * dt));
-        if (Math.abs(g.vel.y) < 0.4) g.vel.y = 0;
-      }
+      g.ragdoll.step(dt);
+      g.ragdoll.apply();
+      this.impact = Math.max(this.impact, g.ragdoll.impact);
     }
   }
 
@@ -124,11 +111,11 @@ export class Gibs {
   }
 
   private remove(g: Gib) {
+    // Köşe tamponları karakterin mesh'iyle ortak: geometriyi serbest bırakma, yalnızca sahneden çıkar.
     g.obj.removeFromParent();
-    g.obj.traverse((o) => (o as THREE.Mesh).geometry?.dispose());
   }
 }
-const _axis = new THREE.Vector3();
+
 
 /** Karakterin arkasındaki slot makarası: sürekli "az kalsın" durur. */
 export class Reels {

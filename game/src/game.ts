@@ -120,6 +120,7 @@ export class Game {
   private shotTimer = 8;
   private pendingShot: { at: number; shot: Shot | null } | null = null;
   private severs = 0;
+  private thudAt = 0;
   private endAt = 0;
 
   constructor(private canvas: HTMLCanvasElement, trailCanvas: HTMLCanvasElement, private ui: UI, private audio: Audio) {
@@ -436,22 +437,26 @@ export class Game {
       this.shake = 0.16;
       this.film.flash = 0.22;
       this.slow(0.13, 1.15); // kopuş ağır çekimde izlenir
-      if (sev.gib) {
-        const vel = dir.clone().multiplyScalar(2.6);
-        vel.y += 3.6;
+      if (sev.gib && sev.ragdoll && sev.gibRoot) {
+        // Parça darbenin yönünde fırlar ve havada döner; gerisini fizik halleder.
+        const vel = dir.clone().multiplyScalar(2.4);
+        vel.y += 3.4;
         vel.x += (Math.random() - 0.5) * 1.5;
-        this.gibs.add(sev.gib, vel, Math.max(0.06, sev.radius));
+        sev.ragdoll.launch(vel, new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(11));
+        this.gibs.add(sev.gib, sev.ragdoll);
+        // Kopan uzuv da kanar: kesik ucundan iz bırakır.
+        if (!w.cauterize) this.drips.push({ parent: sev.gibRoot, local: new THREE.Vector3(), until: this.now + 2.2 });
         // Kamera kopan parçaya keser ve onu havada izler.
         if (this.severs === 1 || sev.part === 'head' || Math.random() < 0.5) {
           this.onUp(); // kesme anında kılıç darbesi biter
-          this.director.cut('impact', sev.gib);
+          this.director.cut('impact', sev.gibRoot);
           this.pendingShot = { at: this.now + 1.3, shot: null };
         }
       }
       if (w.cauterize) this.particles.emit(sev.joint, dir, 26, 0xffa030, 3.5, 0.9);
       else {
         this.particles.emit(sev.joint, dir, 45, blood, 4, 0.9);
-        this.drips.push({ parent: sev.stumpParent, local: sev.stumpLocal, until: this.now + 5 });
+        this.drips.push({ parent: sev.stumpParent, local: sev.stumpLocal, until: this.now + 7 });
       }
       this.pressure += SEVER_PRESSURE;
       if (!res.killed) {
@@ -591,18 +596,31 @@ export class Game {
         _a.set((Math.random() - 0.5) * 3, 5.5, (Math.random() - 0.5) * 2).add(ch.root.position);
         this.particles.emit(_a, _b.set(0, -0.4, 0), 2, 0xffd23f, 1.2, 0.5);
       }
-      this.director.update(real, ch.root.position, ch.headPosition(_a));
+      // Beden ya da kopan bir parça yere çarptı: boğuk bir ses, hafif sarsıntı.
+      if (ch.consumeThud()) {
+        this.audio.thud(true);
+        this.shake = Math.max(this.shake, 0.09);
+      }
+      this.director.update(real, ch.bodyPosition(_b), ch.headPosition(_a));
     }
 
+    // Kan nabızla atar: her kalp atışında fışkırır, zamanla zayıflar.
     this.drips = this.drips.filter((d) => d.until > this.now);
+    const beat = Math.pow(Math.max(0, Math.sin(this.now * 11)), 6);
     for (const d of this.drips) {
-      if (Math.random() < 0.7 * this.timeScale + 0.1) {
-        this.particles.emit(d.parent.localToWorld(_a.copy(d.local)), _b.set(0, -0.3, 0), 1, ch?.def.bloodColor ?? 0xc8102e, 1.2, 0.5);
+      const left = Math.min(1, (d.until - this.now) / 4);
+      if (Math.random() < (0.15 + 0.85 * beat) * left * (0.25 + 0.75 * this.timeScale)) {
+        const pos = d.parent.localToWorld(_a.copy(d.local));
+        this.particles.emit(pos, _b.set(0, 0.2 * beat, 0), beat > 0.5 ? 2 : 1, ch?.def.bloodColor ?? 0xc8102e, 0.8 + 1.6 * beat * left, 0.5);
       }
     }
 
     this.particles.update(dt);
     this.gibs.update(dt);
+    if (this.gibs.impact > 2.2 && this.now > this.thudAt) {
+      this.thudAt = this.now + 0.12;
+      this.audio.thud();
+    }
     this.reels.update(dt);
     this.dust.rotation.y += real * 0.03;
     // Arkadaki ekran eski bir televizyon gibi titrer.
