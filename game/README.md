@@ -56,7 +56,8 @@ olması (Mixamo / Unreal / Blender tarzı adlandırmalar otomatik tanınır).
 | Dosya | İş |
 | --- | --- |
 | `src/characters.ts` | Maskot listesi: replikler, can, max win, tema, model ayarı |
-| `src/weapons.ts` | Silah tanımları + birinci şahıs silah modelleri |
+| `src/weapons.ts` | Silah tanımları |
+| `src/viewmodel.ts` | Oyuncunun elleri ve elindeki silah (birinci şahıs) |
 | `src/character/rig.ts` | Kemik adlarından vücut parçalarını bulur |
 | `src/character/character.ts` | Model yükleme, isabet → parça, yaylı vuruş tepkisi, **uzuv koparma** |
 | `src/character/acting.ts` | Oyunculuk: davranışlar (pozlar uzuv *yönü* olarak tarif edilir, her rig'de aynı görünür) |
@@ -82,7 +83,7 @@ Kopan parça kendi iskeletiyle ayrı bir ragdoll'dur; ölüm de aynı fizikle bi
 
 **Yeni silah**: `WEAPONS` listesine satır ekle. Davranış `kind` ile gelir —
 `blunt` (tıkla-vur), `slash` (sürükle-kes), `shot` (tıkla-ateş). `sever > 0` ise uzuv koparır,
-`cauterize` kan yerine dağlama yapar. Görseli `buildViewModel` içine eklenir.
+`cauterize` kan yerine dağlama yapar. Görseli `src/viewmodel.ts` içine eklenir.
 
 **Yeni maskot**: `CHARACTERS` listesine kayıt ekle (+ isteğe bağlı GLB).
 

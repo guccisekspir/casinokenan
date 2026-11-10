@@ -8,7 +8,8 @@ import { Director, type Shot } from './director';
 import { Film } from './film';
 import { Gibs, Particles, Reels } from './fx';
 import type { UI } from './ui';
-import { buildViewModel, WEAPONS, type WeaponDef } from './weapons';
+import { ViewModel } from './viewmodel';
+import { WEAPONS, type WeaponDef } from './weapons';
 
 /**
  * Oyunun kuralı: karakteri ÖLDÜRMEDEN max win'i koparmak.
@@ -101,9 +102,7 @@ export class Game {
   private dust: THREE.Points;
   private drips: Drip[] = [];
 
-  private vm: THREE.Group | null = null;
-  private strikeT = 1;
-  private strikeTarget = new THREE.Vector3(0, 1.2, 0);
+  private view = new ViewModel(this.camera);
   private lastAttack = 0;
 
   private ndc = new THREE.Vector2(0, 0);
@@ -311,11 +310,7 @@ export class Game {
   }
 
   private setWeaponModel() {
-    this.vm?.removeFromParent();
-    this.vm = buildViewModel(this.weapon);
-    this.vm.scale.setScalar(0.62);
-    this.vm.visible = false;
-    this.camera.add(this.vm);
+    this.view.setWeapon(this.weapon);
   }
 
   /** Bir "vuruş": karakter yeni bir davranışa geçer ve oyuncuyu kışkırtır. */
@@ -447,8 +442,7 @@ export class Game {
     const hit = ch.raycast(ray);
 
     if (!drag) {
-      this.strikeT = 0;
-      this.strikeTarget.copy(hit ? hit.point : ray.at(4, _a));
+      this.view.strike(hit ? hit.point : ray.at(4, _a));
       if (w.kind === 'shot') this.audio.shot();
       else if (w.cauterize) this.audio.saber();
       else this.audio.swing();
@@ -471,7 +465,7 @@ export class Game {
       const key = part ?? 'torso';
       if (this.stroke.has(key)) return;
       this.stroke.add(key);
-      if (drag) this.strikeT = 0;
+      if (drag) this.view.strike(hit.point);
     }
 
     const dir = ray.direction.clone();
@@ -722,49 +716,16 @@ export class Game {
     this.camera.position.y += (Math.random() - 0.5) * this.shake;
     this.camera.updateMatrixWorld();
 
-    this.updateViewModel(real);
+    this.raycaster.setFromCamera(this.ndc, this.camera);
+    this.view.update(real, {
+      pov: this.director.shot === 'player',
+      ray: this.raycaster.ray,
+      holding: this.weapon.kind === 'slash' && this.down,
+      bob: this.director.playerBob,
+    });
     this.drawTrail();
     this.film.render(real);
   };
-
-  /** Oyuncunun eli kadrajda durmaz: yalnızca vururken kadrajın dışından girer. */
-  private updateViewModel(dt: number) {
-    const vm = this.vm;
-    if (!vm) return;
-    this.strikeT = Math.min(1, this.strikeT + dt / 0.26);
-    const k = this.strikeT < 1 ? Math.sin(Math.PI * Math.pow(this.strikeT, 0.55)) : 0;
-    const cam = this.camera;
-    const kind = this.weapon.kind;
-    const holding = kind === 'slash' && this.down;
-    vm.visible = this.strikeT < 1 || holding;
-    if (!vm.visible) return;
-
-    this.raycaster.setFromCamera(this.ndc, cam);
-    const ray = this.raycaster.ray;
-    const aim = ray.at(3.2, new THREE.Vector3());
-    const rest = _b.set(cam.aspect < 0.8 ? 0.18 : 0.38, -0.78, -0.9);
-    let look = aim;
-
-    if (kind === 'blunt') {
-      const t = cam.worldToLocal(_c.copy(this.strikeTarget)).multiplyScalar(0.84);
-      vm.position.copy(rest).lerp(t, k);
-      look = this.strikeTarget;
-    } else if (kind === 'slash') {
-      const hold = cam.worldToLocal(ray.at(1.5, _c));
-      hold.y -= 0.42;
-      hold.x += 0.08;
-      rest.lerp(hold, holding ? 1 : k);
-      vm.position.lerp(rest, 1 - Math.exp(-28 * dt));
-    } else {
-      vm.position.set(rest.x, -0.4 - 0.38 * (1 - Math.min(1, k * 3)), rest.z + 0.14 * k);
-    }
-
-    vm.lookAt(look);
-    if (kind === 'slash') vm.rotateX(-1.25 + 1.0 * k);
-    if (kind === 'shot') vm.rotateX(-0.45 * k);
-    const flash = vm.getObjectByName('flash');
-    if (flash) flash.visible = this.strikeT < 0.3;
-  }
 
   private drawTrail() {
     const c = this.trailCtx;
