@@ -31,6 +31,8 @@ const WALK_SPEED = 2.4;
 /** Oyuncu bu kadar süre hareketsiz ve saldırısız kalırsa kamera yeniden yönetmene geçer (sn). */
 const IDLE_TO_CINEMA = 9;
 const SEVER_PRESSURE = 14;
+/** Set çekildiğinde baskının düştüğü değer. */
+const BLOCK_PRESSURE = 58;
 const DECAY_DELAY = 2.5; // son vuruştan sonra baskının düşmeye başlaması (sn)
 const DECAY_RATE = 1.6; // baskı / sn
 type Outcome = 'maxwin' | 'cashout' | 'death';
@@ -127,6 +129,8 @@ export class Game {
   private pendingShot: { at: number; shot: Shot | null } | null = null;
   private severs = 0;
   private farHintAt = 0;
+  /** Set çeken maskotun kalan set sayısı. */
+  private blocksLeft = 0;
   private ptrX = 0;
   private ptrY = 0;
   /** Testere şu an ete değiyor mu (ses, titreşim ve el modeli için). */
@@ -243,6 +247,7 @@ export class Game {
     this.outcome = null;
     this.pressure = 0;
     this.offer = 0;
+    this.blocksLeft = def.tease?.blocks ?? 0;
     this.showOffer();
 
     this.dialogue?.stop();
@@ -276,7 +281,9 @@ export class Game {
   }
 
   private showOffer() {
-    this.reels.setOffer(`${LADDER[this.offer]}x`);
+    // Set çeken maskot: ekranda hep MAX yazar, önünde kalan setler kadar parmaklık durur.
+    if (this.character?.def.tease) this.reels.setOffer('MAX', this.blocksLeft + (this.outcome === 'maxwin' ? 0 : 1));
+    else this.reels.setOffer(`${LADDER[this.offer]}x`);
     this.ui.setOffer(LADDER[this.offer], REWARD[this.offer]);
   }
 
@@ -569,7 +576,21 @@ export class Game {
   /** Baskıya göre çarpan basamağını, perdeyi ve max win'i günceller. */
   private updateOffer(ch: Character) {
     this.pressure = Math.max(0, this.pressure);
-    if (this.pressure >= PRESSURE_MAX) return this.finish(ch, 'maxwin');
+    if (this.pressure >= PRESSURE_MAX) {
+      if (this.blocksLeft <= 0) return this.finish(ch, 'maxwin');
+      // Tam alacakken set çeker: baskı geri düşer, ekrandaki MAX'ın önüne bir parmaklık daha iner.
+      this.blocksLeft--;
+      this.pressure = BLOCK_PRESSURE;
+      this.onUp();
+      this.speak('block', true);
+      ch.act('scold');
+      this.audio.clang();
+      this.film.flash = 0.25;
+      this.shake = 0.14;
+      this.blockUntil = this.now + 0.9;
+      this.ui.toast(this.blocksLeft > 0 ? 'set çekti — max kapandı' : 'son seti çekti — demiri bitti');
+      this.showOffer();
+    }
 
     const idx = Math.min(LADDER.length - 1, Math.floor((this.pressure / PRESSURE_MAX) * LADDER.length));
     if (idx > this.offer) {
@@ -599,6 +620,7 @@ export class Game {
   private finish(ch: Character, outcome: Outcome) {
     this.state = 'ended';
     this.outcome = outcome;
+    this.showOffer(); // max win'de parmaklık kalkar
     this.ui.hideOffer();
     this.onUp();
     this.speak(outcome, true);

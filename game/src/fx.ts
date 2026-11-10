@@ -127,6 +127,7 @@ export class Reels {
   private symbols: string[] = ['7'];
   private theme = { bg: '#222', accent: '#fc0' };
   private offer = '';
+  private bars = 0;
 
   constructor() {
     this.canvas.width = 1024;
@@ -147,9 +148,11 @@ export class Reels {
   }
 
   /** Karakterin şu an "verdiği" çarpan: ekranın ortasında kocaman yazar. */
-  setOffer(text: string) {
-    if (text === this.offer) return;
+  /** @param bars metnin önüne çekilen parmaklık sayısı (0 = açık). */
+  setOffer(text: string, bars = 0) {
+    if (text === this.offer && bars === this.bars) return;
     this.offer = text;
+    this.bars = bars;
     if (this.spinT <= 0) this.draw(true);
   }
 
@@ -197,6 +200,17 @@ export class Reels {
         c.fillRect(cx - W * 0.19, H * 0.36, W * 0.38, H * 0.28);
         c.fillStyle = '#ffcf33';
         c.fillText(this.offer, cx, H / 2 + 6, W * 0.34);
+        if (this.bars > 0) {
+          // Parmaklık: her set bir kat daha sık demir ve bir kilit.
+          c.fillStyle = '#8a8f99';
+          const n = 4 + this.bars * 3;
+          for (let i = 0; i <= n; i++) c.fillRect(cx - W * 0.19 + (W * 0.38 * i) / n - 5, H * 0.36, 10, H * 0.28);
+          c.fillRect(cx - W * 0.19, H * 0.36, W * 0.38, 12);
+          c.fillRect(cx - W * 0.19, H * 0.64 - 12, W * 0.38, 12);
+          c.font = `${Math.floor(H * 0.09)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+          for (let i = 0; i < this.bars; i++) c.fillText('🔒', cx + (i - (this.bars - 1) / 2) * W * 0.07, H * 0.6);
+          c.font = `${Math.floor(H * 0.2)}px Georgia, 'Times New Roman', serif`;
+        }
       }
     }
     this.tex.needsUpdate = true;

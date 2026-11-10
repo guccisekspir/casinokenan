@@ -9,6 +9,10 @@ gövde orta, uzuvlar az. Canı biterse ölür ve ölü maskot ödeme yapmaz — 
 toparlanır, çarpan geri düşer. Aynı yere üst üste vurmak gittikçe daha az işe yarar. İstediğin an
 o anki çarpanı alıp çıkabilirsin. Ayarlar `src/game.ts` başındaki sabitlerde.
 
+**Set çeken maskot (Demirci):** max win baştan beri ekranda yazar ama parmaklık arkasındadır.
+Oyuncu tam alacakken iki kez set çeker (baskı geri düşer, bir parmaklık daha iner); ancak üçüncü
+seferde verir. `characters.ts` içinde `tease: { blocks: n }` ile her maskota verilebilir.
+
 **Yürüme:** WASD / ok tuşları (dokunmatik ekranda sol alttaki çubuk). Oyuncu sahnede dolaşır,
 bakışı maskota kilitlidir; yumruk ve kılıç ancak yakından isabet eder. Bir süre durursan kamera
 yeniden yönetmene geçer, ilk tuşta sana döner.

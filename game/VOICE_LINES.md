@@ -1,6 +1,6 @@
 # Ses dosyaları
 
-Toplam **196** replik, kaydı olan: **0**.
+Toplam **298** replik, kaydı olan: **0**.
 
 Bu dosya `npm run voice-list` ile üretilir; elle düzenlemeyin. Replikleri değiştirmek için
 `src/lines/<karakter>.json` dosyalarını düzenleyip komutu yeniden çalıştırın.
@@ -286,6 +286,294 @@ Pes etti, max win veriyor.
 | `death_1.mp3` | Asansör... hep... iner... | — |
 | `death_2.mp3` | Ölü... asansörcü... ödemez... | — |
 | `death_3.mp3` | Kapılar... kapanıyor... | — |
+
+## Demirci — 102 replik
+
+Klasör: `public/audio/demirci/`
+
+### intro
+
+Sahne açılışı. Övünür ve ilk çarpanı (2x) gösterir.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `intro_1.mp3` | Hoş geldin yolcu! Max win'i senin için dövdüm. Bak, ekranda duruyor. Uzan, al. | — |
+| `intro_2.mp3` | Gel gel! Max hazır, sıcak sıcak. Aramızda yalnızca ufacık bir parmaklık var. | — |
+| `intro_3.mp3` | Bugün şanslı günün. Max'ı vitrine koydum. Bakmak serbest. | — |
+| `intro_4.mp3` | Yine mi sen? Max hâlâ burada, seni bekliyor. Ben de bekliyorum. | — |
+
+### idle_1
+
+I. perde (Kibir): oyuncu beklerken kışkırtma.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_1_1.mp3` | Max orada duruyor. Neden almıyorsun? Ha, parmaklık. | — |
+| `idle_1_2.mp3` | Bir vuruş daha, max senin. Geçen sefer de öyle demiştim. | — |
+| `idle_1_3.mp3` | Bak ne güzel parlıyor. Dokunmak yasak. | — |
+| `idle_1_4.mp3` | Ben vereceğim diyorum, sen inanmıyorsun. Haklısın. | — |
+| `idle_1_5.mp3` | Max'ı ben dövdüm, kilidini de ben dövdüm. İyi iş çıkardım. | — |
+| `idle_1_6.mp3` | Yaklaş, yaklaş. Biraz daha. Tamam, yeter, dur orada. | — |
+| `idle_1_7.mp3` | Dün biri aldı max'ı. Rüyasında. | — |
+
+### idle_2
+
+II. perde (Öfke): azar, inkâr.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_2_1.mp3` | Vurdukça vereceğimi mi sandın? Vurdukça kilit takıyorum! | — |
+| `idle_2_2.mp3` | Demirciye el kalkmaz! Örsüm var benim! | — |
+| `idle_2_3.mp3` | Max senin diyorum! Yalnızca şu kapıyı açamıyorum! | — |
+| `idle_2_4.mp3` | Sabırsız yolcu ocakta yanar. | — |
+| `idle_2_5.mp3` | Anahtarı kaybettim. Yemin ederim. Sanırım. | — |
+| `idle_2_6.mp3` | Ben söz verdim, tarih vermedim! | — |
+
+### idle_3
+
+III. perde (Yakarış): yalvarma, pazarlık.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `idle_3_1.mp3` | Dur! Bu sefer gerçekten açıyorum! Gerçekten! | — |
+| `idle_3_2.mp3` | Kilit kalmadı... neredeyse kalmadı... | — |
+| `idle_3_3.mp3` | Zanaatım yalan söylemekti, çekiç bahaneydi. | — |
+| `idle_3_4.mp3` | Tamam, tamam! Anahtar sakalımın içinde! | — |
+| `idle_3_5.mp3` | Vurma, açıyorum! Elim titriyor, sokamıyorum anahtarı! | — |
+| `idle_3_6.mp3` | Bir set daha çekemem... demirim bitti. | — |
+
+### hit_head
+
+Kafasına vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_head_1.mp3` | Miğferim! Onu üç gecede dövdüm! | — |
+| `hit_head_2.mp3` | Boynuzuma vurma, eğrilir! | — |
+| `hit_head_3.mp3` | Kafam örs gibidir, elin acır. | — |
+| `hit_head_4.mp3` | Çınladı! Güzel ses, değil mi? | — |
+
+### hit_body
+
+Gövdesine vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_body_1.mp3` | Zırh bu yolcu, zırh. Daha sert. | — |
+| `hit_body_2.mp3` | Kendi dövdüğüm çeliğe mi vuruyorsun? | — |
+| `hit_body_3.mp3` | Körük kadar bile etmedi. | — |
+| `hit_body_4.mp3` | Pelerinimi buruşturma. | — |
+
+### hit_arm
+
+Koluna / eline vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_arm_1.mp3` | Çekiç kolum o! | — |
+| `hit_arm_2.mp3` | Bilekliğime çentik attın! | — |
+| `hit_arm_3.mp3` | O elle kilit takıyorum, bırak! | — |
+| `hit_arm_4.mp3` | Yavaş! Demirci kolsuz olmaz. | — |
+
+### hit_leg
+
+Bacağına / ayağına vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `hit_leg_1.mp3` | Çizmelerim demir burunlu! | — |
+| `hit_leg_2.mp3` | Dizim! Zaten kısa boyluyum! | — |
+| `hit_leg_3.mp3` | Bacağıma vurma, ocağın başında dikiliyorum! | — |
+| `hit_leg_4.mp3` | Devrilirsem max'ın üstüne düşerim, ezilir. | — |
+
+### miss
+
+Oyuncu ıskaladı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `miss_1.mp3` | Iskaladın. Max'ı da ıskalıyorsun. | — |
+| `miss_2.mp3` | Boşa salladın. Parmaklığa bile değmedi. | — |
+| `miss_3.mp3` | Havayı dövüyorsun. O benim işim. | — |
+| `miss_4.mp3` | Yaklaştın. Yaklaşmak serbest. | — |
+
+### weapon_knuckles
+
+Oyuncu muştayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_knuckles_1.mp3` | Muşta mı? Kötü döküm. Ben olsam geri verirdim. | — |
+| `weapon_knuckles_2.mp3` | O demiri kim dövdü? Ayıp. | — |
+| `weapon_knuckles_3.mp3` | Demirle demirciye mi geliyorsun? | — |
+
+### weapon_katana
+
+Oyuncu katanayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_katana_1.mp3` | Güzel çelik. Parmaklığı kesmez ama. | — |
+| `weapon_katana_2.mp3` | O kılıcı bana bırak, bileyip geri... vermem. | — |
+| `weapon_katana_3.mp3` | Suyu iyi verilmiş. Bana doğrultma. | — |
+
+### weapon_gun
+
+Oyuncu tabancayı eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_gun_1.mp3` | O ne? Çekiçsiz dövülmüş bir şey. Güvenmem. | — |
+| `weapon_gun_2.mp3` | İndir onu! Ölü demirci kilit açamaz! | — |
+| `weapon_gun_3.mp3` | Ateşi ben yakarım burada! | — |
+
+### weapon_saber
+
+Oyuncu ışın kılıcını eline aldı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_saber_1.mp3` | Bu ışığı hangi ocak verdi? Kıskandım. | — |
+| `weapon_saber_2.mp3` | Onunla parmaklığı kesme sakın. Sakın! | — |
+| `weapon_saber_3.mp3` | Tamam, sakin. O şey demir eritir mi? | — |
+
+### weapon_saw
+
+Oyuncu testereyi çalıştırdı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `weapon_saw_1.mp3` | Testere mi? Demir keser mi o? Kesmesin! | — |
+| `weapon_saw_2.mp3` | Kapat şunu, körüğümün sesini bastırıyor! | — |
+| `weapon_saw_3.mp3` | O dişleri ben bilerdim, daha iyi olurdu. | — |
+
+### sever_arm
+
+Kolu / ön kolu koptu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `sever_arm_1.mp3` | Kolum! Çekici kim tutacak? | — |
+| `sever_arm_2.mp3` | Tek kolla kilit takılır mı? Deneyeceğim. | — |
+| `sever_arm_3.mp3` | O kol ustalık belgemdi! | — |
+| `sever_arm_4.mp3` | Bunu loncaya bildireceğim! | — |
+
+### sever_leg
+
+Bacağı / baldırı koptu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `sever_leg_1.mp3` | Bacağım! Daha da kısaldım! | — |
+| `sever_leg_2.mp3` | Çizme tekti artık, yazık. | — |
+| `sever_leg_3.mp3` | Ocağın başına nasıl dikileceğim? | — |
+| `sever_leg_4.mp3` | Bu anlaşmada yoktu yolcu! | — |
+
+### offer_small
+
+Çarpan yükseldi (5x – 25x): hâlâ alaycı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_small_1.mp3` | Al biraz x. Asıl ödül arkada, görüyorsun. | — |
+| `offer_small_2.mp3` | Yükseldi. Max'a bir adım... bir adım daha... bir adım daha. | — |
+| `offer_small_3.mp3` | Bu kırıntı. Somun orada, parmaklığın ardında. | — |
+| `offer_small_4.mp3` | Çarpan arttı. Max hâlâ yerinde, merak etme. | — |
+
+### offer_mid
+
+Çarpan yükseldi (50x – 250x): gönülsüz.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_mid_1.mp3` | İyi gidiyorsun. Max neredeyse senin. Neredeyse. | — |
+| `offer_mid_2.mp3` | Bu kadarını veririm. Ötesi için kilit var. | — |
+| `offer_mid_3.mp3` | Bak yaklaştın. Yeni bir kilit dövsem mi? | — |
+| `offer_mid_4.mp3` | Güzel çarpan. Al, git. Max'a bakma. | — |
+
+### offer_big
+
+Çarpan yükseldi (500x ve üstü): çaresiz.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `offer_big_1.mp3` | Dur! Parmaklığa dayandın! | — |
+| `offer_big_2.mp3` | Bu kadar yaklaşan olmamıştı! | — |
+| `offer_big_3.mp3` | Demirim bitiyor, kilit dövemiyorum! | — |
+| `offer_big_4.mp3` | Daha ne istiyorsun? Max mı? Orada işte, baksana! | — |
+
+### recover
+
+Oyuncu durdu, çarpan geri düştü: yine kibirlenir.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `recover_1.mp3` | Durdun. Max yine uzaklaştı, gördün mü? | — |
+| `recover_2.mp3` | Bıraktın ya, kilitleri sıkıyorum. | — |
+| `recover_3.mp3` | Geçti. Cüceler sağlam dökülür. | — |
+| `recover_4.mp3` | Durursan soğur. Demir de, şans da. | — |
+
+### near_death
+
+Canı çok azaldı: "ölürsem ödeme yok" uyarısı.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `near_death_1.mp3` | Dur! Ölürsem kilit açılmaz! | — |
+| `near_death_2.mp3` | Ölü demirci anahtar dövemez! | — |
+| `near_death_3.mp3` | Yavaş! Anahtar bende, ölürsem max içeride kalır! | — |
+| `near_death_4.mp3` | Bir vuruş daha ve max ebediyen kilitli. | — |
+
+### aloof_hit
+
+Oyuncuyu umursamazken (sırtı dönük, volta) vuruldu.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `aloof_hit_1.mp3` | Arkamdan mı? Örsün başındaydım! | — |
+| `aloof_hit_2.mp3` | Seni görmüyordum. Şimdi görüyorum, beğenmedim. | — |
+| `aloof_hit_3.mp3` | Hop! Kilide bakıyordum! | — |
+
+### block
+
+Yalnızca set çeken maskot: oyuncu tam max alacakken önüne yeni bir parmaklık çeker.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `block_1.mp3` | Hop! Bir parmaklık daha. Az kalmıştı, değil mi? | — |
+| `block_2.mp3` | Dur bakalım! Tam alıyordun... set çektim. | — |
+| `block_3.mp3` | Olmaz! Max orada kalacak. Yeni kilit, taze döküm! | — |
+| `block_4.mp3` | Tık! Kapandı. Baştan alalım mı? | — |
+
+### cashout
+
+Oyuncu teklifi alıp çıktı: alay eder.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `cashout_1.mp3` | Aldın mı? Korkak. Max bir parmaklık ötendeydi. | — |
+| `cashout_2.mp3` | Akıllı yolcu. Max yine bana kaldı. | — |
+| `cashout_3.mp3` | Güle güle. Yarın yine vitrine bakarsın. | — |
+
+### maxwin
+
+Pes etti, max win veriyor.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `maxwin_1.mp3` | Tamam! Kilit kalmadı! Al, max senin! | — |
+| `maxwin_2.mp3` | Pes! Kapı açık! Ocak da senin olsun! | — |
+| `maxwin_3.mp3` | Al, git, bir daha yol üstüme çıkma! | — |
+
+### death
+
+Öldü (oyuncu kaybetti): son sözleri.
+
+| Dosya | Replik | Kayıt |
+| --- | --- | --- |
+| `death_1.mp3` | Max... içeride... kaldı... | — |
+| `death_2.mp3` | Ölü... demirci... açamaz... | — |
+| `death_3.mp3` | Kilit... sağlamdı... | — |
 
 ## Şimşek Dede — 98 replik
 

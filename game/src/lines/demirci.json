@@ -1,0 +1,156 @@
+{
+  "intro": [
+    "Hoş geldin yolcu! Max win'i senin için dövdüm. Bak, ekranda duruyor. Uzan, al.",
+    "Gel gel! Max hazır, sıcak sıcak. Aramızda yalnızca ufacık bir parmaklık var.",
+    "Bugün şanslı günün. Max'ı vitrine koydum. Bakmak serbest.",
+    "Yine mi sen? Max hâlâ burada, seni bekliyor. Ben de bekliyorum."
+  ],
+  "idle_1": [
+    "Max orada duruyor. Neden almıyorsun? Ha, parmaklık.",
+    "Bir vuruş daha, max senin. Geçen sefer de öyle demiştim.",
+    "Bak ne güzel parlıyor. Dokunmak yasak.",
+    "Ben vereceğim diyorum, sen inanmıyorsun. Haklısın.",
+    "Max'ı ben dövdüm, kilidini de ben dövdüm. İyi iş çıkardım.",
+    "Yaklaş, yaklaş. Biraz daha. Tamam, yeter, dur orada.",
+    "Dün biri aldı max'ı. Rüyasında."
+  ],
+  "idle_2": [
+    "Vurdukça vereceğimi mi sandın? Vurdukça kilit takıyorum!",
+    "Demirciye el kalkmaz! Örsüm var benim!",
+    "Max senin diyorum! Yalnızca şu kapıyı açamıyorum!",
+    "Sabırsız yolcu ocakta yanar.",
+    "Anahtarı kaybettim. Yemin ederim. Sanırım.",
+    "Ben söz verdim, tarih vermedim!"
+  ],
+  "idle_3": [
+    "Dur! Bu sefer gerçekten açıyorum! Gerçekten!",
+    "Kilit kalmadı... neredeyse kalmadı...",
+    "Zanaatım yalan söylemekti, çekiç bahaneydi.",
+    "Tamam, tamam! Anahtar sakalımın içinde!",
+    "Vurma, açıyorum! Elim titriyor, sokamıyorum anahtarı!",
+    "Bir set daha çekemem... demirim bitti."
+  ],
+  "block": [
+    "Hop! Bir parmaklık daha. Az kalmıştı, değil mi?",
+    "Dur bakalım! Tam alıyordun... set çektim.",
+    "Olmaz! Max orada kalacak. Yeni kilit, taze döküm!",
+    "Tık! Kapandı. Baştan alalım mı?"
+  ],
+  "hit_head": [
+    "Miğferim! Onu üç gecede dövdüm!",
+    "Boynuzuma vurma, eğrilir!",
+    "Kafam örs gibidir, elin acır.",
+    "Çınladı! Güzel ses, değil mi?"
+  ],
+  "hit_body": [
+    "Zırh bu yolcu, zırh. Daha sert.",
+    "Kendi dövdüğüm çeliğe mi vuruyorsun?",
+    "Körük kadar bile etmedi.",
+    "Pelerinimi buruşturma."
+  ],
+  "hit_arm": [
+    "Çekiç kolum o!",
+    "Bilekliğime çentik attın!",
+    "O elle kilit takıyorum, bırak!",
+    "Yavaş! Demirci kolsuz olmaz."
+  ],
+  "hit_leg": [
+    "Çizmelerim demir burunlu!",
+    "Dizim! Zaten kısa boyluyum!",
+    "Bacağıma vurma, ocağın başında dikiliyorum!",
+    "Devrilirsem max'ın üstüne düşerim, ezilir."
+  ],
+  "miss": [
+    "Iskaladın. Max'ı da ıskalıyorsun.",
+    "Boşa salladın. Parmaklığa bile değmedi.",
+    "Havayı dövüyorsun. O benim işim.",
+    "Yaklaştın. Yaklaşmak serbest."
+  ],
+  "weapon_knuckles": [
+    "Muşta mı? Kötü döküm. Ben olsam geri verirdim.",
+    "O demiri kim dövdü? Ayıp.",
+    "Demirle demirciye mi geliyorsun?"
+  ],
+  "weapon_katana": [
+    "Güzel çelik. Parmaklığı kesmez ama.",
+    "O kılıcı bana bırak, bileyip geri... vermem.",
+    "Suyu iyi verilmiş. Bana doğrultma."
+  ],
+  "weapon_gun": [
+    "O ne? Çekiçsiz dövülmüş bir şey. Güvenmem.",
+    "İndir onu! Ölü demirci kilit açamaz!",
+    "Ateşi ben yakarım burada!"
+  ],
+  "weapon_saber": [
+    "Bu ışığı hangi ocak verdi? Kıskandım.",
+    "Onunla parmaklığı kesme sakın. Sakın!",
+    "Tamam, sakin. O şey demir eritir mi?"
+  ],
+  "weapon_saw": [
+    "Testere mi? Demir keser mi o? Kesmesin!",
+    "Kapat şunu, körüğümün sesini bastırıyor!",
+    "O dişleri ben bilerdim, daha iyi olurdu."
+  ],
+  "sever_arm": [
+    "Kolum! Çekici kim tutacak?",
+    "Tek kolla kilit takılır mı? Deneyeceğim.",
+    "O kol ustalık belgemdi!",
+    "Bunu loncaya bildireceğim!"
+  ],
+  "sever_leg": [
+    "Bacağım! Daha da kısaldım!",
+    "Çizme tekti artık, yazık.",
+    "Ocağın başına nasıl dikileceğim?",
+    "Bu anlaşmada yoktu yolcu!"
+  ],
+  "offer_small": [
+    "Al biraz x. Asıl ödül arkada, görüyorsun.",
+    "Yükseldi. Max'a bir adım... bir adım daha... bir adım daha.",
+    "Bu kırıntı. Somun orada, parmaklığın ardında.",
+    "Çarpan arttı. Max hâlâ yerinde, merak etme."
+  ],
+  "offer_mid": [
+    "İyi gidiyorsun. Max neredeyse senin. Neredeyse.",
+    "Bu kadarını veririm. Ötesi için kilit var.",
+    "Bak yaklaştın. Yeni bir kilit dövsem mi?",
+    "Güzel çarpan. Al, git. Max'a bakma."
+  ],
+  "offer_big": [
+    "Dur! Parmaklığa dayandın!",
+    "Bu kadar yaklaşan olmamıştı!",
+    "Demirim bitiyor, kilit dövemiyorum!",
+    "Daha ne istiyorsun? Max mı? Orada işte, baksana!"
+  ],
+  "recover": [
+    "Durdun. Max yine uzaklaştı, gördün mü?",
+    "Bıraktın ya, kilitleri sıkıyorum.",
+    "Geçti. Cüceler sağlam dökülür.",
+    "Durursan soğur. Demir de, şans da."
+  ],
+  "near_death": [
+    "Dur! Ölürsem kilit açılmaz!",
+    "Ölü demirci anahtar dövemez!",
+    "Yavaş! Anahtar bende, ölürsem max içeride kalır!",
+    "Bir vuruş daha ve max ebediyen kilitli."
+  ],
+  "aloof_hit": [
+    "Arkamdan mı? Örsün başındaydım!",
+    "Seni görmüyordum. Şimdi görüyorum, beğenmedim.",
+    "Hop! Kilide bakıyordum!"
+  ],
+  "cashout": [
+    "Aldın mı? Korkak. Max bir parmaklık ötendeydi.",
+    "Akıllı yolcu. Max yine bana kaldı.",
+    "Güle güle. Yarın yine vitrine bakarsın."
+  ],
+  "maxwin": [
+    "Tamam! Kilit kalmadı! Al, max senin!",
+    "Pes! Kapı açık! Ocak da senin olsun!",
+    "Al, git, bir daha yol üstüme çıkma!"
+  ],
+  "death": [
+    "Max... içeride... kaldı...",
+    "Ölü... demirci... açamaz...",
+    "Kilit... sağlamdı..."
+  ]
+}

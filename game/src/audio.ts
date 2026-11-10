@@ -222,6 +222,13 @@ export class Audio {
     if (level === 3 && Math.random() < 0.35) this.noise(0.07, 'bandpass', 2600, 900, 0.16); // dişlerin hırıltısı
   }
 
+  /** Demir parmaklığın inmesi. */
+  clang() {
+    for (const f of [311, 466, 740, 1175]) this.tone('triangle', f, f * 0.99, 1.1, 0.14);
+    this.noise(0.12, 'highpass', 2500, 5000, 0.4);
+    this.tone('sine', 90, 45, 0.3, 0.6);
+  }
+
   /** Bedenin ya da kopan bir uzvun yere düşmesi. */
   thud(heavy = false) {
     this.tone('sine', heavy ? 95 : 130, 38, heavy ? 0.3 : 0.16, heavy ? 0.8 : 0.35);

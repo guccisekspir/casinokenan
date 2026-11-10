@@ -3,6 +3,7 @@ import type { PlaceholderLook } from './character/placeholder';
 import type { PartId } from './character/rig';
 import type { Lines } from './dialogue';
 import asansorcu from './lines/asansorcu.json';
+import demirci from './lines/demirci.json';
 import dede from './lines/simsek-dede.json';
 
 export interface CharacterDef {
@@ -15,6 +16,11 @@ export interface CharacterDef {
   maxWin: number;
   /** Can. Sıfıra inerse ölür ve ödeme yapmaz: oyuncu kaybeder. */
   hp: number;
+  /**
+   * "Verecekmiş gibi yapan" maskot: max win baştan beri ekrandadır ama parmaklık arkasında.
+   * Oyuncu tam alacakken `blocks` kez set çeker (baskı geri düşer); ancak ondan sonra verir.
+   */
+  tease?: { blocks: number };
   /** Sesli okuma yedeği için (kayıt dosyası yoksa). */
   voice: { pitch: number; rate: number };
   /** Kan/sıvı rengi (prenses şeker şurubu akıtır vs.). */
@@ -87,5 +93,25 @@ export const CHARACTERS: CharacterDef[] = [
     symbols: ['🔥', '💀', '🛗', '⛓️', '🕯️', '🔔', 'A', 'K'],
     theme: { bg: '#3a0d0d', accent: '#ff5a2a' },
     lines: asansorcu,
+  },
+  {
+    id: 'demirci',
+    name: 'Demirci',
+    slotName: 'Yolcunun Ocağı',
+    emoji: '⚒️',
+    maxWin: 25000,
+    hp: 280,
+    voice: { pitch: 0.6, rate: 0.95 },
+    bloodColor: 0xc8102e,
+    // Max win'i baştan beri ekranda gösterir ama parmaklık arkasında tutar; tam alınacakken iki kez set çeker.
+    tease: { blocks: 2 },
+    model: {
+      face: { eyeX: 0.085, eyeY: 0.115, browY: 0.165, mouthY: -0.11, front: 0.2, size: 0.085 },
+      head: { center: [0, 0.1, 0.05], radii: [0.3, 0.34, 0.28] }, // miğfer ve boynuzlar kafayla döner
+    },
+    look: { skin: 0xc98a5a, top: 0x5a3a20, bottom: 0x2a2a2a, hair: 0x3a2a1a, beard: 0x3a2a1a },
+    symbols: ['⚒️', '🔥', '🛡️', '⚔️', '🪙', '⛓️', 'A', 'K'],
+    theme: { bg: '#2a1a0d', accent: '#ff9a2a' },
+    lines: demirci,
   },
 ];
